@@ -45,43 +45,59 @@
 - [x] **Connected Dashboard Integration**:
   - `HomeFragment` calculates cycle day/phase from stored SQLite periods and displays diagnosed conditions badges.
 
-### Phase 3: Emergency Contacts & External Maps Assistance (COMPLETED)
+### Phase 3: Real Maps, Medical Assistance & Emergency Calling (COMPLETED)
 - [x] **Emergency Contact Management & Real Phone Calling**:
   - `EmergencyContactsActivity` updated with phone number validation (10-15 digits), duplicate prevention, edit/delete actions, and user-email isolation.
   - Integrated `ACTION_DIAL` intent (`buildDialUriString`) for dialing personal emergency contacts and national emergency helplines (112, 1091, 108).
-- [x] **External Maps Intent Routing**:
+- [x] **Medical Assistance & Category Maps Search**:
   - `AssistanceFragment` and `MedicalAssistanceActivity` updated to route category searches (Gynecologists, Hospitals, Clinics, Pharmacies, Women Centers) via `geo:0,0?q=` map intents with web fallback (`https://www.google.com/maps/search/?api=1&query=`).
   - Added `EmergencyContactsTest.java` verifying `tel:` URI construction and number formatting.
 
+### Phase 4: Real Android Notifications and Reminders (COMPLETED)
+- [x] **Database Schema Upgrade (v5)**:
+  - Added `reminders` table (`id`, `user_email`, `title`, `category`, `time_millis`, `is_enabled`, `is_synced`) to `DatabaseHelper.java`.
+- [x] **AlarmManager & Background Scheduling**:
+  - Created `NotificationReceiver.java` and `ReminderScheduler.java` handling background alarms, exact alarm permissions, and M3 notification channels (`mahila_period_channel`, `mahila_meds_channel`).
+  - Declared `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, and `RECEIVE_BOOT_COMPLETED` permissions in `AndroidManifest.xml`.
+- [x] **Reminder Management UI**:
+  - Created `RemindersActivity.java` and `activity_reminders.xml` providing toggle switches for period start alerts and medication reminder scheduling.
+- [x] **Testing & Verification**:
+  - Added `RemindersTest.java` verifying reminder constants and cycle time calculation math.
+
 ---
 
-## Maps Provider Setup & Required Configuration Steps
-To convert the current external Maps Intent search into an embedded Google Maps Places SDK in future phases:
-1. Obtain a Places SDK API key from the Google Cloud Console.
-2. Enable Places API and Maps SDK for Android.
-3. Add `MAPS_API_KEY=your_key_here` into `local.properties`.
-4. Include `<meta-data android:name="com.google.android.geo.API_KEY" android:value="${MAPS_API_KEY}" />` in `AndroidManifest.xml`.
-*(API keys and cloud credentials are kept out of source control per security guidelines).*
+## Android Permissions & Scheduling Limitations
+- **Permissions Declared**:
+  - `POST_NOTIFICATIONS` (Android 13+ runtime notification permissions).
+  - `SCHEDULE_EXACT_ALARM` (Android 12+ exact alarm scheduling).
+  - `RECEIVE_BOOT_COMPLETED` (Restores reminders upon device reboot via `NotificationReceiver`).
+- **Scheduling Limitations**:
+  - Headless CI/Sandbox environment cannot trigger actual OS status-bar notification popups.
+  - Manual device testing instructions: Build debug APK, open `RemindersActivity`, enable Period Start Reminders or schedule a Medication Reminder, and verify status bar alert delivery.
 
 ---
 
 ## Verification & Build Results
 1. **Android Debug Build**: Executed `./gradlew assembleDebug --no-daemon`. Result: `BUILD SUCCESSFUL`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (`EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend**: Executed `mvn test -f backend/pom.xml`. Result: `BUILD SUCCESSFUL`.
 
 ---
 
 ## Remaining Roadmap by Phase
 
-### Phase 4: Local Notification Engine & Background Scheduling (NEXT PHASE)
-- Native Android background scheduling with `WorkManager` / `AlarmManager` for period reminders, ovulation alerts, and medication notifications.
+### Phase 5: MySQL & Spring Boot Integration (NEXT PHASE)
+- Verify end-to-end RESTful sync endpoints, JWT session validation, MySQL schema migration, and backend integration.
 
 ---
 
 ## Files Modified
-- `app/src/main/java/com/example/mahila/EmergencyContactsActivity.java`
-- `app/src/main/java/com/example/mahila/ui/assistance/AssistanceFragment.java`
-- `app/src/main/java/com/example/mahila/MedicalAssistanceActivity.java`
-- `app/src/test/java/com/example/mahila/EmergencyContactsTest.java`
+- `app/src/main/java/com/example/mahila/DatabaseHelper.java`
+- `app/src/main/java/com/example/mahila/notifications/NotificationReceiver.java`
+- `app/src/main/java/com/example/mahila/notifications/ReminderScheduler.java`
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/java/com/example/mahila/RemindersActivity.java`
+- `app/src/main/res/layout/activity_reminders.xml`
+- `app/src/main/java/com/example/mahila/SettingsActivity.java`
+- `app/src/test/java/com/example/mahila/RemindersTest.java`
 - `MAHILA_PROGRESS.md`

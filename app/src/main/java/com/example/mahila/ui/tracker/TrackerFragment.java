@@ -16,6 +16,7 @@ import com.example.mahila.R;
 import com.example.mahila.api.ApiClient;
 import com.example.mahila.api.ApiService;
 import com.example.mahila.api.TokenManager;
+import com.example.mahila.notifications.ReminderScheduler;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import org.json.JSONObject;
@@ -135,6 +136,8 @@ public class TrackerFragment extends Fragment {
                         if (recordId > 0) {
                             dbHelper.deletePeriod(recordId, email);
                             Toast.makeText(requireContext(), "Period entry deleted", Toast.LENGTH_SHORT).show();
+                            ReminderScheduler.schedulePeriodReminder(requireContext(), email, 2);
+                            ReminderScheduler.scheduleOvulationReminder(requireContext(), email);
                             loadPeriodHistory();
                         }
                     });
@@ -168,6 +171,8 @@ public class TrackerFragment extends Fragment {
 
         if (email != null && !email.isEmpty()) {
             dbHelper.savePeriod(email, periodMillis, flow, pain, false);
+            ReminderScheduler.schedulePeriodReminder(requireContext(), email, 2);
+            ReminderScheduler.scheduleOvulationReminder(requireContext(), email);
         }
 
         try {

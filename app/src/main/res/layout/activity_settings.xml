@@ -58,6 +58,14 @@
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reminders"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Reminders &amp; Notification Settings"
+                app:cornerRadius="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_export_data"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"

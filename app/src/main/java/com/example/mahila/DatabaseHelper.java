@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "mahila.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Table Names
     public static final String TABLE_USERS = "users";
@@ -17,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_SYMPTOMS = "symptoms";
     public static final String TABLE_CONTACTS = "contacts";
     public static final String TABLE_MOODS = "moods";
+    public static final String TABLE_REMINDERS = "reminders";
 
     // Common Columns
     public static final String KEY_ID = "id";
@@ -55,6 +56,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_MOOD_TYPE = "mood_type";
     public static final String KEY_INTENSITY = "intensity";
     public static final String KEY_LOGGED_DATE = "logged_date";
+
+    // Reminders Table Columns
+    public static final String KEY_REMINDER_TITLE = "title";
+    public static final String KEY_REMINDER_CATEGORY = "category";
+    public static final String KEY_REMINDER_TIME = "time_millis";
+    public static final String KEY_REMINDER_ENABLED = "is_enabled";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -108,11 +115,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_LOGGED_DATE + " TEXT, "
                 + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
 
+        String CREATE_REMINDERS_TABLE = "CREATE TABLE " + TABLE_REMINDERS + " ("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + KEY_USER_EMAIL + " TEXT, "
+                + KEY_REMINDER_TITLE + " TEXT, "
+                + KEY_REMINDER_CATEGORY + " TEXT, "
+                + KEY_REMINDER_TIME + " INTEGER, "
+                + KEY_REMINDER_ENABLED + " INTEGER DEFAULT 1, "
+                + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
+
         db.execSQL(CREATE_USERS_TABLE);
         db.execSQL(CREATE_PERIODS_TABLE);
         db.execSQL(CREATE_SYMPTOMS_TABLE);
         db.execSQL(CREATE_CONTACTS_TABLE);
         db.execSQL(CREATE_MOODS_TABLE);
+        db.execSQL(CREATE_REMINDERS_TABLE);
     }
 
     @Override
@@ -148,6 +165,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_DIAGNOSED_CONDITIONS + " TEXT");
             db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_HEALTH_PREFERENCES + " TEXT");
             db.execSQL("ALTER TABLE " + TABLE_SYMPTOMS + " ADD COLUMN " + KEY_SEVERITY + " TEXT DEFAULT 'MODERATE'");
+        }
+        if (oldVersion < 5) {
+            String CREATE_REMINDERS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_REMINDERS + " ("
+                    + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + KEY_USER_EMAIL + " TEXT, "
+                    + KEY_REMINDER_TITLE + " TEXT, "
+                    + KEY_REMINDER_CATEGORY + " TEXT, "
+                    + KEY_REMINDER_TIME + " INTEGER, "
+                    + KEY_REMINDER_ENABLED + " INTEGER DEFAULT 1, "
+                    + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
+            db.execSQL(CREATE_REMINDERS_TABLE);
         }
     }
 
@@ -220,7 +248,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_USERS, null, selection, selectionArgs, null, null, null);
     }
 
-    // Save & Edit Period
+    // Periods
     public boolean savePeriod(String userEmail, long periodDate) {
         return savePeriod(userEmail, periodDate, "MEDIUM", 0, false);
     }
@@ -272,7 +300,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_PERIODS, null, selection, selectionArgs, null, null, KEY_PERIOD_DATE + " DESC");
     }
 
-    // Save, Update & Delete Symptoms
+    // Symptoms
     public boolean saveSymptom(String userEmail, String symptom, String createdAt) {
         return saveSymptom(userEmail, symptom, "MODERATE", createdAt, false);
     }
@@ -345,7 +373,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_CONTACTS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
     }
 
-    // Save & Delete Moods
+    // Moods
     public boolean saveMood(String userEmail, String moodType, int intensity, String loggedDate, boolean isSynced) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -379,6 +407,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = {userEmail};
 
         return db.query(TABLE_MOODS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
+    }
+
+    // Reminders Table CRUD
+    public boolean saveReminder(String userEmail, String title, String category, long timeMillis, boolean isEnabled) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_USER_EMAIL, userEmail);
+        values.put(KEY_REMINDER_TITLE, title);
+        values.put(KEY_REMINDER_CATEGORY, category);
+        values.put(KEY_REMINDER_TIME, timeMillis);
+        values.put(KEY_REMINDER_ENABLED, isEnabled ? 1 : 0);
+        values.put(KEY_IS_SYNCED, 0);
+
+        long result = db.insert(TABLE_REMINDERS, null, values);
+        return result != -1;
+    }
+
+    public boolean updateReminder(long id, String userEmail, boolean isEnabled, long timeMillis) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_REMINDER_ENABLED, isEnabled ? 1 : 0);
+        if (timeMillis > 0) values.put(KEY_REMINDER_TIME, timeMillis);
+        values.put(KEY_IS_SYNCED, 0);
+
+        int count = db.update(TABLE_REMINDERS, values, KEY_ID + " = ? AND " + KEY_USER_EMAIL + " = ?", new String[]{String.valueOf(id), userEmail});
+        return count > 0;
+    }
+
+    public boolean deleteReminder(long id, String userEmail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = db.delete(TABLE_REMINDERS, KEY_ID + " = ? AND " + KEY_USER_EMAIL + " = ?", new String[]{String.valueOf(id), userEmail});
+        return count > 0;
+    }
+
+    public Cursor getReminders(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ?";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_REMINDERS, null, selection, selectionArgs, null, null, KEY_REMINDER_TIME + " ASC");
     }
 
     // Mark synced

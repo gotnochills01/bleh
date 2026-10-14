@@ -37,27 +37,38 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         Button btnApply = findViewById(R.id.btn_apply_language);
-        btnApply.setOnClickListener(v -> {
-            int pos = spLanguage.getSelectedItemPosition();
-            String selectedCode = CODES[pos];
-            tokenManager.setLanguage(selectedCode);
-            LocaleHelper.setLocale(SettingsActivity.this, selectedCode);
+        if (btnApply != null) {
+            btnApply.setOnClickListener(v -> {
+                int pos = spLanguage.getSelectedItemPosition();
+                String selectedCode = CODES[pos];
+                tokenManager.setLanguage(selectedCode);
+                LocaleHelper.setLocale(SettingsActivity.this, selectedCode);
 
-            Toast.makeText(this, "Language set to " + LANGUAGES[pos], Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        });
+                Toast.makeText(this, "Language set to " + LANGUAGES[pos], Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            });
+        }
+
+        Button btnReminders = findViewById(R.id.btn_reminders);
+        if (btnReminders != null) {
+            btnReminders.setOnClickListener(v -> startActivity(new Intent(this, RemindersActivity.class)));
+        }
 
         Button btnExport = findViewById(R.id.btn_export_data);
-        btnExport.setOnClickListener(v -> Toast.makeText(this, "Health data exported to JSON!", Toast.LENGTH_SHORT).show());
+        if (btnExport != null) {
+            btnExport.setOnClickListener(v -> Toast.makeText(this, "Health data exported to JSON!", Toast.LENGTH_SHORT).show());
+        }
 
         Button btnLogout = findViewById(R.id.btn_logout);
-        btnLogout.setOnClickListener(v -> {
-            tokenManager.clear();
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        });
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                tokenManager.clear();
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            });
+        }
     }
 }
