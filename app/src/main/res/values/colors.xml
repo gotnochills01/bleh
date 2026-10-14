@@ -1,30 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Mahila Theme -->
-    <color name="primary">#7C5CFC</color>
-    <color name="primary_dark">#6448D8</color>
-
-    <color name="secondary">#B8A5FF</color>
-
-    <color name="accent">#FF8FAB</color>
-
-    <color name="background">#FAF7FF</color>
-
+    <!-- Legacy Color Tokens (Retained for 100% backward compatibility) -->
+    <color name="primary">#7C4DFF</color>
+    <color name="primary_dark">#651FFF</color>
+    <color name="secondary">#E040FB</color>
+    <color name="accent">#FF4081</color>
+    <color name="background">#FBF8FD</color>
     <color name="card_background">#FFFFFF</color>
-
-    <color name="text_primary">#1F1F1F</color>
-
-    <color name="text_secondary">#6B7280</color>
-
-    <color name="success">#4CAF50</color>
-
-    <color name="warning">#FFB74D</color>
-
-    <color name="error">#EF5350</color>
-
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="success">#2E7D32</color>
+    <color name="warning">#ED6C02</color>
+    <color name="error">#BA1A1A</color>
     <color name="white">#FFFFFF</color>
-
     <color name="black">#000000</color>
+
+    <!-- 2026 Material Design 3 Light Color System -->
+    <color name="md_theme_light_primary">#7C4DFF</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#EDE7F6</color>
+    <color name="md_theme_light_onPrimaryContainer">#311B92</color>
+
+    <color name="md_theme_light_secondary">#9C27B0</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#F3E5F5</color>
+    <color name="md_theme_light_onSecondaryContainer">#4A148C</color>
+
+    <color name="md_theme_light_tertiary">#E91E63</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#FCE4EC</color>
+    <color name="md_theme_light_onTertiaryContainer">#880E4F</color>
+
+    <color name="md_theme_light_error">#BA1A1A</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#FFDAD6</color>
+    <color name="md_theme_light_onErrorContainer">#410002</color>
+
+    <color name="md_theme_light_background">#FDF7FD</color>
+    <color name="md_theme_light_onBackground">#1D1A22</color>
+    <color name="md_theme_light_surface">#FDF7FD</color>
+    <color name="md_theme_light_onSurface">#1D1A22</color>
+    <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
+    <color name="md_theme_light_onSurfaceVariant">#49454F</color>
+
+    <!-- M3 Surface Containers -->
+    <color name="md_theme_light_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_light_surfaceContainerLow">#F7F2FA</color>
+    <color name="md_theme_light_surfaceContainer">#F3EDF7</color>
+    <color name="md_theme_light_surfaceContainerHigh">#ECE6F0</color>
+    <color name="md_theme_light_surfaceContainerHighest">#E6E0E9</color>
+
+    <color name="md_theme_light_outline">#79747E</color>
+    <color name="md_theme_light_outlineVariant">#CAC4D0</color>
+
+    <!-- 2026 Material Design 3 Dark Color System -->
+    <color name="md_theme_dark_primary">#D1C4E9</color>
+    <color name="md_theme_dark_onPrimary">#311B92</color>
+    <color name="md_theme_dark_primaryContainer">#512DA8</color>
+    <color name="md_theme_dark_onPrimaryContainer">#EDE7F6</color>
+
+    <color name="md_theme_dark_secondary">#E1BEE7</color>
+    <color name="md_theme_dark_onSecondary">#4A148C</color>
+    <color name="md_theme_dark_secondaryContainer">#7B1FA2</color>
+    <color name="md_theme_dark_onSecondaryContainer">#F3E5F5</color>
+
+    <color name="md_theme_dark_tertiary">#F8BBD0</color>
+    <color name="md_theme_dark_onTertiary">#880E4F</color>
+    <color name="md_theme_dark_tertiaryContainer">#C2185B</color>
+    <color name="md_theme_dark_onTertiaryContainer">#FCE4EC</color>
+
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_onError">#690005</color>
+    <color name="md_theme_dark_errorContainer">#93000A</color>
+    <color name="md_theme_dark_onErrorContainer">#FFDAD6</color>
+
+    <color name="md_theme_dark_background">#151218</color>
+    <color name="md_theme_dark_onBackground">#E6E0E9</color>
+    <color name="md_theme_dark_surface">#151218</color>
+    <color name="md_theme_dark_onSurface">#E6E0E9</color>
+    <color name="md_theme_dark_surfaceVariant">#49454F</color>
+    <color name="md_theme_dark_onSurfaceVariant">#CAC4D0</color>
+
+    <color name="md_theme_dark_surfaceContainerLowest">#0F0D13</color>
+    <color name="md_theme_dark_surfaceContainerLow">#1D1A22</color>
+    <color name="md_theme_dark_surfaceContainer">#211E26</color>
+    <color name="md_theme_dark_surfaceContainerHigh">#2C2831</color>
+    <color name="md_theme_dark_surfaceContainerHighest">#37333C</color>
+
+    <color name="md_theme_dark_outline">#938F99</color>
+    <color name="md_theme_dark_outlineVariant">#49454F</color>
+
+    <!-- Specific Wellness Accents -->
+    <color name="cycle_menstrual_pink">#E91E63</color>
+    <color name="cycle_follicular_violet">#9C27B0</color>
+    <color name="cycle_ovulatory_lavender">#673AB7</color>
+    <color name="cycle_luteal_rose">#AD1457</color>
+    <color name="badge_fertile">#FF80AB</color>
+    <color name="chat_user_bubble">#EDE7F6</color>
+    <color name="chat_ai_bubble">#FCE4EC</color>
 
 </resources>

@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.example.mahila.R;
 import com.example.mahila.api.ApiClient;
 import com.example.mahila.api.ApiService;
+import com.google.android.material.slider.Slider;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +23,7 @@ public class TrackerFragment extends Fragment {
 
     private EditText etPeriodDate;
     private Spinner spFlowLevel;
-    private SeekBar sbPainScale;
+    private Slider sliderPainScale;
     private TextView tvPainLabel;
     private Spinner spMoodType;
 
@@ -31,37 +32,26 @@ public class TrackerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_tracker, container, false);
 
-        etPeriodDate = root.findViewById(R.id.et_period_date);
-        spFlowLevel = root.findViewById(R.id.sp_flow_level);
-        sbPainScale = root.findViewById(R.id.sb_pain_scale);
-        tvPainLabel = root.findViewById(R.id.tv_pain_label);
-        spMoodType = root.findViewById(R.id.sp_mood_type);
+        etPeriodDate   = root.findViewById(R.id.et_period_date);
+        spFlowLevel    = root.findViewById(R.id.sp_flow_level);
+        sliderPainScale = root.findViewById(R.id.sb_pain_scale);
+        tvPainLabel    = root.findViewById(R.id.tv_pain_label);
+        spMoodType     = root.findViewById(R.id.sp_mood_type);
 
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         etPeriodDate.setText(today);
 
-        String[] flows = new String[]{"LIGHT", "MEDIUM", "HEAVY", "SPOTTING"};
-        ArrayAdapter<String> flowAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, flows);
-        spFlowLevel.setAdapter(flowAdapter);
+        String[] flows = {"LIGHT", "MEDIUM", "HEAVY", "SPOTTING"};
+        spFlowLevel.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, flows));
 
-        String[] moods = new String[]{"HAPPY", "SAD", "ANGRY", "ANXIOUS", "STRESSED", "CALM"};
-        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, moods);
-        spMoodType.setAdapter(moodAdapter);
+        String[] moods = {"HAPPY", "SAD", "ANGRY", "ANXIOUS", "STRESSED", "CALM"};
+        spMoodType.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, moods));
 
-        sbPainScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvPainLabel.setText("Pain Scale: " + progress + " / 10");
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
+        sliderPainScale.addOnChangeListener((slider, value, fromUser) ->
+                tvPainLabel.setText("Pain Scale: " + (int) value + " / 10"));
 
-        Button btnSavePeriod = root.findViewById(R.id.btn_save_period);
-        btnSavePeriod.setOnClickListener(v -> savePeriod());
-
-        Button btnSaveMood = root.findViewById(R.id.btn_save_mood);
-        btnSaveMood.setOnClickListener(v -> saveMood());
+        root.findViewById(R.id.btn_save_period).setOnClickListener(v -> savePeriod());
+        root.findViewById(R.id.btn_save_mood).setOnClickListener(v -> saveMood());
 
         return root;
     }
@@ -71,16 +61,13 @@ public class TrackerFragment extends Fragment {
             JSONObject obj = new JSONObject();
             obj.put("startDate", etPeriodDate.getText().toString());
             obj.put("flowLevel", spFlowLevel.getSelectedItem().toString());
-            obj.put("painScale", sbPainScale.getProgress());
+            obj.put("painScale", (int) sliderPainScale.getValue());
 
             ApiClient.postRequest(requireContext(), ApiService.PERIODS, obj, new ApiClient.ApiCallback<String>() {
-                @Override
-                public void onSuccess(String result) {
+                @Override public void onSuccess(String result) {
                     Toast.makeText(requireContext(), "Period entry saved!", Toast.LENGTH_SHORT).show();
                 }
-
-                @Override
-                public void onError(String message) {
+                @Override public void onError(String message) {
                     Toast.makeText(requireContext(), "Entry logged locally", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -97,13 +84,10 @@ public class TrackerFragment extends Fragment {
             obj.put("loggedDate", new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
 
             ApiClient.postRequest(requireContext(), ApiService.MOODS, obj, new ApiClient.ApiCallback<String>() {
-                @Override
-                public void onSuccess(String result) {
+                @Override public void onSuccess(String result) {
                     Toast.makeText(requireContext(), "Mood recorded!", Toast.LENGTH_SHORT).show();
                 }
-
-                @Override
-                public void onError(String message) {
+                @Override public void onError(String message) {
                     Toast.makeText(requireContext(), "Mood recorded!", Toast.LENGTH_SHORT).show();
                 }
             });

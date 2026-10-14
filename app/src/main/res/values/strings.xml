@@ -32,4 +32,14 @@
     <string name="title_reminders">Upcoming Reminders</string>
     <string name="title_ai_suggestions">AI Wellness Suggestions</string>
     <string name="ai_disclaimer">AI Assistant provides educational information only and does not provide medical diagnosis. Consult a qualified doctor.</string>
+
+    <!-- Landing / Onboarding Strings -->
+    <string name="landing_badge" translatable="false">✨ Your Personal Health Companion</string>
+    <string name="landing_hero_desc" translatable="false">Hero Illustration</string>
+    <string name="landing_subtitle" translatable="false">Comprehensive cycle tracking, AI-powered wellness insights, secure medical assistance, and 24/7 care tailored for your health journey.</string>
+    <string name="chip_cycle_tracker" translatable="false">🌸 Cycle Tracker</string>
+    <string name="chip_ai_assistant" translatable="false">🤖 AI Assistant</string>
+    <string name="chip_private" translatable="false">🔒 100% Private</string>
+    <string name="landing_get_started" translatable="false">Get Started</string>
+    <string name="tv_login_prompt" translatable="false">Already have an account? Log In</string>
 </resources>

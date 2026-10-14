@@ -1,42 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/welcome_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/background">
+    android:fillViewport="true"
+    android:background="?attr/colorSurface">
 
-    <TextView
-        android:id="@+id/txtWelcome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Welcome!"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your personal women's health companion"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stay informed, stay healthy 💜"
-        android:textSize="18sp"
-        android:layout_marginTop="24dp"
-        android:textColor="@color/primary" />
-
-    <Button
-        android:id="@+id/btnContinue"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Continue"
-        android:layout_marginTop="40dp" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="28dp">
 
-</LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="32dp" />
+
+        <!-- Welcome Hero Badge Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            app:strokeWidth="0dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_ai_sparkle"
+                app:tint="?attr/colorPrimary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Welcome Text -->
+        <TextView
+            android:id="@+id/txtWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome! 👋"
+            android:textAppearance="@style/TextAppearance.Mahila.HeadlineLarge"
+            android:textColor="?attr/colorOnSurface"
+            android:textAlignment="center"
+            android:layout_marginTop="28dp" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your personal women's health companion"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textAlignment="center"
+            android:layout_marginTop="8dp" />
+
+        <!-- Quote / Highlights Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨ What awaits you:"
+                    android:textAppearance="@style/TextAppearance.Mahila.TitleMedium"
+                    android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Smart Cycle Tracking &amp; Ovulation Estimates\n• Symptom &amp; Daily Mood Logs\n• 24/7 AI Health Assistant &amp; Awareness Quizzes\n• Emergency SOS &amp; Nearby Medical Help"
+                    android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:lineSpacingExtra="4dp"
+                    android:layout_marginTop="12dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="32dp" />
+
+        <!-- Continue Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnContinue"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Go to Dashboard"
+            android:textAppearance="@style/TextAppearance.Mahila.LabelLarge"
+            app:cornerRadius="28dp"
+            app:icon="@drawable/ic_send"
+            app:iconGravity="textEnd"
+            android:elevation="2dp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

@@ -1,16 +1,64 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.Theme.Mahila" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand & Accent Colors -->
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
 
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
 
-        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
 
-        <item name="android:statusBarColor">@color/background</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
 
-        <item name="android:windowBackground">@color/background</item>
+        <!-- Surfaces & Canvas -->
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
 
+        <item name="colorSurfaceContainerLowest">@color/md_theme_light_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_light_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/md_theme_light_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_light_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_light_surfaceContainerHighest</item>
+
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
+
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="android:windowBackground">@color/md_theme_light_background</item>
+        <item name="android:statusBarColor">@color/md_theme_light_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/md_theme_light_surface</item>
+
+        <!-- Typography Bindings -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Mahila.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.Mahila.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Mahila.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Mahila.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Mahila.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Mahila.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Mahila.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Mahila.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Mahila.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Mahila.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Mahila.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Mahila.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Mahila.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Mahila.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Mahila.LabelSmall</item>
     </style>
 
     <style name="Theme.Mahila" parent="Base.Theme.Mahila" />

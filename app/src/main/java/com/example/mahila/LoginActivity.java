@@ -1,13 +1,19 @@
 package com.example.mahila;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.mahila.api.ApiClient;
 import com.example.mahila.api.ApiService;
@@ -25,7 +31,17 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
+        View root = findViewById(R.id.login_root);
+        if (root != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
 
         appPreferences = new AppPreferences(this);
         dbHelper = new DatabaseHelper(this);
@@ -85,7 +101,9 @@ public class LoginActivity extends AppCompatActivity {
         btnGuest.setOnClickListener(v -> {
             appPreferences.setLoggedIn(false);
             appPreferences.clearCurrentUserEmail();
+            new TokenManager(LoginActivity.this).saveSession(null, null, null, "Guest", "en");
             startActivity(new Intent(this, MainActivity.class));
+            finish();
         });
 
         txtSignup.setOnClickListener(v -> startActivity(new Intent(this, SignupActivity.class)));
@@ -95,7 +113,18 @@ public class LoginActivity extends AppCompatActivity {
         if (dbHelper.checkLogin(email, password)) {
             appPreferences.setLoggedIn(true);
             appPreferences.setCurrentUserEmail(email);
-            new TokenManager(LoginActivity.this).saveSession("local_token", 1L, email, "User", "en");
+
+            String userName = "User";
+            try (Cursor cursor = dbHelper.getUser(email)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIdx = cursor.getColumnIndex(DatabaseHelper.KEY_NAME);
+                    if (nameIdx >= 0) {
+                        userName = cursor.getString(nameIdx);
+                    }
+                }
+            } catch (Exception ignored) {}
+
+            new TokenManager(LoginActivity.this).saveSession("local_token", 1L, email, userName, "en");
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         } else {
