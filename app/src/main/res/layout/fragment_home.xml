@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <!-- Top Header with Greeting & Profile -->
         <RelativeLayout
@@ -38,7 +38,8 @@
                     android:layout_height="wrap_content"
                     android:text="Anjali"
                     android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -47,21 +48,22 @@
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@android:drawable/ic_menu_myplaces"
-                android:padding="8dp"
+                android:src="@drawable/ic_person"
+                android:padding="10dp"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                android:background="?attr/colorSecondaryContainer" />
+                android:background="?attr/colorSecondaryContainer"
+                app:tint="?attr/colorOnSecondaryContainer" />
         </RelativeLayout>
 
         <!-- Main Cycle Phase Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp"
             app:strokeWidth="0dp"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-            android:layout_marginBottom="16dp">
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -70,30 +72,44 @@
                 android:padding="24dp"
                 android:gravity="center">
 
+                <!-- Phase Badge -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_phase_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ovulatory Phase"
+                    app:chipBackgroundColor="?attr/colorSecondary"
+                    android:textColor="?attr/colorOnSecondary"
+                    app:chipCornerRadius="16dp"
+                    app:chipMinTouchTargetSize="0dp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:layout_marginBottom="12dp" />
+
                 <TextView
                     android:id="@+id/tv_cycle_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Day 14 of Cycle"
-                    android:textAppearance="?attr/textAppearanceDisplaySmall"
-                    android:textColor="?attr/colorOnPrimaryContainer" />
+                    android:text="Day 14"
+                    android:textAppearance="?attr/textAppearanceDisplayMedium"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_cycle_phase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ovulatory Phase"
+                    android:text="Peak Fertility Window"
                     android:textAppearance="?attr/textAppearanceTitleMedium"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:alpha="0.8"
+                    android:textColor="?attr/colorOnSecondaryContainer"
                     android:layout_marginTop="4dp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?attr/colorOutlineVariant"
-                    android:layout_marginVertical="16dp"
-                    android:alpha="0.4" />
+                    android:layout_marginVertical="18dp"
+                    android:alpha="0.5" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -112,17 +128,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Next Period"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:alpha="0.7" />
+                            android:textAppearance="?attr/textAppearanceLabelMedium"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:alpha="0.75" />
 
                         <TextView
                             android:id="@+id/tv_next_period"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Oct 24, 2026"
-                            android:textAppearance="?attr/textAppearanceLabelLarge"
-                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textAppearance="?attr/textAppearanceTitleSmall"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:textStyle="bold"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
 
@@ -137,17 +154,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Fertile Window"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnPrimaryContainer"
-                            android:alpha="0.7" />
+                            android:textAppearance="?attr/textAppearanceLabelMedium"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:alpha="0.75" />
 
                         <TextView
                             android:id="@+id/tv_fertile_window"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Oct 08 – Oct 14"
-                            android:textAppearance="?attr/textAppearanceLabelLarge"
-                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textAppearance="?attr/textAppearanceTitleSmall"
+                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:textStyle="bold"
                             android:layout_marginTop="2dp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -161,7 +179,8 @@
             android:text="Quick Actions"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="8dp" />
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -172,22 +191,26 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_quick_log_period"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
                 android:text="Log Period"
-                android:textSize="13sp"
-                app:cornerRadius="12dp"
+                android:textSize="14sp"
+                app:icon="@drawable/ic_nav_tracker"
+                app:iconSize="20dp"
+                app:cornerRadius="16dp"
                 android:layout_marginEnd="6dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_quick_ai_chat"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="AI Chat"
+                android:text="AI Health Assistant"
                 android:textSize="13sp"
                 style="@style/Widget.Material3.Button.TonalButton"
-                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_ai_sparkle"
+                app:iconSize="20dp"
+                app:cornerRadius="16dp"
                 android:layout_marginStart="6dp" />
         </LinearLayout>
 
@@ -195,33 +218,50 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp"
+            app:cardBackgroundColor="?attr/colorTertiaryContainer"
             android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="💡  AI Health Insight"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textColor="?attr/colorPrimary" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_ai_sparkle"
+                        app:tint="?attr/colorOnTertiaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Cycle Insight"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textColor="?attr/colorOnTertiaryContainer"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_ai_insight_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="You are entering your ovulatory phase! Drink plenty of water and eat magnesium-rich foods to keep energy high."
+                    android:text="You are entering your ovulatory phase. Stay well hydrated and eat magnesium-rich foods to maintain optimal energy."
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginTop="8dp" />
+                    android:textColor="?attr/colorOnTertiaryContainer"
+                    android:layout_marginTop="10dp"
+                    android:lineSpacingExtra="3dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
