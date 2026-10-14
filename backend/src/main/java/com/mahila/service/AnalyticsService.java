@@ -51,8 +51,9 @@ public class AnalyticsService {
                 }
             }
             if (!gaps.isEmpty()) {
-                avgCycleLength = gaps.stream().mapToLong(Long::longValue).average().orElse(28.0);
-                long variance = gaps.stream().mapToLong(g -> Math.abs(g - (long) avgCycleLength)).max().orElse(0L);
+                double computedAvg = gaps.stream().mapToLong(Long::longValue).average().orElse(28.0);
+                avgCycleLength = computedAvg;
+                long variance = gaps.stream().mapToLong(g -> Math.abs(g - (long) computedAvg)).max().orElse(0L);
                 if (variance > 4) {
                     regularity = "Irregular (High Variance)";
                 }
