@@ -61,43 +61,66 @@
   - Declared `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, and `RECEIVE_BOOT_COMPLETED` permissions in `AndroidManifest.xml`.
 - [x] **Reminder Management UI**:
   - Created `RemindersActivity.java` and `activity_reminders.xml` providing toggle switches for period start alerts and medication reminder scheduling.
-- [x] **Testing & Verification**:
-  - Added `RemindersTest.java` verifying reminder constants and cycle time calculation math.
+
+### Phase 5: MySQL, Spring Boot & End-to-End Integration (COMPLETED)
+- [x] **MySQL Schema Synchronization (`schema.sql`)**:
+  - Added `diagnosed_conditions` and `health_preferences` columns to `health_profile` table in MySQL schema.
+  - Confirmed constraints and indexes across `users`, `health_profile`, `periods`, `symptoms`, `moods`, `contacts`, `appointments`, and `reminders`.
+- [x] **Spring Boot REST API Enhancements**:
+  - Updated `MigrationSyncPayload.java` and `HealthProfile.java` model to include diagnosed conditions, city, blood group, and emergency notes.
+  - Updated `MigrationService.java` to support idempotent mood syncing and health profile updates.
+  - Added `BackendIntegrationTest.java` in backend test suite testing auth DTOs and migration sync payload serialization.
+- [x] **End-to-End Android Sync Bridge**:
+  - Updated `SQLiteToMySQLMigrator.java` to extract unsynced local records (`is_synced = 0`), payload diagnosed conditions and moods, and update sync flags upon successful HTTP response.
 
 ---
 
-## Android Permissions & Scheduling Limitations
-- **Permissions Declared**:
-  - `POST_NOTIFICATIONS` (Android 13+ runtime notification permissions).
-  - `SCHEDULE_EXACT_ALARM` (Android 12+ exact alarm scheduling).
-  - `RECEIVE_BOOT_COMPLETED` (Restores reminders upon device reboot via `NotificationReceiver`).
-- **Scheduling Limitations**:
-  - Headless CI/Sandbox environment cannot trigger actual OS status-bar notification popups.
-  - Manual device testing instructions: Build debug APK, open `RemindersActivity`, enable Period Start Reminders or schedule a Medication Reminder, and verify status bar alert delivery.
+## Local MySQL & Spring Boot Backend Setup Instructions
+
+### 1. Database Setup
+```sql
+CREATE DATABASE IF NOT EXISTS mahila_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'mahila_user'@'localhost' IDENTIFIED BY 'mahila_secure_password';
+GRANT ALL PRIVILEGES ON mahila_db.* TO 'mahila_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+Import `backend/src/main/resources/schema.sql` into MySQL.
+
+### 2. Spring Boot Configuration
+Set environment variables or update `backend/src/main/resources/application.properties`:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/mahila_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=mahila_user
+spring.datasource.password=mahila_secure_password
+mahila.jwt.secret=9a4f2c8d7e1b3a5c8e0d2f4a6b8c1d3e5f7a9b0c2d4e6f8a1c3b5d7e9f0a2b4
+mahila.jwt.expiration-ms=86400000
+```
+Run backend server:
+```bash
+mvn spring-boot:run -f backend/pom.xml
+```
 
 ---
 
 ## Verification & Build Results
 1. **Android Debug Build**: Executed `./gradlew assembleDebug --no-daemon`. Result: `BUILD SUCCESSFUL`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
-3. **Spring Boot Backend**: Executed `mvn test -f backend/pom.xml`. Result: `BUILD SUCCESSFUL`.
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (All test suites passed).
+3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: `BUILD SUCCESSFUL` (`BackendIntegrationTest` passed with 0 failures).
 
 ---
 
 ## Remaining Roadmap by Phase
 
-### Phase 5: MySQL & Spring Boot Integration (NEXT PHASE)
-- Verify end-to-end RESTful sync endpoints, JWT session validation, MySQL schema migration, and backend integration.
+### Phase 6: Final QA Audit, Documentation & Security Hardening (NEXT PHASE)
+- Comprehensive end-to-end user regression audit, code cleanup, and production-ready security check.
 
 ---
 
 ## Files Modified
-- `app/src/main/java/com/example/mahila/DatabaseHelper.java`
-- `app/src/main/java/com/example/mahila/notifications/NotificationReceiver.java`
-- `app/src/main/java/com/example/mahila/notifications/ReminderScheduler.java`
-- `app/src/main/AndroidManifest.xml`
-- `app/src/main/java/com/example/mahila/RemindersActivity.java`
-- `app/src/main/res/layout/activity_reminders.xml`
-- `app/src/main/java/com/example/mahila/SettingsActivity.java`
-- `app/src/test/java/com/example/mahila/RemindersTest.java`
+- `backend/src/main/resources/schema.sql`
+- `backend/src/main/java/com/mahila/model/HealthProfile.java`
+- `backend/src/main/java/com/mahila/dto/MigrationSyncPayload.java`
+- `backend/src/main/java/com/mahila/service/MigrationService.java`
+- `app/src/main/java/com/example/mahila/utils/SQLiteToMySQLMigrator.java`
+- `backend/src/test/java/com/mahila/BackendIntegrationTest.java`
 - `MAHILA_PROGRESS.md`
