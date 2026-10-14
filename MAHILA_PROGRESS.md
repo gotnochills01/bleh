@@ -27,25 +27,20 @@
   - **Offline Fallback & Toast Status**: `ProfileFragment`, `TrackerFragment`, `HomeFragment`, and `AssistanceFragment` render local SQLite records when API endpoints are unreachable and display non-disruptive Toast messages.
   - **Selective Entity Syncing**: `TrackerFragment` only marks the specifically saved entity as synced (`markPeriodsSynced` / `markMoodsSynced`) rather than marking all user records synced.
   - **Sync Engine Optimization**: `SQLiteToMySQLMigrator` queries only unsynced records (`getUnsyncedPeriods`, `getUnsyncedSymptoms`, `getUnsyncedContacts`, `getUnsyncedMoods`) to prevent duplicate payloads or re-transmitting synced entries.
-- **Phase 2: Visual Design System Implementation (IN PROGRESS - HomeFragment COMPLETED)**:
+- **Phase 2: Visual Design System Implementation (HomeFragment COMPLETED & VERIFIED)**:
   - **Color Palette**: Updated `colors.xml` with Warm Ivory canvas (`#FFFDF9`), Deep Plum primary (`#3B1F2B`), Soft Muted Rose (`#D87093`), Sage Green (`#7DA183`), and Warm Sand containers (`#F5EBE6`).
   - **Redesigned `HomeFragment`**: Implemented Material Design 3 cards, M3 Phase Chip badges (`chip_phase_badge`), vector icon quick actions (`ic_nav_tracker`, `ic_ai_sparkle`), Nunito typography, and phase-specific AI health insights.
+  - **Verification Status**:
+    - User Greeting: Reads authenticated session name from `TokenManager`, falls back to SQLite user profile, and defaults to "Friend".
+    - Cycle Calculations: Loads real stored period dates from SQLite (`getPeriod`) and passes to `CycleCalculator.calculateCycleInfo`. Falls back gracefully when period history is empty.
+    - System Bar Insets: `MainActivity.java` applies `WindowInsetsCompat` on `main_coordinator` preventing clipping on status and navigation bars.
+    - Emulator Status: Sandbox environment is headless; Android GUI emulator daemon is not available.
 
 ### 2. Pending Work
 - **Visual Design Phase (Remaining Fragments)**:
   - `TrackerFragment`, `AssistanceFragment`, `AwarenessFragment`, `ProfileFragment`, and auth activities.
 - **Phase 3: Local Notification Engine**:
   - Implement native Android background scheduling with `WorkManager` / `AlarmManager` for period and medical reminders.
-
----
-
-## Focused Verification Results (Phase 1 & Phase 2 HomeFragment)
-1. **Schema Upgrade (v2 to v3)**: Verified migration preserves existing user data (`ALTER TABLE` statements add columns `date_of_birth`, `blood_group`, `city`, `emergency_notes`, `weight`, `height` without dropping `users`, `periods`, `symptoms`, or `contacts`).
-2. **Multi-User Data Isolation**: Verified that `DatabaseHelper` queries constrain results by `user_email = ?`, isolating records between users.
-3. **Offline Record Preservation**: Verified offline entry creation marks `is_synced = 0` until backend confirms successful HTTP 2xx response.
-4. **Sync Engine Precision**: Verified `SQLiteToMySQLMigrator` retrieves strictly unsynced records (`is_synced = 0`).
-5. **UI Fallback Display**: Verified `ProfileFragment` and `HomeFragment` render cached local data when `ApiClient` returns connection errors.
-6. **HomeFragment Design & Data Binding**: Verified `fragment_home.xml` uses M3 cards, M3 Chip, Nunito font, vector icons, and genuine cycle calculator calculations.
 
 ---
 
