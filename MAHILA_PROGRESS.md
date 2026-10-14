@@ -3,6 +3,7 @@
 ## Project Status Overview
 - **Build Status**:
   - Android Debug APK: **BUILD SUCCESSFUL** (`./gradlew assembleDebug`)
+    - APK Location: `app/build/outputs/apk/debug/app-debug.apk`
   - Android Unit Tests: **PASSED** (`./gradlew test`)
   - Spring Boot Backend: **BUILD SUCCESSFUL** (`mvn clean test -f backend/pom.xml`)
 - **Launch Flow Status**: **VERIFIED & POLISHED**
@@ -13,69 +14,39 @@
 
 ---
 
-## Technical Audit & Phase Checklist Matrix
+## Final QA Feature Audit Checklist Matrix
 
-### Phase 1: Foundation, Audit & Complete UI (COMPLETED)
-- [x] **Project Audit**: Every Android Activity, Fragment, XML Layout, SQLite helper, and Spring Boot service audited and validated.
-- [x] **Design System Establishment**:
-  - Color Palette: Warm Ivory (`#FFFDF9`), Deep Plum (`#3B1F2B`), Soft Muted Rose (`#D87093`), Sage Green (`#7DA183`), Warm Sand (`#F5EBE6`).
-  - Typography: Nunito typeface hierarchy (`@font/nunito`).
-  - Icons: M3 Vector drawables (`ic_person`, `ic_ai_sparkle`, `ic_nav_tracker`, `ic_lock`, `ic_email`). Emojis removed from XML layouts.
-- [x] **Authentication & Onboarding Flow**:
-  - Polished M3 layouts for `LandingActivity`, `LoginActivity`, `SignupActivity`, and `WelcomeActivity`.
-  - Session restoration via `TokenManager` and `AppPreferences`. Guest mode offline fallback.
-- [x] **Technical & Offline Foundation**:
-  - Database Helper v3 schema with full user profile storage, `moods` table, and `is_synced` status flags.
-  - User-data isolation strictly enforced by `WHERE user_email = ?`.
-  - `SQLiteToMySQLMigrator` sync engine optimized to extract strictly unsynced records (`is_synced = 0`).
+### A. Launch and Authentication
+- [x] **Splash & Branding**: `LandingActivity` displays Mahila branding and onboarding visual.
+- [x] **Authentication Flow**: Working Login, Signup, Welcome, Session Restoration, and Logout in `LoginActivity`, `SignupActivity`, `WelcomeActivity`, `TokenManager`, and `AppPreferences`.
 
-### Phase 2: Menstrual Tracking & Personalized Health Guidance (COMPLETED)
-- [x] **Cycle & Prediction Engine**:
-  - `CycleCalculator.java` updated to calculate average cycle length, variance/irregularity flag ("Irregular Cycle"), and next period prediction based strictly on user's actual historical period dates.
-  - Honest empty/insufficient history state handling ("No period recorded yet. Log your first period to unlock cycle predictions").
-- [x] **Full Period, Symptom & Mood CRUD**:
-  - Database Helper v4 schema adding `updatePeriod`, `deletePeriod`, `deleteSymptom`, `deleteMood`.
-  - `TrackerFragment` renders actual period history list with dynamic deletion and empty states.
-  - `SymptomLoggerActivity` supports multi-symptom selection, severity rating, and history viewing.
-- [x] **Personalized Health Profile & Diagnosed Conditions**:
-  - `ProfileFragment` updated to store DOB/age, height, weight, blood group, city, emergency medical notes, and diagnosed conditions (PCOS, Endometriosis, Irregular Cycles, Thyroid).
-- [x] **Stage Guidance & Medical Disclaimers**:
-  - `AwarenessFragment` updated with educational categories for Adolescence, Reproductive 20s/30s, Perimenopause/Menopause, PCOS/Endometriosis, and Hygiene.
-  - Explicit medical safety disclaimers included ("Educational guidance only; not medical diagnosis/prescription").
-- [x] **Connected Dashboard Integration**:
-  - `HomeFragment` calculates cycle day/phase from stored SQLite periods and displays diagnosed conditions badges.
+### B. Period and Health Tracking
+- [x] **Period CRUD & Calendar**: Period start logging, editing, and deletion supported in `TrackerFragment` with local SQLite persistence and backend API synchronization.
+- [x] **Cycle Predictions**: `CycleCalculator` calculates cycle day, phase, average length, and variance based strictly on user records without fabricating dates.
+- [x] **Symptom & Mood Logging**: Multi-symptom selection, severity rating, and mood journal tracking supported in `SymptomLoggerActivity` and `TrackerFragment`.
+- [x] **Profile & Diagnosed Conditions**: Stores DOB, height, weight, blood group, city, emergency medical notes, and diagnosed conditions (PCOS, Endometriosis, Thyroid) in `ProfileFragment`.
 
-### Phase 3: Real Maps, Medical Assistance & Emergency Calling (COMPLETED)
-- [x] **Emergency Contact Management & Real Phone Calling**:
-  - `EmergencyContactsActivity` updated with phone number validation (10-15 digits), duplicate prevention, edit/delete actions, and user-email isolation.
-  - Integrated `ACTION_DIAL` intent (`buildDialUriString`) for dialing personal emergency contacts and national emergency helplines (112, 1091, 108).
-- [x] **Medical Assistance & Category Maps Search**:
-  - `AssistanceFragment` and `MedicalAssistanceActivity` updated to route category searches (Gynecologists, Hospitals, Clinics, Pharmacies, Women Centers) via `geo:0,0?q=` map intents with web fallback (`https://www.google.com/maps/search/?api=1&query=`).
-  - Added `EmergencyContactsTest.java` verifying `tel:` URI construction and number formatting.
+### C. Medical Assistance & Embedded Maps Provider
+- [x] **In-App Provider Search & Results**: `AssistanceFragment` displays healthcare provider cards with category filtering (Gynecologists, Hospitals, Clinics, Women Centers), addresses, distances, and direct call buttons.
+- [x] **Location Permission & Manual City Input**: `AssistanceFragment` requests `ACCESS_FINE_LOCATION` and falls back to manual city search (`et_location_query`) when permission is declined.
+- [x] **Google Maps Intent Routing**: Launches native `geo:0,0?q=` map intents with web search URL fallback (`https://www.google.com/maps/search/?api=1&query=`).
 
-### Phase 4: Real Android Notifications and Reminders (COMPLETED)
-- [x] **Database Schema Upgrade (v5)**:
-  - Added `reminders` table (`id`, `user_email`, `title`, `category`, `time_millis`, `is_enabled`, `is_synced`) to `DatabaseHelper.java`.
-- [x] **AlarmManager & Background Scheduling**:
-  - Created `NotificationReceiver.java` and `ReminderScheduler.java` handling background alarms, exact alarm permissions, and M3 notification channels (`mahila_period_channel`, `mahila_meds_channel`).
-  - Declared `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, and `RECEIVE_BOOT_COMPLETED` permissions in `AndroidManifest.xml`.
-- [x] **Reminder Management UI**:
-  - Created `RemindersActivity.java` and `activity_reminders.xml` providing toggle switches for period start alerts and medication reminder scheduling.
+### D. Emergency Contacts and Actual Phone Calling
+- [x] **Contact CRUD & Validation**: `EmergencyContactsActivity` validates 10–15 digit phone numbers, prevents duplicate numbers, isolates data per user, and supports add/edit/delete.
+- [x] **Direct Phone Calling**: `ACTION_DIAL` intent (`buildDialUriString`) used for personal contacts and national helplines (112, 1091, 108).
 
-### Phase 5: MySQL, Spring Boot & End-to-End Integration (COMPLETED)
-- [x] **MySQL Schema Synchronization (`schema.sql`)**:
-  - Added `diagnosed_conditions` and `health_preferences` columns to `health_profile` table in MySQL schema.
-  - Confirmed constraints and indexes across `users`, `health_profile`, `periods`, `symptoms`, `moods`, `contacts`, `appointments`, and `reminders`.
-- [x] **Spring Boot REST API Enhancements**:
-  - Updated `MigrationSyncPayload.java` and `HealthProfile.java` model to include diagnosed conditions, city, blood group, and emergency notes.
-  - Updated `MigrationService.java` to support idempotent mood syncing and health profile updates.
-  - Added `BackendIntegrationTest.java` in backend test suite testing auth DTOs and migration sync payload serialization.
-- [x] **End-to-End Android Sync Bridge**:
-  - Updated `SQLiteToMySQLMigrator.java` to extract unsynced local records (`is_synced = 0`), payload diagnosed conditions and moods, and update sync flags upon successful HTTP response.
+### E. Real Android Notifications and Reminders
+- [x] **Background Alarm Manager**: `ReminderScheduler.java` handles `AlarmManager` exact/inexact alerts and notification channels (`mahila_period_channel`, `mahila_meds_channel`).
+- [x] **Boot Receiver & Permissions**: `NotificationReceiver.java` handles silent alarm rescheduling on boot (`ACTION_BOOT_COMPLETED`) without posting false banners. Declares `POST_NOTIFICATIONS` and `SCHEDULE_EXACT_ALARM`.
+
+### F. Health Tips, AI Assistant, Quiz & Settings
+- [x] **Interactive Educational Content**: `AwarenessFragment` provides life stage guidance (Adolescents, Reproductive 20s/30s, Perimenopause/Menopause, PCOS/Endometriosis) and prominent medical disclaimers.
+- [x] **Interactive Quiz**: `QuizActivity` provides cycle knowledge quizzes.
+- [x] **Settings & Privacy Controls**: `SettingsActivity` manages multi-language preferences and session logout.
 
 ---
 
-## Local MySQL & Spring Boot Backend Setup Instructions
+## Live MySQL & Spring Boot Backend Setup Instructions
 
 ### 1. Database Setup
 ```sql
@@ -103,24 +74,19 @@ mvn spring-boot:run -f backend/pom.xml
 ---
 
 ## Verification & Build Results
-1. **Android Debug Build**: Executed `./gradlew assembleDebug --no-daemon`. Result: `BUILD SUCCESSFUL`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (All test suites passed).
-3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: `BUILD SUCCESSFUL` (`BackendIntegrationTest` passed with 0 failures).
+1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED** (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
+4. **Mocked / Live Integration**: Verified API models and sync payload serialization. Live MySQL server requires local instance setup as detailed above.
+5. **Physical Device Verification Instructions**:
+   - Install `app-debug.apk` onto an Android phone.
+   - Test `EmergencyContactsActivity` direct calling via system phone dialer.
+   - Test `RemindersActivity` status bar notification popups.
+   - Test `AssistanceFragment` location permission prompt and map navigation.
 
 ---
 
-## Remaining Roadmap by Phase
-
-### Phase 6: Final QA Audit, Documentation & Security Hardening (NEXT PHASE)
-- Comprehensive end-to-end user regression audit, code cleanup, and production-ready security check.
-
----
-
-## Files Modified
-- `backend/src/main/resources/schema.sql`
-- `backend/src/main/java/com/mahila/model/HealthProfile.java`
-- `backend/src/main/java/com/mahila/dto/MigrationSyncPayload.java`
-- `backend/src/main/java/com/mahila/service/MigrationService.java`
-- `app/src/main/java/com/example/mahila/utils/SQLiteToMySQLMigrator.java`
-- `backend/src/test/java/com/mahila/BackendIntegrationTest.java`
+## Files Modified in Phase 6
+- `app/src/main/res/layout/fragment_assistance.xml`
+- `app/src/main/java/com/example/mahila/ui/assistance/AssistanceFragment.java`
 - `MAHILA_PROGRESS.md`
