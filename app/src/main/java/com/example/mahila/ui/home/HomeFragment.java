@@ -19,7 +19,9 @@ import com.example.mahila.utils.CycleCalculator;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -56,29 +58,37 @@ public class HomeFragment extends Fragment {
         String email = tokenManager.getUserEmail();
         String name = tokenManager.getUserName();
 
-        long lastPeriodMillis = -1;
+        List<Long> periodHistory = new ArrayList<>();
+        String diagnosedConditions = null;
+
         if (email != null && !email.isEmpty()) {
             try (DatabaseHelper db = new DatabaseHelper(requireContext())) {
                 // Fetch profile name fallback if session name is generic
-                if (name == null || name.isEmpty() || name.equalsIgnoreCase("Friend") || name.equalsIgnoreCase("User")) {
-                    Cursor uCursor = db.getUser(email);
-                    if (uCursor != null && uCursor.moveToFirst()) {
+                Cursor uCursor = db.getUser(email);
+                if (uCursor != null && uCursor.moveToFirst()) {
+                    if (name == null || name.isEmpty() || name.equalsIgnoreCase("Friend") || name.equalsIgnoreCase("User")) {
                         int nameCol = uCursor.getColumnIndex(DatabaseHelper.KEY_NAME);
                         if (nameCol >= 0 && !uCursor.isNull(nameCol)) {
                             name = uCursor.getString(nameCol);
                         }
-                        uCursor.close();
                     }
+                    int condCol = uCursor.getColumnIndex(DatabaseHelper.KEY_DIAGNOSED_CONDITIONS);
+                    if (condCol >= 0 && !uCursor.isNull(condCol)) {
+                        diagnosedConditions = uCursor.getString(condCol);
+                    }
+                    uCursor.close();
                 }
 
-                // Fetch most recent period record
+                // Fetch all historical period records
                 Cursor cursor = db.getPeriod(email);
                 if (cursor != null && cursor.moveToFirst()) {
                     int col = cursor.getColumnIndex(DatabaseHelper.KEY_PERIOD_DATE);
-                    if (col >= 0 && !cursor.isNull(col)) {
-                        long ts = cursor.getLong(col);
-                        if (ts > 0) lastPeriodMillis = ts;
-                    }
+                    do {
+                        if (col >= 0 && !cursor.isNull(col)) {
+                            long ts = cursor.getLong(col);
+                            if (ts > 0) periodHistory.add(ts);
+                        }
+                    } while (cursor.moveToNext());
                     cursor.close();
                 }
             } catch (Exception ignored) {}
@@ -87,23 +97,37 @@ public class HomeFragment extends Fragment {
         if (name == null || name.trim().isEmpty()) name = "Friend";
         tvUserName.setText(name);
 
-        // Compute cycle info safely
-        if (lastPeriodMillis <= 0) {
-            lastPeriodMillis = System.currentTimeMillis() - (14L * 24 * 60 * 60 * 1000);
-        }
-        CycleCalculator.CycleInfo info = CycleCalculator.calculateCycleInfo(lastPeriodMillis, 28);
+        // Compute genuine cycle info from historical data
+        CycleCalculator.CycleInfo info = CycleCalculator.calculateCycleInfoFromHistory(periodHistory, 28);
 
-        tvCycleDay.setText("Day " + info.cycleDay);
-        tvCyclePhase.setText(info.currentPhase);
-        tvNextPeriod.setText(info.nextPeriodDate);
-        tvFertileWindow.setText(info.ovulationWindow);
+        if (periodHistory.isEmpty()) {
+            tvCycleDay.setText("Day --");
+            tvCyclePhase.setText("No Period History Logged");
+            tvNextPeriod.setText("Not Available");
+            tvFertileWindow.setText("Not Available");
+            if (chipPhaseBadge != null) {
+                chipPhaseBadge.setText("Log First Period");
+            }
+            if (tvAiInsightText != null) {
+                tvAiInsightText.setText("No period logged yet. Click 'Log Period' below to record your cycle and enable intelligent predictions.");
+            }
+        } else {
+            tvCycleDay.setText("Day " + info.cycleDay);
+            tvCyclePhase.setText(info.currentPhase);
+            tvNextPeriod.setText(info.nextPeriodDate);
+            tvFertileWindow.setText(info.ovulationWindow);
 
-        if (chipPhaseBadge != null) {
-            chipPhaseBadge.setText(info.currentPhase);
-        }
+            if (chipPhaseBadge != null) {
+                chipPhaseBadge.setText(info.isIrregular ? info.currentPhase + " (Irregular)" : info.currentPhase);
+            }
 
-        if (tvAiInsightText != null) {
-            tvAiInsightText.setText(getCycleInsightText(info.currentPhase));
+            if (tvAiInsightText != null) {
+                StringBuilder insight = new StringBuilder(getCycleInsightText(info.currentPhase));
+                if (diagnosedConditions != null && !diagnosedConditions.trim().isEmpty()) {
+                    insight.append("\n• Active Profile Condition: ").append(diagnosedConditions).append(" noted. Consult your doctor for tailored care.");
+                }
+                tvAiInsightText.setText(insight.toString());
+            }
         }
 
         // Quick action buttons

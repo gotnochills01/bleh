@@ -24,56 +24,52 @@
 - [x] **Authentication & Onboarding Flow**:
   - Polished M3 layouts for `LandingActivity`, `LoginActivity`, `SignupActivity`, and `WelcomeActivity`.
   - Session restoration via `TokenManager` and `AppPreferences`. Guest mode offline fallback.
-- [x] **Complete UI Refactoring Across All Screens**:
-  - `HomeFragment`: M3 cycle cards, phase chip badges, and dynamic AI cycle guidance.
-  - `TrackerFragment`: Period start logging with M3 sliders and mood recording.
-  - `AssistanceFragment`: Healthcare mapping buttons and age-tailored specialist guidance.
-  - `AwarenessFragment`: Interactive health quiz card and category cards.
-  - `ProfileFragment`: Full user profile management (DOB, blood group, city, emergency notes, height, weight).
-  - Feature Activities: `SettingsActivity`, `SymptomLoggerActivity`, `EmergencyContactsActivity`, `QuizActivity`, `HealthTipsActivity`, `AiChatActivity`.
 - [x] **Technical & Offline Foundation**:
   - Database Helper v3 schema with full user profile storage, `moods` table, and `is_synced` status flags.
   - User-data isolation strictly enforced by `WHERE user_email = ?`.
   - `SQLiteToMySQLMigrator` sync engine optimized to extract strictly unsynced records (`is_synced = 0`).
 
+### Phase 2: Menstrual Tracking & Personalized Health Guidance (COMPLETED)
+- [x] **Cycle & Prediction Engine**:
+  - `CycleCalculator.java` updated to calculate average cycle length, variance/irregularity flag ("Irregular Cycle"), and next period prediction based strictly on user's actual historical period dates.
+  - Honest empty/insufficient history state handling ("No period recorded yet. Log your first period to unlock cycle predictions").
+- [x] **Full Period, Symptom & Mood CRUD**:
+  - Database Helper v4 schema adding `updatePeriod`, `deletePeriod`, `deleteSymptom`, `deleteMood`.
+  - `TrackerFragment` renders actual period history list with dynamic deletion and empty states.
+  - `SymptomLoggerActivity` supports multi-symptom selection, severity rating, and history viewing.
+- [x] **Personalized Health Profile & Diagnosed Conditions**:
+  - `ProfileFragment` updated to store DOB/age, height, weight, blood group, city, emergency medical notes, and diagnosed conditions (PCOS, Endometriosis, Irregular Cycles, Thyroid).
+- [x] **Stage Guidance & Medical Disclaimers**:
+  - `AwarenessFragment` updated with educational categories for Adolescence, Reproductive 20s/30s, Perimenopause/Menopause, PCOS/Endometriosis, and Hygiene.
+  - Explicit medical safety disclaimers included ("Educational guidance only; not medical diagnosis/prescription").
+- [x] **Connected Dashboard Integration**:
+  - `HomeFragment` calculates cycle day/phase from stored SQLite periods and displays diagnosed conditions badges.
+
 ---
 
 ## Verification & Build Results
 1. **Android Debug Build**: Executed `./gradlew assembleDebug --no-daemon`. Result: `BUILD SUCCESSFUL`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (All tests passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: `BUILD SUCCESSFUL` (`CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend**: Executed `mvn test -f backend/pom.xml`. Result: `BUILD SUCCESSFUL`.
 
 ---
 
 ## Remaining Roadmap by Phase
 
-### Phase 2: Local Notification Engine (Pending)
-- Native Android background scheduling with `WorkManager` / `AlarmManager` for cycle and medication reminders.
-
-### Phase 3: Comprehensive Test Coverage & CI Pipelines (Pending)
-- Integration testing for sync edge-cases and offline queue management.
+### Phase 3: Local Notification Engine & Background Scheduling (NEXT PHASE)
+- Native Android background scheduling with `WorkManager` / `AlarmManager` for period reminders, ovulation alerts, and medication notifications.
 
 ---
 
 ## Files Modified
-- `app/src/main/res/values/colors.xml`
-- `app/src/main/res/layout/activity_landing.xml`
-- `app/src/main/res/layout/activity_login.xml`
-- `app/src/main/res/layout/activity_signup.xml`
-- `app/src/main/res/layout/activity_welcome.xml`
-- `app/src/main/res/layout/fragment_home.xml`
-- `app/src/main/res/layout/fragment_tracker.xml`
-- `app/src/main/res/layout/fragment_assistance.xml`
-- `app/src/main/res/layout/fragment_awareness.xml`
-- `app/src/main/res/layout/fragment_profile.xml`
-- `app/src/main/res/layout/activity_settings.xml`
-- `app/src/main/res/layout/activity_symptom_logger.xml`
-- `app/src/main/java/com/example/mahila/ui/home/HomeFragment.java`
+- `app/src/main/java/com/example/mahila/utils/CycleCalculator.java`
 - `app/src/main/java/com/example/mahila/DatabaseHelper.java`
-- `app/src/main/java/com/example/mahila/ui/profile/ProfileFragment.java`
 - `app/src/main/java/com/example/mahila/ui/tracker/TrackerFragment.java`
-- `app/src/main/java/com/example/mahila/utils/SQLiteToMySQLMigrator.java`
-- `app/src/test/java/com/example/mahila/DatabaseHelperTest.java`
-- `app/src/test/java/com/example/mahila/Phase1VerificationTest.java`
-- `.gitignore`
+- `app/src/main/java/com/example/mahila/SymptomLoggerActivity.java`
+- `app/src/main/res/layout/fragment_profile.xml`
+- `app/src/main/java/com/example/mahila/ui/profile/ProfileFragment.java`
+- `app/src/main/java/com/example/mahila/ui/awareness/AwarenessFragment.java`
+- `app/src/main/java/com/example/mahila/ui/home/HomeFragment.java`
+- `app/src/test/java/com/example/mahila/CycleCalculatorTest.java`
+- `app/src/test/java/com/example/mahila/Phase2HealthTrackingTest.java`
 - `MAHILA_PROGRESS.md`
