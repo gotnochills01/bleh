@@ -21,18 +21,27 @@
   - Modern `BottomNavigationView` with 5 main tabs (`Home`, `Tracker`, `Assistance`, `Awareness`, `Profile`).
   - Drawer Navigation (`SettingsActivity`, Notifications Toast, Privacy/About Dialogs, Logout flow).
   - Multi-language support structure with `LocaleHelper` and localized resource string files (`hi`, `kn`, `ml`, `ta`, `te`).
-- **Phase 1: Local Offline & Network Resilience (VERIFIED & COMPLETED)**:
+- **Phase 1: Local Offline & Network Resilience (VERIFIED & COMPLETE)**:
   - **Database Migration**: `DatabaseHelper` schema (v3) preserves existing user data (`onUpgrade` adds columns without dropping user tables).
   - **Multi-User Isolation**: All queries in `DatabaseHelper` strictly filter by `user_email`.
   - **Offline Fallback & Toast Status**: `ProfileFragment`, `TrackerFragment`, `HomeFragment`, and `AssistanceFragment` render local SQLite records when API endpoints are unreachable and display non-disruptive Toast messages.
   - **Selective Entity Syncing**: `TrackerFragment` only marks the specifically saved entity as synced (`markPeriodsSynced` / `markMoodsSynced`) rather than marking all user records synced.
   - **Sync Engine Optimization**: `SQLiteToMySQLMigrator` queries only unsynced records (`getUnsyncedPeriods`, `getUnsyncedSymptoms`, `getUnsyncedContacts`, `getUnsyncedMoods`) to prevent duplicate payloads or re-transmitting synced entries.
 
-### 2. Incomplete / Pending Work
-- **Phase 2: Local Notification Engine**:
+### 2. Current Active Phase: Visual Design System & UI Refinement
+- **Proposed Theme & Palette**:
+  - Background Canvas: Warm Ivory (`#FFFDF9`)
+  - Primary Brand & Headers: Deep Plum (`#3B1F2B`)
+  - Cycle Highlights: Soft Muted Rose (`#D87093` / `#E8A0BF`)
+  - Fertile / Wellness Accents: Sage Green (`#7DA183`)
+  - Surface Containers: Warm Sand (`#F5EBE6`)
+- **Typography & Assets**:
+  - Material 3 typography hierarchy with Nunito font family (`@font/nunito`).
+  - Replace emojis with clean Material 3 vector icons and polished layouts.
+
+### 3. Pending Phases
+- **Phase 3: Local Notification Engine**:
   - Implement native Android background scheduling with `WorkManager` / `AlarmManager` for period and medical reminders.
-- **Phase 3: Automated Unit & Integration Test Expansion**:
-  - Expand test coverage for additional helper classes and API endpoints.
 
 ---
 
