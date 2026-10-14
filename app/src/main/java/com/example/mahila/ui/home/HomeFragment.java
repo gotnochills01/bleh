@@ -17,6 +17,7 @@ import com.example.mahila.R;
 import com.example.mahila.api.TokenManager;
 import com.example.mahila.utils.CycleCalculator;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 
 import java.util.Calendar;
 
@@ -28,18 +29,22 @@ public class HomeFragment extends Fragment {
     private TextView tvCyclePhase;
     private TextView tvNextPeriod;
     private TextView tvFertileWindow;
+    private TextView tvAiInsightText;
+    private Chip chipPhaseBadge;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        tvGreeting    = root.findViewById(R.id.tv_greeting);
-        tvUserName    = root.findViewById(R.id.tv_user_name);
-        tvCycleDay    = root.findViewById(R.id.tv_cycle_day);
-        tvCyclePhase  = root.findViewById(R.id.tv_cycle_phase);
-        tvNextPeriod  = root.findViewById(R.id.tv_next_period);
+        tvGreeting      = root.findViewById(R.id.tv_greeting);
+        tvUserName      = root.findViewById(R.id.tv_user_name);
+        tvCycleDay      = root.findViewById(R.id.tv_cycle_day);
+        tvCyclePhase    = root.findViewById(R.id.tv_cycle_phase);
+        tvNextPeriod    = root.findViewById(R.id.tv_next_period);
         tvFertileWindow = root.findViewById(R.id.tv_fertile_window);
+        tvAiInsightText = root.findViewById(R.id.tv_ai_insight_text);
+        chipPhaseBadge  = root.findViewById(R.id.chip_phase_badge);
 
         // Greeting by time-of-day
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -76,9 +81,7 @@ public class HomeFragment extends Fragment {
                     }
                     cursor.close();
                 }
-            } catch (Exception e) {
-                // Fall through to default
-            }
+            } catch (Exception ignored) {}
         }
 
         if (name == null || name.trim().isEmpty()) name = "Friend";
@@ -90,10 +93,18 @@ public class HomeFragment extends Fragment {
         }
         CycleCalculator.CycleInfo info = CycleCalculator.calculateCycleInfo(lastPeriodMillis, 28);
 
-        tvCycleDay.setText("Day " + info.cycleDay + " of Cycle");
+        tvCycleDay.setText("Day " + info.cycleDay);
         tvCyclePhase.setText(info.currentPhase);
         tvNextPeriod.setText(info.nextPeriodDate);
         tvFertileWindow.setText(info.ovulationWindow);
+
+        if (chipPhaseBadge != null) {
+            chipPhaseBadge.setText(info.currentPhase);
+        }
+
+        if (tvAiInsightText != null) {
+            tvAiInsightText.setText(getCycleInsightText(info.currentPhase));
+        }
 
         // Quick action buttons
         MaterialButton btnLogPeriod = root.findViewById(R.id.btn_quick_log_period);
@@ -109,5 +120,19 @@ public class HomeFragment extends Fragment {
         }
 
         return root;
+    }
+
+    private String getCycleInsightText(String phase) {
+        if (phase == null) return "Track your symptoms daily to receive personalized wellness guidance.";
+        if (phase.toLowerCase().contains("menstrual")) {
+            return "During your menstrual phase, prioritize gentle rest, warm hydration, and iron-rich foods like leafy greens.";
+        } else if (phase.toLowerCase().contains("follicular")) {
+            return "Energy levels rise in the follicular phase! Ideal time for moderate exercise and fresh complex carbohydrates.";
+        } else if (phase.toLowerCase().contains("ovulat")) {
+            return "Peak fertility phase. Stay well hydrated, incorporate healthy fats, and keep track of basal temperature changes.";
+        } else if (phase.toLowerCase().contains("luteal")) {
+            return "In the luteal phase, focus on stress management, magnesium-rich foods, and consistent sleep hygiene.";
+        }
+        return "Track your cycle consistently to get tailored metabolic and wellness insights.";
     }
 }
