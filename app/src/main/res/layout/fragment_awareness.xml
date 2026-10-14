@@ -1,49 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#F8F9FA">
+    android:background="?attr/colorSurface"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Awareness Hub"
-            android:textSize="24sp"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:textColor="#AD1457"
-            android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Educational Content, Articles &amp; 100+ Quizzes"
-            android:textSize="14sp"
-            android:textColor="#666666"
             android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/btn_start_quiz"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Take Health &amp; Awareness Quiz"
-            android:textSize="16sp"
-            android:padding="12dp"
-            app:cornerRadius="16dp"
-            android:layout_marginBottom="16dp" />
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            android:layout_marginBottom="20dp">
 
-        <!-- Categories List -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Interactive Health Quiz"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Test your knowledge on menstrual wellness, nutrition, and cycle phases."
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_start_quiz"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Start Knowledge Quiz"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Explore Categories"
-            android:textSize="18sp"
+            android:text="Health Education Categories"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
             android:layout_marginBottom="12dp" />
 
@@ -54,4 +79,4 @@
             android:orientation="vertical" />
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

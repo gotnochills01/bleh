@@ -10,45 +10,52 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Period &amp; Symptom Tracker"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginBottom="20dp" />
+            android:text="Period &amp; Mood Logger"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Log Period Card -->
+        <!-- Period Logging Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp"
-            android:layout_marginBottom="16dp">
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🩸  Log Period Start Date"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    android:textColor="?attr/colorOnSurface"
+                    android:text="Log Period Start"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:textColor="?attr/colorPrimary"
+                    android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Date (YYYY-MM-DD)"
+                    android:hint="Start Date (YYYY-MM-DD)"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -62,22 +69,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Flow Intensity"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginBottom="4dp" />
 
                 <Spinner
                     android:id="@+id/sp_flow_level"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="48dp"
+                    android:background="@drawable/ic_menu"
+                    android:layout_marginBottom="16dp" />
 
                 <TextView
                     android:id="@+id/tv_pain_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pain Scale: 3 / 10"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textAppearance="?attr/textAppearanceLabelMedium"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginBottom="4dp" />
 
@@ -87,55 +95,57 @@
                     android:layout_height="wrap_content"
                     android:valueFrom="0"
                     android:valueTo="10"
-                    android:value="3"
                     android:stepSize="1"
-                    app:labelBehavior="floating"
-                    android:layout_marginBottom="12dp" />
+                    android:value="3"
+                    android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_period"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="52dp"
                     android:text="Save Period Entry"
                     app:cornerRadius="12dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Log Mood Card -->
+        <!-- Mood Logging Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
             app:strokeColor="?attr/colorOutlineVariant"
             app:strokeWidth="1dp"
-            android:layout_marginBottom="16dp">
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="😊  Log Daily Mood"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    android:textColor="?attr/colorOnSurface"
+                    android:text="Daily Mood Journal"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
 
                 <Spinner
                     android:id="@+id/sp_mood_type"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="48dp"
+                    android:background="@drawable/ic_menu"
+                    android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_mood"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Save Mood"
+                    android:layout_height="52dp"
+                    android:text="Record Mood"
                     style="@style/Widget.Material3.Button.TonalButton"
                     app:cornerRadius="12dp" />
             </LinearLayout>
