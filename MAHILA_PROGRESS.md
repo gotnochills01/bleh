@@ -73,6 +73,23 @@ mvn spring-boot:run -f backend/pom.xml
 
 ---
 
+## Google Cloud Maps Key Configuration Instructions
+
+To enable Google Maps rendering in `AssistanceFragment`, configure a key as follows:
+1. Enable **Maps SDK for Android** and **Places API** in the Google Cloud Console.
+2. In `local.properties`, add:
+   ```properties
+   MAPS_API_KEY=AIzaSy...your_key...
+   ```
+3. Add the placeholder to `AndroidManifest.xml` (already referenced via BuildConfig/Manifest meta-data):
+   ```xml
+   <meta-data
+       android:name="com.google.android.geo.API_KEY"
+       android:value="${MAPS_API_KEY}"/>
+   ```
+
+---
+
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
 2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED** (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
