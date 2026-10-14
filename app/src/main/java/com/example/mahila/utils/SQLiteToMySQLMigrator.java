@@ -23,10 +23,6 @@ public class SQLiteToMySQLMigrator {
 
     public static void checkAndMigrate(Context context, MigrationCallback callback) {
         TokenManager tokenManager = new TokenManager(context);
-        if (tokenManager.isMigrated()) {
-            if (callback != null) callback.onSuccess();
-            return;
-        }
 
         DatabaseHelper dbHelper = new DatabaseHelper(context);
         String email = tokenManager.getUserEmail();
@@ -40,20 +36,40 @@ public class SQLiteToMySQLMigrator {
             payload.put("email", email);
             payload.put("name", tokenManager.getUserName());
 
-            // Extract Periods
+            // Extract User Profile Data
+            Cursor uCursor = dbHelper.getUser(email);
+            if (uCursor != null && uCursor.moveToFirst()) {
+                int ageCol = uCursor.getColumnIndex(DatabaseHelper.KEY_AGE);
+                int dobCol = uCursor.getColumnIndex(DatabaseHelper.KEY_DATE_OF_BIRTH);
+                int bloodCol = uCursor.getColumnIndex(DatabaseHelper.KEY_BLOOD_GROUP);
+                int cityCol = uCursor.getColumnIndex(DatabaseHelper.KEY_CITY);
+                int notesCol = uCursor.getColumnIndex(DatabaseHelper.KEY_EMERGENCY_NOTES);
+
+                if (ageCol >= 0 && !uCursor.isNull(ageCol)) payload.put("age", uCursor.getInt(ageCol));
+                if (dobCol >= 0 && !uCursor.isNull(dobCol)) payload.put("dateOfBirth", uCursor.getString(dobCol));
+                if (bloodCol >= 0 && !uCursor.isNull(bloodCol)) payload.put("bloodGroup", uCursor.getString(bloodCol));
+                if (cityCol >= 0 && !uCursor.isNull(cityCol)) payload.put("city", uCursor.getString(cityCol));
+                if (notesCol >= 0 && !uCursor.isNull(notesCol)) payload.put("emergencyMedicalNotes", uCursor.getString(notesCol));
+                uCursor.close();
+            }
+
+            // Extract Unsynced Periods
             JSONArray periodsArray = new JSONArray();
-            Cursor pCursor = dbHelper.getPeriod(email);
+            Cursor pCursor = dbHelper.getUnsyncedPeriods(email);
             if (pCursor != null && pCursor.moveToFirst()) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 do {
                     int dateIdx = pCursor.getColumnIndex(DatabaseHelper.KEY_PERIOD_DATE);
+                    int flowIdx = pCursor.getColumnIndex(DatabaseHelper.KEY_FLOW_LEVEL);
+                    int painIdx = pCursor.getColumnIndex(DatabaseHelper.KEY_PAIN_SCALE);
+
                     if (dateIdx >= 0) {
                         long dateMillis = pCursor.getLong(dateIdx);
                         String dateStr = sdf.format(new Date(dateMillis));
                         JSONObject pObj = new JSONObject();
                         pObj.put("startDate", dateStr);
-                        pObj.put("flowLevel", "MEDIUM");
-                        pObj.put("painScale", 3);
+                        pObj.put("flowLevel", flowIdx >= 0 && !pCursor.isNull(flowIdx) ? pCursor.getString(flowIdx) : "MEDIUM");
+                        pObj.put("painScale", painIdx >= 0 && !pCursor.isNull(painIdx) ? pCursor.getInt(painIdx) : 3);
                         periodsArray.put(pObj);
                     }
                 } while (pCursor.moveToNext());
@@ -61,9 +77,9 @@ public class SQLiteToMySQLMigrator {
             }
             payload.put("periods", periodsArray);
 
-            // Extract Symptoms
+            // Extract Unsynced Symptoms
             JSONArray symptomsArray = new JSONArray();
-            Cursor sCursor = dbHelper.getSymptoms(email);
+            Cursor sCursor = dbHelper.getUnsyncedSymptoms(email);
             if (sCursor != null && sCursor.moveToFirst()) {
                 do {
                     int nameIdx = sCursor.getColumnIndex(DatabaseHelper.KEY_SYMPTOM);
@@ -80,9 +96,9 @@ public class SQLiteToMySQLMigrator {
             }
             payload.put("symptoms", symptomsArray);
 
-            // Extract Contacts
+            // Extract Unsynced Contacts
             JSONArray contactsArray = new JSONArray();
-            Cursor cCursor = dbHelper.getContacts(email);
+            Cursor cCursor = dbHelper.getUnsyncedContacts(email);
             if (cCursor != null && cCursor.moveToFirst()) {
                 do {
                     int nameIdx = cCursor.getColumnIndex(DatabaseHelper.KEY_CONTACT_NAME);
@@ -100,10 +116,34 @@ public class SQLiteToMySQLMigrator {
             }
             payload.put("contacts", contactsArray);
 
+            // Extract Unsynced Moods
+            JSONArray moodsArray = new JSONArray();
+            Cursor mCursor = dbHelper.getUnsyncedMoods(email);
+            if (mCursor != null && mCursor.moveToFirst()) {
+                do {
+                    int moodIdx = mCursor.getColumnIndex(DatabaseHelper.KEY_MOOD_TYPE);
+                    int intensityIdx = mCursor.getColumnIndex(DatabaseHelper.KEY_INTENSITY);
+                    int dateIdx = mCursor.getColumnIndex(DatabaseHelper.KEY_LOGGED_DATE);
+
+                    String moodType = moodIdx >= 0 && !mCursor.isNull(moodIdx) ? mCursor.getString(moodIdx) : "HAPPY";
+                    int intensity = intensityIdx >= 0 && !mCursor.isNull(intensityIdx) ? mCursor.getInt(intensityIdx) : 3;
+                    String dateStr = dateIdx >= 0 && !mCursor.isNull(dateIdx) ? mCursor.getString(dateIdx) : new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+                    JSONObject mObj = new JSONObject();
+                    mObj.put("moodType", moodType);
+                    mObj.put("intensity", intensity);
+                    mObj.put("loggedDate", dateStr);
+                    moodsArray.put(mObj);
+                } while (mCursor.moveToNext());
+                mCursor.close();
+            }
+            payload.put("moods", moodsArray);
+
             ApiClient.postRequest(context, ApiService.MIGRATION_SYNC, payload, new ApiClient.ApiCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
                     tokenManager.setMigrated(true);
+                    dbHelper.markAllSynced(email);
                     if (callback != null) callback.onSuccess();
                 }
 

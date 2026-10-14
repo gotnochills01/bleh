@@ -9,26 +9,36 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "mahila.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Table Names
     public static final String TABLE_USERS = "users";
     public static final String TABLE_PERIODS = "periods";
     public static final String TABLE_SYMPTOMS = "symptoms";
     public static final String TABLE_CONTACTS = "contacts";
+    public static final String TABLE_MOODS = "moods";
 
     // Common Columns
     public static final String KEY_ID = "id";
     public static final String KEY_USER_EMAIL = "user_email";
+    public static final String KEY_IS_SYNCED = "is_synced";
 
     // Users Table Columns
     public static final String KEY_NAME = "name";
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_AGE = "age";
+    public static final String KEY_DATE_OF_BIRTH = "date_of_birth";
+    public static final String KEY_BLOOD_GROUP = "blood_group";
+    public static final String KEY_CITY = "city";
+    public static final String KEY_EMERGENCY_NOTES = "emergency_notes";
+    public static final String KEY_WEIGHT = "weight";
+    public static final String KEY_HEIGHT = "height";
 
     // Periods Table Columns
     public static final String KEY_PERIOD_DATE = "period_date";
+    public static final String KEY_FLOW_LEVEL = "flow_level";
+    public static final String KEY_PAIN_SCALE = "pain_scale";
 
     // Symptoms Table Columns
     public static final String KEY_SYMPTOM = "symptom";
@@ -37,6 +47,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Contacts Table Columns
     public static final String KEY_CONTACT_NAME = "contact_name";
     public static final String KEY_CONTACT_PHONE = "contact_phone";
+
+    // Moods Table Columns
+    public static final String KEY_MOOD_TYPE = "mood_type";
+    public static final String KEY_INTENSITY = "intensity";
+    public static final String KEY_LOGGED_DATE = "logged_date";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -49,41 +64,79 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_NAME + " TEXT, "
                 + KEY_EMAIL + " TEXT UNIQUE, "
                 + KEY_PASSWORD + " TEXT, "
-                + KEY_AGE + " INTEGER DEFAULT 0" + ")";
+                + KEY_AGE + " INTEGER DEFAULT 0, "
+                + KEY_DATE_OF_BIRTH + " TEXT, "
+                + KEY_BLOOD_GROUP + " TEXT, "
+                + KEY_CITY + " TEXT, "
+                + KEY_EMERGENCY_NOTES + " TEXT, "
+                + KEY_WEIGHT + " REAL DEFAULT 0.0, "
+                + KEY_HEIGHT + " REAL DEFAULT 0.0" + ")";
 
         String CREATE_PERIODS_TABLE = "CREATE TABLE " + TABLE_PERIODS + " ("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_USER_EMAIL + " TEXT, "
-                + KEY_PERIOD_DATE + " INTEGER" + ")";
+                + KEY_PERIOD_DATE + " INTEGER, "
+                + KEY_FLOW_LEVEL + " TEXT DEFAULT 'MEDIUM', "
+                + KEY_PAIN_SCALE + " INTEGER DEFAULT 0, "
+                + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
 
         String CREATE_SYMPTOMS_TABLE = "CREATE TABLE " + TABLE_SYMPTOMS + " ("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_USER_EMAIL + " TEXT, "
                 + KEY_SYMPTOM + " TEXT, "
-                + KEY_CREATED_AT + " TEXT" + ")";
+                + KEY_CREATED_AT + " TEXT, "
+                + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
 
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + " ("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + KEY_USER_EMAIL + " TEXT, "
                 + KEY_CONTACT_NAME + " TEXT, "
-                + KEY_CONTACT_PHONE + " TEXT" + ")";
+                + KEY_CONTACT_PHONE + " TEXT, "
+                + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
+
+        String CREATE_MOODS_TABLE = "CREATE TABLE " + TABLE_MOODS + " ("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + KEY_USER_EMAIL + " TEXT, "
+                + KEY_MOOD_TYPE + " TEXT, "
+                + KEY_INTENSITY + " INTEGER DEFAULT 3, "
+                + KEY_LOGGED_DATE + " TEXT, "
+                + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
 
         db.execSQL(CREATE_USERS_TABLE);
         db.execSQL(CREATE_PERIODS_TABLE);
         db.execSQL(CREATE_SYMPTOMS_TABLE);
         db.execSQL(CREATE_CONTACTS_TABLE);
+        db.execSQL(CREATE_MOODS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_AGE + " INTEGER DEFAULT 0");
-        } else {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PERIODS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SYMPTOMS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
-            onCreate(db);
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_DATE_OF_BIRTH + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_BLOOD_GROUP + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_CITY + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_EMERGENCY_NOTES + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_WEIGHT + " REAL DEFAULT 0.0");
+            db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + KEY_HEIGHT + " REAL DEFAULT 0.0");
+
+            db.execSQL("ALTER TABLE " + TABLE_PERIODS + " ADD COLUMN " + KEY_FLOW_LEVEL + " TEXT DEFAULT 'MEDIUM'");
+            db.execSQL("ALTER TABLE " + TABLE_PERIODS + " ADD COLUMN " + KEY_PAIN_SCALE + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_PERIODS + " ADD COLUMN " + KEY_IS_SYNCED + " INTEGER DEFAULT 0");
+
+            db.execSQL("ALTER TABLE " + TABLE_SYMPTOMS + " ADD COLUMN " + KEY_IS_SYNCED + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_CONTACTS + " ADD COLUMN " + KEY_IS_SYNCED + " INTEGER DEFAULT 0");
+
+            String CREATE_MOODS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_MOODS + " ("
+                    + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + KEY_USER_EMAIL + " TEXT, "
+                    + KEY_MOOD_TYPE + " TEXT, "
+                    + KEY_INTENSITY + " INTEGER DEFAULT 3, "
+                    + KEY_LOGGED_DATE + " TEXT, "
+                    + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
+            db.execSQL(CREATE_MOODS_TABLE);
         }
     }
 
@@ -105,28 +158,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    // Update User Age
-    public boolean updateUserAge(String email, int age) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_AGE, age);
-        String selection = KEY_EMAIL + " = ?";
-        String[] selectionArgs = {email};
-
-        int count = db.update(TABLE_USERS, values, selection, selectionArgs);
-        return count > 0;
+    // Backward-compatible updateUser (Name and Age)
+    public boolean updateUser(String email, String name, int age) {
+        return updateUserProfile(email, name, age, null, null, null, null, -1, -1);
     }
 
-    // Update User Profile (Name and Age)
-    public boolean updateUser(String email, String name, int age) {
+    // Update Full User Profile
+    public boolean updateUserProfile(String email, String name, int age, String dob, String bloodGroup, String city, String emergencyNotes, double weight, double height) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, name);
-        values.put(KEY_AGE, age);
-        String selection = KEY_EMAIL + " = ?";
-        String[] selectionArgs = {email};
+        if (name != null) values.put(KEY_NAME, name);
+        if (age >= 0) values.put(KEY_AGE, age);
+        if (dob != null) values.put(KEY_DATE_OF_BIRTH, dob);
+        if (bloodGroup != null) values.put(KEY_BLOOD_GROUP, bloodGroup);
+        if (city != null) values.put(KEY_CITY, city);
+        if (emergencyNotes != null) values.put(KEY_EMERGENCY_NOTES, emergencyNotes);
+        if (weight >= 0) values.put(KEY_WEIGHT, weight);
+        if (height >= 0) values.put(KEY_HEIGHT, height);
 
-        int count = db.update(TABLE_USERS, values, selection, selectionArgs);
+        int count = db.update(TABLE_USERS, values, KEY_EMAIL + " = ?", new String[]{email});
+        if (count == 0) {
+            values.put(KEY_EMAIL, email);
+            long res = db.insert(TABLE_USERS, null, values);
+            return res != -1;
+        }
         return count > 0;
     }
 
@@ -155,16 +210,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Save Period Date
     public boolean savePeriod(String userEmail, long periodDate) {
+        return savePeriod(userEmail, periodDate, "MEDIUM", 0, false);
+    }
+
+    public boolean savePeriod(String userEmail, long periodDate, String flowLevel, int painScale, boolean isSynced) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_EMAIL, userEmail);
         values.put(KEY_PERIOD_DATE, periodDate);
+        values.put(KEY_FLOW_LEVEL, flowLevel != null ? flowLevel : "MEDIUM");
+        values.put(KEY_PAIN_SCALE, painScale);
+        values.put(KEY_IS_SYNCED, isSynced ? 1 : 0);
 
         long result = db.insert(TABLE_PERIODS, null, values);
         return result != -1;
     }
 
-    // Get Period Records
     public Cursor getPeriod(String userEmail) {
         SQLiteDatabase db = this.getReadableDatabase();
         String selection = KEY_USER_EMAIL + " = ?";
@@ -173,19 +234,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_PERIODS, null, selection, selectionArgs, null, null, KEY_PERIOD_DATE + " DESC");
     }
 
+    public Cursor getUnsyncedPeriods(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ? AND " + KEY_IS_SYNCED + " = 0";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_PERIODS, null, selection, selectionArgs, null, null, KEY_PERIOD_DATE + " DESC");
+    }
+
     // Save Symptom
     public boolean saveSymptom(String userEmail, String symptom, String createdAt) {
+        return saveSymptom(userEmail, symptom, createdAt, false);
+    }
+
+    public boolean saveSymptom(String userEmail, String symptom, String createdAt, boolean isSynced) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_EMAIL, userEmail);
         values.put(KEY_SYMPTOM, symptom);
         values.put(KEY_CREATED_AT, createdAt);
+        values.put(KEY_IS_SYNCED, isSynced ? 1 : 0);
 
         long result = db.insert(TABLE_SYMPTOMS, null, values);
         return result != -1;
     }
 
-    // Get Symptoms
     public Cursor getSymptoms(String userEmail) {
         SQLiteDatabase db = this.getReadableDatabase();
         String selection = KEY_USER_EMAIL + " = ?";
@@ -194,19 +267,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_SYMPTOMS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
     }
 
+    public Cursor getUnsyncedSymptoms(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ? AND " + KEY_IS_SYNCED + " = 0";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_SYMPTOMS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
+    }
+
     // Save Contact
     public boolean saveContact(String userEmail, String contactName, String contactPhone) {
+        return saveContact(userEmail, contactName, contactPhone, false);
+    }
+
+    public boolean saveContact(String userEmail, String contactName, String contactPhone, boolean isSynced) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_USER_EMAIL, userEmail);
         values.put(KEY_CONTACT_NAME, contactName);
         values.put(KEY_CONTACT_PHONE, contactPhone);
+        values.put(KEY_IS_SYNCED, isSynced ? 1 : 0);
 
         long result = db.insert(TABLE_CONTACTS, null, values);
         return result != -1;
     }
 
-    // Get Contacts
     public Cursor getContacts(String userEmail) {
         SQLiteDatabase db = this.getReadableDatabase();
         String selection = KEY_USER_EMAIL + " = ?";
@@ -214,6 +299,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.query(TABLE_CONTACTS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
     }
+
+    public Cursor getUnsyncedContacts(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ? AND " + KEY_IS_SYNCED + " = 0";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_CONTACTS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
+    }
+
+    // Save Mood
+    public boolean saveMood(String userEmail, String moodType, int intensity, String loggedDate, boolean isSynced) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_USER_EMAIL, userEmail);
+        values.put(KEY_MOOD_TYPE, moodType);
+        values.put(KEY_INTENSITY, intensity);
+        values.put(KEY_LOGGED_DATE, loggedDate);
+        values.put(KEY_IS_SYNCED, isSynced ? 1 : 0);
+
+        long result = db.insert(TABLE_MOODS, null, values);
+        return result != -1;
+    }
+
+    public Cursor getMoods(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ?";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_MOODS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
+    }
+
+    public Cursor getUnsyncedMoods(String userEmail) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = KEY_USER_EMAIL + " = ? AND " + KEY_IS_SYNCED + " = 0";
+        String[] selectionArgs = {userEmail};
+
+        return db.query(TABLE_MOODS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
+    }
+
+    // Mark specific table records as synced
+    public void markPeriodsSynced(String userEmail) {
+        updateSyncedFlag(TABLE_PERIODS, userEmail);
+    }
+
+    public void markSymptomsSynced(String userEmail) {
+        updateSyncedFlag(TABLE_SYMPTOMS, userEmail);
+    }
+
+    public void markContactsSynced(String userEmail) {
+        updateSyncedFlag(TABLE_CONTACTS, userEmail);
+    }
+
+    public void markMoodsSynced(String userEmail) {
+        updateSyncedFlag(TABLE_MOODS, userEmail);
+    }
+
+    public void markAllSynced(String userEmail) {
+        markPeriodsSynced(userEmail);
+        markSymptomsSynced(userEmail);
+        markContactsSynced(userEmail);
+        markMoodsSynced(userEmail);
+    }
+
+    private void updateSyncedFlag(String tableName, String userEmail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_IS_SYNCED, 1);
+        db.update(tableName, values, KEY_USER_EMAIL + " = ?", new String[]{userEmail});
+    }
 }
-
-

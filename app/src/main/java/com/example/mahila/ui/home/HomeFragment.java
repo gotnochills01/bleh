@@ -18,9 +18,7 @@ import com.example.mahila.api.TokenManager;
 import com.example.mahila.utils.CycleCalculator;
 import com.google.android.material.button.MaterialButton;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -48,21 +46,31 @@ public class HomeFragment extends Fragment {
         String greeting = hour < 12 ? "Good Morning," : hour < 17 ? "Good Afternoon," : "Good Evening,";
         if (tvGreeting != null) tvGreeting.setText(greeting);
 
-        // User name from session
+        // User name from session / SQLite
         TokenManager tokenManager = new TokenManager(requireContext());
         String email = tokenManager.getUserEmail();
         String name = tokenManager.getUserName();
-        if (name == null || name.isEmpty()) name = "Friend";
-        tvUserName.setText(name);
 
-        // Read last period date from SQLite
         long lastPeriodMillis = -1;
         if (email != null && !email.isEmpty()) {
             try (DatabaseHelper db = new DatabaseHelper(requireContext())) {
+                // Fetch profile name fallback if session name is generic
+                if (name == null || name.isEmpty() || name.equalsIgnoreCase("Friend") || name.equalsIgnoreCase("User")) {
+                    Cursor uCursor = db.getUser(email);
+                    if (uCursor != null && uCursor.moveToFirst()) {
+                        int nameCol = uCursor.getColumnIndex(DatabaseHelper.KEY_NAME);
+                        if (nameCol >= 0 && !uCursor.isNull(nameCol)) {
+                            name = uCursor.getString(nameCol);
+                        }
+                        uCursor.close();
+                    }
+                }
+
+                // Fetch most recent period record
                 Cursor cursor = db.getPeriod(email);
                 if (cursor != null && cursor.moveToFirst()) {
-                    int col = cursor.getColumnIndex("period_date");
-                    if (col >= 0) {
+                    int col = cursor.getColumnIndex(DatabaseHelper.KEY_PERIOD_DATE);
+                    if (col >= 0 && !cursor.isNull(col)) {
                         long ts = cursor.getLong(col);
                         if (ts > 0) lastPeriodMillis = ts;
                     }
@@ -73,7 +81,10 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        // Compute cycle info (use real data or today-14 days as fallback)
+        if (name == null || name.trim().isEmpty()) name = "Friend";
+        tvUserName.setText(name);
+
+        // Compute cycle info safely
         if (lastPeriodMillis <= 0) {
             lastPeriodMillis = System.currentTimeMillis() - (14L * 24 * 60 * 60 * 1000);
         }

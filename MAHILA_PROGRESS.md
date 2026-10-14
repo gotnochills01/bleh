@@ -3,6 +3,7 @@
 ## Project Status Overview
 - **Build Status**:
   - Android Debug APK: **BUILD SUCCESSFUL** (`./gradlew assembleDebug`)
+  - Android Unit Tests: **PASSED** (`./gradlew test`)
   - Spring Boot Backend: **BUILD SUCCESSFUL** (`mvn clean test -f backend/pom.xml`)
 - **Launch Flow Status**: **VERIFIED**
   - Launch Activity: `LandingActivity` (`android.intent.action.MAIN` / `LAUNCHER`).
@@ -20,34 +21,33 @@
   - Modern `BottomNavigationView` with 5 main tabs (`Home`, `Tracker`, `Assistance`, `Awareness`, `Profile`).
   - Drawer Navigation (`SettingsActivity`, Notifications Toast, Privacy/About Dialogs, Logout flow).
   - Multi-language support structure with `LocaleHelper` and localized resource string files (`hi`, `kn`, `ml`, `ta`, `te`).
-- **Data & Backend Architecture**:
-  - Double persistence design: Local `SQLiteOpenHelper` (`DatabaseHelper`) for zero-connectivity offline capability, paired with JWT-secured RESTful Spring Boot backend API.
-  - Sync Bridge: `SQLiteToMySQLMigrator` auto-syncs local period, symptom, and contact records with the backend API upon server availability.
-- **Backend Services**:
-  - Spring Boot 3 API with JPA entities (`User`, `Period`, `Symptom`, `Mood`, `Contact`, `Appointment`, `Reminder`, `HealthProfile`, `UserQuizProgress`).
-  - Security layer with `JwtAuthFilter` and `SecurityConfig`.
-  - Analytics calculations in `AnalyticsService` for cycle length, regularity, symptom, and mood metrics.
+- **Phase 1: Local Offline & Network Resilience (COMPLETED)**:
+  - Expanded `DatabaseHelper` schema (v3) to support user profile attributes (`date_of_birth`, `blood_group`, `city`, `emergency_notes`, `weight`, `height`), a dedicated `moods` table, and sync status flags (`is_synced`).
+  - Strict user-data isolation enforced by filtering all queries in `DatabaseHelper` by user email.
+  - Offline-first caching in `ProfileFragment`, `TrackerFragment`, `HomeFragment`, and `AssistanceFragment`.
+  - Non-disruptive offline status messages displayed upon network API failure while seamlessly preserving user entries locally.
+  - Upgraded `SQLiteToMySQLMigrator` to extract unsynced periods, symptoms, moods, contacts, and user profile updates and sync them safely to the backend without duplicate creation.
+  - Added unit test suite `DatabaseHelperTest.java` verifying persistence constants and schema definitions.
 
-### 2. Incomplete / Partially Implemented Features
-- **Frontend-Backend Realtime Live API Integration**:
-  - Several Android UI fragments currently rely on local SQLite fallback or static dummy lists when offline or when local network API server (`localhost:8080` / `10.0.2.2`) is unreachable.
-- **Push / Scheduled Alarm Notifications**:
-  - Reminders and notifications in drawer trigger UI Toast rather than standard Android system `AlarmManager` or `NotificationManager` alerts.
-
-### 3. Fixed Errors
-- **Backend Compilation Error in `AnalyticsService.java`**:
-  - Issue: Lambda expression variable scoping error on non-final `avgCycleLength`.
-  - Fix: Computed average stored in effectively final local variable `computedAvg` before usage in double stream map. Tested and verified clean compilation.
+### 2. Incomplete / Pending Work
+- **Phase 2: Local Notification Engine**:
+  - Implement native Android background scheduling with `WorkManager` / `AlarmManager` for period and medical reminders.
+- **Phase 3: Automated Unit & Integration Test Expansion**:
+  - Expand test coverage for additional helper classes and API endpoints.
 
 ---
 
 ## Verification & Test Results
-1. **Android Build Verification**: Executed `./gradlew assembleDebug --no-daemon`. Output: `BUILD SUCCESSFUL`.
+1. **Android Build & Unit Tests**: Executed `./gradlew test --no-daemon`. Output: `BUILD SUCCESSFUL` (22 tasks executed, 0 failures).
 2. **Backend Build & Test Compilation**: Executed `mvn clean test -f backend/pom.xml`. Output: `BUILD SUCCESSFUL`.
 
 ---
 
-## Exact Next Steps
-1. **Phase 1: Local Offline & Network Resilience**: Standardize local SQLite caching across all 5 main bottom-nav tabs (`TrackerFragment`, `AssistanceFragment`, `AwarenessFragment`, `ProfileFragment`, `HomeFragment`).
-2. **Phase 2: Local Notification Engine**: Implement native Android background scheduling with `WorkManager` / `AlarmManager` for period and medical reminders.
-3. **Phase 3: Automated Unit & Integration Test Expansion**: Add automated unit test coverage for `CycleCalculator`, `DatabaseHelper`, and backend Spring Boot controllers.
+## Files Changed in Phase 1
+- `app/src/main/java/com/example/mahila/DatabaseHelper.java`
+- `app/src/main/java/com/example/mahila/ui/profile/ProfileFragment.java`
+- `app/src/main/java/com/example/mahila/ui/tracker/TrackerFragment.java`
+- `app/src/main/java/com/example/mahila/ui/home/HomeFragment.java`
+- `app/src/main/java/com/example/mahila/utils/SQLiteToMySQLMigrator.java`
+- `app/src/test/java/com/example/mahila/DatabaseHelperTest.java`
+- `MAHILA_PROGRESS.md`
