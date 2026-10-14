@@ -1,5 +1,6 @@
 package com.example.mahila.ui.assistance;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,11 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.mahila.DatabaseHelper;
+import com.example.mahila.EmergencyContactsActivity;
 import com.example.mahila.R;
 import com.example.mahila.api.TokenManager;
 
@@ -23,15 +26,21 @@ public class AssistanceFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_assistance, container, false);
 
-        root.findViewById(R.id.btn_map_gyno).setOnClickListener(v -> searchMaps("Gynecologists near me"));
-        root.findViewById(R.id.btn_map_hospitals).setOnClickListener(v -> searchMaps("Hospitals near me"));
-        root.findViewById(R.id.btn_map_clinics).setOnClickListener(v -> searchMaps("Clinics near me"));
-        root.findViewById(R.id.btn_map_women_centers).setOnClickListener(v -> searchMaps("Women Health Centers near me"));
+        View btnGyno = root.findViewById(R.id.btn_map_gyno);
+        if (btnGyno != null) btnGyno.setOnClickListener(v -> searchMaps("Gynecologists near me"));
+
+        View btnHospitals = root.findViewById(R.id.btn_map_hospitals);
+        if (btnHospitals != null) btnHospitals.setOnClickListener(v -> searchMaps("Hospitals near me"));
+
+        View btnClinics = root.findViewById(R.id.btn_map_clinics);
+        if (btnClinics != null) btnClinics.setOnClickListener(v -> searchMaps("Clinics near me"));
+
+        View btnWomenCenters = root.findViewById(R.id.btn_map_women_centers);
+        if (btnWomenCenters != null) btnWomenCenters.setOnClickListener(v -> searchMaps("Women Health Centers near me"));
 
         TextView tvTitle = root.findViewById(R.id.tv_age_recommendation_title);
         TextView tvBody  = root.findViewById(R.id.tv_age_recommendation_body);
 
-        // Read age from user profile in SQLite
         int age = loadUserAge();
         applyAgeRecommendations(tvTitle, tvBody, age);
 
@@ -47,7 +56,6 @@ public class AssistanceFragment extends Fragment {
             DatabaseHelper db = new DatabaseHelper(requireContext());
             Cursor cursor = db.getUser(email);
             if (cursor != null && cursor.moveToFirst()) {
-                // Try age column first
                 int ageCol = cursor.getColumnIndex("age");
                 if (ageCol >= 0 && !cursor.isNull(ageCol)) {
                     int val = cursor.getInt(ageCol);
@@ -55,7 +63,6 @@ public class AssistanceFragment extends Fragment {
                     db.close();
                     return val;
                 }
-                // Fallback: derive from date_of_birth
                 int dobCol = cursor.getColumnIndex("date_of_birth");
                 if (dobCol >= 0 && !cursor.isNull(dobCol)) {
                     String dob = cursor.getString(dobCol);
@@ -66,9 +73,7 @@ public class AssistanceFragment extends Fragment {
                 cursor.close();
             }
             db.close();
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
         return -1;
     }
 
@@ -84,6 +89,7 @@ public class AssistanceFragment extends Fragment {
     }
 
     private void applyAgeRecommendations(TextView tvTitle, TextView tvBody, int age) {
+        if (tvTitle == null || tvBody == null) return;
         if (age >= 13 && age <= 19) {
             tvTitle.setText("Recommendations for Age 13–19 (Adolescent)");
             tvBody.setText("• Adolescent Gynecologists\n• Menstrual Education Specialists\n• PCOS Awareness Experts");
@@ -106,11 +112,16 @@ public class AssistanceFragment extends Fragment {
         Uri uri = Uri.parse("geo:0,0?q=" + Uri.encode(query));
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
         mapIntent.setPackage("com.google.android.apps.maps");
-        if (mapIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+        try {
             startActivity(mapIntent);
-        } else {
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(query))));
+        } catch (ActivityNotFoundException e) {
+            try {
+                Intent webMapIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(query)));
+                startActivity(webMapIntent);
+            } catch (Exception ex) {
+                Toast.makeText(requireContext(), "No map or browser app available.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

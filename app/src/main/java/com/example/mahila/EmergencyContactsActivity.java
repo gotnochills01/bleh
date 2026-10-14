@@ -18,6 +18,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.mahila.api.TokenManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class EmergencyContactsActivity extends AppCompatActivity {
 
-    private AppPreferences preferences;
+    private TokenManager tokenManager;
     private DatabaseHelper dbHelper;
     private TextInputLayout nameLayout;
     private TextInputLayout phoneLayout;
@@ -39,16 +40,22 @@ public class EmergencyContactsActivity extends AppCompatActivity {
     private TextView emptyText;
     private Long editingId = null;
 
-    private static class ContactItem {
-        long id;
-        String name;
-        String phone;
+    public static class ContactItem {
+        public long id;
+        public String name;
+        public String phone;
 
-        ContactItem(long id, String name, String phone) {
+        public ContactItem(long id, String name, String phone) {
             this.id = id;
             this.name = name;
             this.phone = phone;
         }
+    }
+
+    public static String buildDialUriString(String phoneNumber) {
+        if (phoneNumber == null) return "tel:";
+        String digits = phoneNumber.replaceAll("\\D", "");
+        return "tel:" + digits;
     }
 
     @Override
@@ -58,22 +65,27 @@ public class EmergencyContactsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_emergency_contacts);
 
         View root = findViewById(R.id.emergency_contacts_root);
-        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        if (root != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
 
         MaterialToolbar toolbar = findViewById(R.id.emergency_contacts_toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Emergency Contacts");
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle("Emergency Contacts");
+            }
+            toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         }
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        preferences = new AppPreferences(this);
+        tokenManager = new TokenManager(this);
         dbHelper = new DatabaseHelper(this);
+
         nameLayout = findViewById(R.id.layout_contact_name);
         phoneLayout = findViewById(R.id.layout_contact_phone);
         nameInput = findViewById(R.id.input_contact_name);
@@ -82,11 +94,18 @@ public class EmergencyContactsActivity extends AppCompatActivity {
         contactsContainer = findViewById(R.id.saved_contacts_container);
         emptyText = findViewById(R.id.text_no_contacts);
 
-        findViewById(R.id.card_national_emergency).setOnClickListener(v -> dialNumber("112"));
-        findViewById(R.id.card_women_helpline).setOnClickListener(v -> dialNumber("1091"));
-        findViewById(R.id.card_ambulance).setOnClickListener(v -> dialNumber("108"));
+        View cardNational = findViewById(R.id.card_national_emergency);
+        if (cardNational != null) cardNational.setOnClickListener(v -> dialNumber("112"));
 
-        saveButton.setOnClickListener(v -> saveContact());
+        View cardWomen = findViewById(R.id.card_women_helpline);
+        if (cardWomen != null) cardWomen.setOnClickListener(v -> dialNumber("1091"));
+
+        View cardAmbulance = findViewById(R.id.card_ambulance);
+        if (cardAmbulance != null) cardAmbulance.setOnClickListener(v -> dialNumber("108"));
+
+        if (saveButton != null) {
+            saveButton.setOnClickListener(v -> saveContact());
+        }
     }
 
     @Override
@@ -97,8 +116,8 @@ public class EmergencyContactsActivity extends AppCompatActivity {
 
     private List<ContactItem> getContactsForCurrentUser() {
         List<ContactItem> list = new ArrayList<>();
-        String userEmail = preferences.getCurrentUserEmail();
-        if (userEmail.isEmpty()) {
+        String userEmail = tokenManager.getUserEmail();
+        if (userEmail == null || userEmail.isEmpty()) {
             return list;
         }
 
@@ -120,30 +139,26 @@ public class EmergencyContactsActivity extends AppCompatActivity {
     }
 
     private void saveContact() {
-        nameLayout.setError(null);
-        phoneLayout.setError(null);
+        if (nameLayout != null) nameLayout.setError(null);
+        if (phoneLayout != null) phoneLayout.setError(null);
 
-        String userEmail = preferences.getCurrentUserEmail();
-        if (userEmail.isEmpty()) {
+        String userEmail = tokenManager.getUserEmail();
+        if (userEmail == null || userEmail.isEmpty()) {
             Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String name = textOf(nameInput);
-        String phone = textOf(phoneInput);
+        String name = nameInput != null ? textOf(nameInput) : "";
+        String phone = phoneInput != null ? textOf(phoneInput) : "";
 
         if (name.length() < 2) {
-            nameLayout.setError("Enter a name with at least 2 characters.");
-            return;
-        }
-        if (!name.matches("[a-zA-Z .']+")) {
-            nameLayout.setError("Use letters only in the name.");
+            if (nameLayout != null) nameLayout.setError("Enter a name with at least 2 characters.");
             return;
         }
 
         String digits = phone.replaceAll("\\D", "");
         if (digits.length() < 10 || digits.length() > 15) {
-            phoneLayout.setError("Enter a valid phone number with 10 to 15 digits.");
+            if (phoneLayout != null) phoneLayout.setError("Enter a valid phone number with 10 to 15 digits.");
             return;
         }
 
@@ -152,15 +167,15 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             boolean sameNumber = contact.phone.replaceAll("\\D", "").equals(digits);
             boolean differentRecord = editingId == null || contact.id != editingId;
             if (sameNumber && differentRecord) {
-                phoneLayout.setError("This phone number is already saved.");
+                if (phoneLayout != null) phoneLayout.setError("This phone number is already saved.");
                 return;
             }
         }
 
         if (editingId == null) {
-            boolean success = dbHelper.saveContact(userEmail, name, phone);
+            boolean success = dbHelper.saveContact(userEmail, name, phone, false);
             if (success) {
-                Toast.makeText(this, "Contact saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Contact saved locally", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Failed to save contact", Toast.LENGTH_SHORT).show();
             }
@@ -168,26 +183,31 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             ContentValues cv = new ContentValues();
             cv.put(DatabaseHelper.KEY_CONTACT_NAME, name);
             cv.put(DatabaseHelper.KEY_CONTACT_PHONE, phone);
+            cv.put(DatabaseHelper.KEY_IS_SYNCED, 0);
             dbHelper.getWritableDatabase().update(
                     DatabaseHelper.TABLE_CONTACTS,
                     cv,
                     DatabaseHelper.KEY_ID + " = ? AND " + DatabaseHelper.KEY_USER_EMAIL + " = ?",
                     new String[]{String.valueOf(editingId), userEmail}
             );
-            Toast.makeText(this, "Contact updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Contact updated locally", Toast.LENGTH_SHORT).show();
             editingId = null;
-            saveButton.setText("Save contact");
+            if (saveButton != null) saveButton.setText("Save Contact");
         }
 
-        nameInput.setText("");
-        phoneInput.setText("");
+        if (nameInput != null) nameInput.setText("");
+        if (phoneInput != null) phoneInput.setText("");
         showContacts();
     }
 
     private void showContacts() {
+        if (contactsContainer == null) return;
         contactsContainer.removeAllViews();
+
         List<ContactItem> contacts = getContactsForCurrentUser();
-        emptyText.setVisibility(contacts.isEmpty() ? View.VISIBLE : View.GONE);
+        if (emptyText != null) {
+            emptyText.setVisibility(contacts.isEmpty() ? View.VISIBLE : View.GONE);
+        }
 
         LayoutInflater inflater = LayoutInflater.from(this);
         for (ContactItem contact : contacts) {
@@ -197,29 +217,30 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             MaterialButton editButton = item.findViewById(R.id.button_edit_contact);
             MaterialButton deleteButton = item.findViewById(R.id.button_delete_contact);
 
-            nameView.setText(contact.name);
-            phoneView.setText(contact.phone);
+            if (nameView != null) nameView.setText(contact.name);
+            if (phoneView != null) phoneView.setText(contact.phone);
 
             item.setOnClickListener(v -> dialNumber(contact.phone));
-            editButton.setOnClickListener(v -> startEdit(contact));
-            deleteButton.setOnClickListener(v -> deleteContact(contact.id));
+            if (editButton != null) editButton.setOnClickListener(v -> startEdit(contact));
+            if (deleteButton != null) deleteButton.setOnClickListener(v -> deleteContact(contact.id));
+
             contactsContainer.addView(item);
         }
     }
 
     private void startEdit(ContactItem contact) {
         editingId = contact.id;
-        nameLayout.setError(null);
-        phoneLayout.setError(null);
-        nameInput.setText(contact.name);
-        phoneInput.setText(contact.phone);
-        saveButton.setText("Update contact");
-        nameInput.requestFocus();
+        if (nameLayout != null) nameLayout.setError(null);
+        if (phoneLayout != null) phoneLayout.setError(null);
+        if (nameInput != null) nameInput.setText(contact.name);
+        if (phoneInput != null) phoneInput.setText(contact.phone);
+        if (saveButton != null) saveButton.setText("Update Contact");
+        if (nameInput != null) nameInput.requestFocus();
     }
 
     private void deleteContact(long id) {
-        String userEmail = preferences.getCurrentUserEmail();
-        if (!userEmail.isEmpty()) {
+        String userEmail = tokenManager.getUserEmail();
+        if (userEmail != null && !userEmail.isEmpty()) {
             dbHelper.getWritableDatabase().delete(
                     DatabaseHelper.TABLE_CONTACTS,
                     DatabaseHelper.KEY_ID + " = ? AND " + DatabaseHelper.KEY_USER_EMAIL + " = ?",
@@ -229,9 +250,9 @@ public class EmergencyContactsActivity extends AppCompatActivity {
 
         if (editingId != null && editingId == id) {
             editingId = null;
-            nameInput.setText("");
-            phoneInput.setText("");
-            saveButton.setText("Save contact");
+            if (nameInput != null) nameInput.setText("");
+            if (phoneInput != null) phoneInput.setText("");
+            if (saveButton != null) saveButton.setText("Save Contact");
         }
 
         showContacts();
@@ -239,17 +260,17 @@ public class EmergencyContactsActivity extends AppCompatActivity {
     }
 
     private void dialNumber(String number) {
-        String digits = number.replaceAll("\\D", "");
-        if (digits.isEmpty()) {
+        String uriStr = buildDialUriString(number);
+        if (uriStr.equals("tel:")) {
             Toast.makeText(this, "This number cannot be dialed.", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + digits));
+            intent.setData(Uri.parse(uriStr));
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No phone app is available on this device.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No phone dialer app is available on this device.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -257,4 +278,3 @@ public class EmergencyContactsActivity extends AppCompatActivity {
         return input.getText() == null ? "" : input.getText().toString().trim();
     }
 }
-
