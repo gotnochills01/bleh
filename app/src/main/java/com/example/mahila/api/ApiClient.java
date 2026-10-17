@@ -30,6 +30,8 @@ public class ApiClient {
             try {
                 URL url = new URL(BASE_URL + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
 
@@ -70,6 +72,8 @@ public class ApiClient {
             try {
                 URL url = new URL(BASE_URL + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
 
