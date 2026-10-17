@@ -18,7 +18,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin, btnGuest;
     private TextView txtSignup;
     private AppPreferences appPreferences;
-    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
