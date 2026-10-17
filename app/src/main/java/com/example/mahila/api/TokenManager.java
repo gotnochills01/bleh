@@ -21,11 +21,27 @@ public class TokenManager {
 
     public void saveSession(String token, Long userId, String email, String name, String language) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(KEY_TOKEN, token);
-        if (userId != null) editor.putLong(KEY_USER_ID, userId);
-        editor.putString(KEY_USER_EMAIL, email);
-        editor.putString(KEY_USER_NAME, name);
-        if (language != null) editor.putString(KEY_LANGUAGE, language);
+        if (token != null) {
+            editor.putString(KEY_TOKEN, token);
+        } else {
+            editor.remove(KEY_TOKEN);
+        }
+
+        if (userId != null) {
+            editor.putLong(KEY_USER_ID, userId);
+        } else {
+            editor.remove(KEY_USER_ID);
+        }
+
+        if (email != null) {
+            editor.putString(KEY_USER_EMAIL, email);
+        }
+        if (name != null) {
+            editor.putString(KEY_USER_NAME, name);
+        }
+        if (language != null) {
+            editor.putString(KEY_LANGUAGE, language);
+        }
         editor.apply();
     }
 

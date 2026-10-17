@@ -30,12 +30,16 @@ public class LoginActivity extends AppCompatActivity {
         btnGuest = findViewById(R.id.btnGuest);
         txtSignup = findViewById(R.id.txtSignup);
         appPreferences = new AppPreferences(this);
+        dbHelper = new DatabaseHelper(this);
 
         btnLogin.setOnClickListener(v -> loginUser());
 
         btnGuest.setOnClickListener(v -> {
             appPreferences.setLoggedIn(false);
             appPreferences.setCurrentUserEmail("Guest");
+            new TokenManager(LoginActivity.this).clear();
+            new TokenManager(LoginActivity.this).saveSession(null, null, "Guest", "Guest", "en");
+
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("guest_mode", true);
             startActivity(intent);
@@ -80,11 +84,15 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (token.isEmpty()) {
                             Toast.makeText(LoginActivity.this,
-                                    "Login response did not contain a token",
+                                    "Login response did not contain a valid token",
                                     Toast.LENGTH_LONG).show();
                             return;
                         }
 
+                        // Store user profile info locally in SQLite without plaintext password storage
+                        dbHelper.insertUser(name, email, "", 0);
+
+                        // Save authenticated JWT session
                         new TokenManager(LoginActivity.this).saveSession(
                                 token, userId, email, name, lang);
                         appPreferences.setLoggedIn(true);
@@ -95,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     } catch (Exception e) {
                         Toast.makeText(LoginActivity.this,
-                                "Could not read login response: " + e.getMessage(),
+                                "Could not process login response: " + e.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
                 }
@@ -112,8 +120,7 @@ public class LoginActivity extends AppCompatActivity {
         } catch (Exception e) {
             btnLogin.setEnabled(true);
             btnLogin.setText("Login");
-            Toast.makeText(this, "Error: " + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }
