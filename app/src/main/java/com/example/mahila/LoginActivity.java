@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         btnGuest.setOnClickListener(v -> {
             appPreferences.setLoggedIn(false);
             appPreferences.setCurrentUserEmail("Guest");
+            new TokenManager(LoginActivity.this).saveSession(null, null, "Guest", "Guest", "en");
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("guest_mode", true);
             startActivity(intent);
@@ -83,14 +84,15 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (token.isEmpty()) {
                             Toast.makeText(LoginActivity.this,
-                                    "Login response did not contain a token",
+                                    "Login response did not contain a valid token",
                                     Toast.LENGTH_LONG).show();
                             return;
                         }
 
-                        // Save user in local SQLite for offline access & seamless hybrid fallback
+                        // Save validated user session locally in SQLite for offline access
                         dbHelper.insertUser(name, email, password);
 
+                        // Save server JWT session
                         new TokenManager(LoginActivity.this).saveSession(
                                 token, userId, email, name, lang);
                         appPreferences.setLoggedIn(true);
@@ -100,7 +102,9 @@ public class LoginActivity extends AppCompatActivity {
                                 MainActivity.class));
                         finish();
                     } catch (Exception e) {
-                        fallbackLogin(email, password);
+                        Toast.makeText(LoginActivity.this,
+                                "Could not process login response: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -108,14 +112,22 @@ public class LoginActivity extends AppCompatActivity {
                 public void onError(String message) {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Login");
-                    // Try fallback login against local SQLite database if server is unreachable or offline
-                    fallbackLogin(email, password);
+
+                    // Only attempt offline local fallback if there is a genuine network connection failure / timeout.
+                    // If the server responded with an HTTP status (e.g. HTTP 401, 400, 403), deny authentication!
+                    if (message != null && (message.contains("Connection error") || message.contains("timeout") || message.contains("Failed to connect"))) {
+                        fallbackLogin(email, password);
+                    } else {
+                        Toast.makeText(LoginActivity.this,
+                                "Login Failed: Invalid credentials or " + message,
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
             });
         } catch (Exception e) {
             btnLogin.setEnabled(true);
             btnLogin.setText("Login");
-            fallbackLogin(email, password);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -134,13 +146,14 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } catch (Exception ignored) {}
 
-            new TokenManager(LoginActivity.this).saveSession("local_token", 1L, email, userName, "en");
-            Toast.makeText(this, "Logged in via offline local data", Toast.LENGTH_SHORT).show();
+            // For offline local sessions, do not pass a fake JWT token to backend calls
+            new TokenManager(LoginActivity.this).saveSession(null, null, email, userName, "en");
+            Toast.makeText(this, "Network unavailable: Logged in via local offline data", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         } else {
             Toast.makeText(LoginActivity.this,
-                    "Login failed. Check your credentials or connection.",
+                    "Network unavailable and no matching local account found.",
                     Toast.LENGTH_LONG).show();
         }
     }

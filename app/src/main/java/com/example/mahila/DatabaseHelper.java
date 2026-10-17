@@ -192,6 +192,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_PASSWORD, password);
         values.put(KEY_AGE, age);
 
+        // Safe update-then-insert strategy to prevent row deletion/replacement
+        int updatedRows = db.update(TABLE_USERS, values, KEY_EMAIL + " = ?", new String[]{email});
+        if (updatedRows > 0) {
+            return true;
+        }
+
         long result = db.insert(TABLE_USERS, null, values);
         return result != -1;
     }
