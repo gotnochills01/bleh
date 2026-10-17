@@ -117,12 +117,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
         });
 
-        // Set default fragment to Home on fresh launch
+        // Check if intent launched with specific tab request (e.g. from MedicalAssistanceActivity)
+        String openTab = getIntent() != null ? getIntent().getStringExtra("OPEN_TAB") : null;
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
-                    .commit();
-            toolbar.setTitle(R.string.app_name);
+            if ("ASSISTANCE".equalsIgnoreCase(openTab)) {
+                bottomNav.setSelectedItemId(R.id.nav_assistance);
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new HomeFragment())
+                        .commit();
+                toolbar.setTitle(R.string.app_name);
+            }
         }
 
         // Safe background SQLite to MySQL migration check

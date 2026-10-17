@@ -34,6 +34,7 @@ public class Reminder {
     @Column(name = "repeat_days", length = 50)
     private String repeatDays;
 
+    @Builder.Default
     @Column(name = "is_enabled")
     private Boolean isEnabled = true;
 

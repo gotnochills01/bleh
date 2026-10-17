@@ -29,17 +29,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Good Morning,"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:fontFamily="@font/nunito" />
 
                 <TextView
                     android:id="@+id/tv_user_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Anjali"
-                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                    android:textSize="26sp"
                     android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/nunito" />
             </LinearLayout>
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -59,10 +61,11 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
             android:layout_marginBottom="20dp">
 
             <LinearLayout
@@ -84,32 +87,35 @@
                     app:chipMinTouchTargetSize="0dp"
                     android:clickable="false"
                     android:focusable="false"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/nunito" />
 
                 <TextView
                     android:id="@+id/tv_cycle_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Day 14"
-                    android:textAppearance="?attr/textAppearanceDisplayMedium"
-                    android:textColor="?attr/colorOnSecondaryContainer"
-                    android:textStyle="bold" />
+                    android:textSize="42sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/nunito" />
 
                 <TextView
                     android:id="@+id/tv_cycle_phase"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Peak Fertility Window"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    android:textColor="?attr/colorOnSecondaryContainer"
-                    android:layout_marginTop="4dp" />
+                    android:textSize="18sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/nunito" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?attr/colorOutlineVariant"
                     android:layout_marginVertical="18dp"
-                    android:alpha="0.5" />
+                    android:alpha="0.6" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -128,19 +134,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Next Period"
-                            android:textAppearance="?attr/textAppearanceLabelMedium"
-                            android:textColor="?attr/colorOnSecondaryContainer"
-                            android:alpha="0.75" />
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="@font/nunito" />
 
                         <TextView
                             android:id="@+id/tv_next_period"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Oct 24, 2026"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textStyle="bold"
-                            android:layout_marginTop="2dp" />
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/nunito" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -154,19 +161,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Fertile Window"
-                            android:textAppearance="?attr/textAppearanceLabelMedium"
-                            android:textColor="?attr/colorOnSecondaryContainer"
-                            android:alpha="0.75" />
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:fontFamily="@font/nunito" />
 
                         <TextView
                             android:id="@+id/tv_fertile_window"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Oct 08 – Oct 14"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSecondaryContainer"
+                            android:textSize="15sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textStyle="bold"
-                            android:layout_marginTop="2dp" />
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/nunito" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -177,10 +185,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Quick Actions"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textSize="18sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/nunito" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -197,8 +206,9 @@
                 android:textSize="14sp"
                 app:icon="@drawable/ic_nav_tracker"
                 app:iconSize="20dp"
-                app:cornerRadius="16dp"
-                android:layout_marginEnd="6dp" />
+                app:cornerRadius="14dp"
+                android:layout_marginEnd="6dp"
+                android:fontFamily="@font/nunito" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_quick_ai_chat"
@@ -210,8 +220,9 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 app:icon="@drawable/ic_ai_sparkle"
                 app:iconSize="20dp"
-                app:cornerRadius="16dp"
-                android:layout_marginStart="6dp" />
+                app:cornerRadius="14dp"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/nunito" />
         </LinearLayout>
 
         <!-- AI Health Insights Card -->
@@ -247,10 +258,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="AI Cycle Insight"
-                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textSize="16sp"
                         android:textColor="?attr/colorOnTertiaryContainer"
                         android:textStyle="bold"
-                        android:layout_marginStart="8dp" />
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/nunito" />
                 </LinearLayout>
 
                 <TextView
@@ -258,10 +270,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="You are entering your ovulatory phase. Stay well hydrated and eat magnesium-rich foods to maintain optimal energy."
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textSize="14sp"
                     android:textColor="?attr/colorOnTertiaryContainer"
                     android:layout_marginTop="10dp"
-                    android:lineSpacingExtra="3dp" />
+                    android:lineSpacingExtra="4dp"
+                    android:fontFamily="@font/nunito" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

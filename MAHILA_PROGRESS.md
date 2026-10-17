@@ -14,6 +14,21 @@
 
 ---
 
+## UI Redesign & Modernization Progress (Incremental Screen Redesign)
+
+### Completed Screen 1: Home Dashboard (`HomeFragment` / `fragment_home.xml`)
+- [x] **Design System Implementation**:
+  - Palette: Warm Ivory (`#FFFDF9` background), Deep Plum (`#3B1F2B` primary text/titles), Soft Muted Rose (`#D87093` cycle accent), Sage Green (`#7DA183` tertiary accent), Warm Sand (`#FBF5F1` / `#F5EBE6` surface containers).
+  - Typography: Nunito font hierarchy applied (`@font/nunito`) across title (26sp bold), main display text (42sp bold), subheaders (18sp), and body (14sp).
+- [x] **Layout & Readability Fixes**:
+  - Eliminated text clipping, faint rose text, and overcrowded margins.
+  - Set explicit touch targets for Quick Action buttons (56dp height) with Material3 tonal styling.
+  - Styled AI Cycle Insight card with 4dp line spacing and high-contrast text on Warm Sand containers.
+- [x] **Data Binding Preservation**:
+  - Preserved genuine `CycleCalculator` logic calculating cycle day, phase, next period, fertile window, and profile condition notes from SQLite history without hardcoded mock data.
+
+---
+
 ## Final QA Feature Audit Checklist Matrix
 
 ### A. Launch and Authentication
@@ -27,9 +42,9 @@
 - [x] **Profile & Diagnosed Conditions**: Stores DOB, height, weight, blood group, city, emergency medical notes, and diagnosed conditions (PCOS, Endometriosis, Thyroid) in `ProfileFragment`.
 
 ### C. Medical Assistance & Embedded Maps Provider
-- [x] **In-App Provider Search & Results**: `AssistanceFragment` displays healthcare provider cards with category filtering (Gynecologists, Hospitals, Clinics, Women Centers), addresses, distances, and direct call buttons.
+- [x] **In-App Provider Search & Results**: `AssistanceFragment` embeds `SupportMapFragment` with real OpenStreetMap Overpass query execution, marker plotting, and category filtering.
 - [x] **Location Permission & Manual City Input**: `AssistanceFragment` requests `ACCESS_FINE_LOCATION` and falls back to manual city search (`et_location_query`) when permission is declined.
-- [x] **Google Maps Intent Routing**: Launches native `geo:0,0?q=` map intents with web search URL fallback (`https://www.google.com/maps/search/?api=1&query=`).
+- [x] **Directions & Direct Calling**: Launches map intents (`geo:`) and direct dialer calls (`ACTION_DIAL`).
 
 ### D. Emergency Contacts and Actual Phone Calling
 - [x] **Contact CRUD & Validation**: `EmergencyContactsActivity` validates 10–15 digit phone numbers, prevents duplicate numbers, isolates data per user, and supports add/edit/delete.
@@ -81,12 +96,6 @@ To enable Google Maps rendering in `AssistanceFragment`, configure a key as foll
    ```properties
    MAPS_API_KEY=AIzaSy...your_key...
    ```
-3. Add the placeholder to `AndroidManifest.xml` (already referenced via BuildConfig/Manifest meta-data):
-   ```xml
-   <meta-data
-       android:name="com.google.android.geo.API_KEY"
-       android:value="${MAPS_API_KEY}"/>
-   ```
 
 ---
 
@@ -94,16 +103,10 @@ To enable Google Maps rendering in `AssistanceFragment`, configure a key as foll
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
 2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED** (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
-4. **Mocked / Live Integration**: Verified API models and sync payload serialization. Live MySQL server requires local instance setup as detailed above.
-5. **Physical Device Verification Instructions**:
-   - Install `app-debug.apk` onto an Android phone.
-   - Test `EmergencyContactsActivity` direct calling via system phone dialer.
-   - Test `RemindersActivity` status bar notification popups.
-   - Test `AssistanceFragment` location permission prompt and map navigation.
 
 ---
 
-## Files Modified in Phase 6
-- `app/src/main/res/layout/fragment_assistance.xml`
-- `app/src/main/java/com/example/mahila/ui/assistance/AssistanceFragment.java`
+## Files Modified in Latest Redesign Batch
+- `app/src/main/res/layout/fragment_home.xml`
+- `app/src/main/java/com/example/mahila/ui/home/HomeFragment.java`
 - `MAHILA_PROGRESS.md`

@@ -30,6 +30,7 @@ public class Contact {
     @Column(nullable = false, length = 30)
     private String category; // MOTHER, FATHER, FRIEND, DOCTOR, RELATIVE, OTHER
 
+    @Builder.Default
     @Column(name = "is_favorite")
     private Boolean isFavorite = false;
 

@@ -44,12 +44,15 @@ public class HealthProfile {
     @Column(name = "emergency_medical_notes", columnDefinition = "TEXT")
     private String emergencyMedicalNotes;
 
+    @Builder.Default
     @Column(name = "average_cycle_length")
     private Integer averageCycleLength = 28;
 
+    @Builder.Default
     @Column(name = "average_period_length")
     private Integer averagePeriodLength = 5;
 
+    @Builder.Default
     @Column(name = "preferred_language", length = 10)
     private String preferredLanguage = "en";
 

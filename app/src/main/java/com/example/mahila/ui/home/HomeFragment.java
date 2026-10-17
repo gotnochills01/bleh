@@ -48,12 +48,12 @@ public class HomeFragment extends Fragment {
         tvAiInsightText = root.findViewById(R.id.tv_ai_insight_text);
         chipPhaseBadge  = root.findViewById(R.id.chip_phase_badge);
 
-        // Greeting by time-of-day
+        // Time-of-day greeting
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         String greeting = hour < 12 ? "Good Morning," : hour < 17 ? "Good Afternoon," : "Good Evening,";
         if (tvGreeting != null) tvGreeting.setText(greeting);
 
-        // User name from session / SQLite
+        // Retrieve user session & profile details
         TokenManager tokenManager = new TokenManager(requireContext());
         String email = tokenManager.getUserEmail();
         String name = tokenManager.getUserName();
@@ -63,7 +63,6 @@ public class HomeFragment extends Fragment {
 
         if (email != null && !email.isEmpty()) {
             try (DatabaseHelper db = new DatabaseHelper(requireContext())) {
-                // Fetch profile name fallback if session name is generic
                 Cursor uCursor = db.getUser(email);
                 if (uCursor != null && uCursor.moveToFirst()) {
                     if (name == null || name.isEmpty() || name.equalsIgnoreCase("Friend") || name.equalsIgnoreCase("User")) {
@@ -79,7 +78,6 @@ public class HomeFragment extends Fragment {
                     uCursor.close();
                 }
 
-                // Fetch all historical period records
                 Cursor cursor = db.getPeriod(email);
                 if (cursor != null && cursor.moveToFirst()) {
                     int col = cursor.getColumnIndex(DatabaseHelper.KEY_PERIOD_DATE);
@@ -97,7 +95,7 @@ public class HomeFragment extends Fragment {
         if (name == null || name.trim().isEmpty()) name = "Friend";
         tvUserName.setText(name);
 
-        // Compute genuine cycle info from historical data
+        // Cycle calculations
         CycleCalculator.CycleInfo info = CycleCalculator.calculateCycleInfoFromHistory(periodHistory, 28);
 
         if (periodHistory.isEmpty()) {
@@ -124,7 +122,7 @@ public class HomeFragment extends Fragment {
             if (tvAiInsightText != null) {
                 StringBuilder insight = new StringBuilder(getCycleInsightText(info.currentPhase));
                 if (diagnosedConditions != null && !diagnosedConditions.trim().isEmpty()) {
-                    insight.append("\n• Active Profile Condition: ").append(diagnosedConditions).append(" noted. Consult your doctor for tailored care.");
+                    insight.append("\n\n• Profile Health Condition: ").append(diagnosedConditions).append(" noted. Consult your doctor for tailored care.");
                 }
                 tvAiInsightText.setText(insight.toString());
             }
