@@ -40,19 +40,23 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_medical_assistance);
 
         View root = findViewById(R.id.medical_assistance_root);
-        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        if (root != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
 
         MaterialToolbar toolbar = findViewById(R.id.medical_assistance_toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Medical Assistance");
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle("Medical Assistance");
+            }
+            toolbar.setNavigationOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         preferences = new AppPreferences(this);
         dbHelper = new DatabaseHelper(this);
@@ -60,12 +64,21 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
         clinicianDetailText = findViewById(R.id.text_clinician_detail);
 
         MaterialCardView clinicianCard = findViewById(R.id.card_talk_to_clinician);
-        clinicianCard.setOnClickListener(v -> saveClinicianReminder());
+        if (clinicianCard != null) {
+            clinicianCard.setOnClickListener(v -> {
+                saveClinicianReminder();
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("OPEN_TAB", "ASSISTANCE");
+                startActivity(intent);
+            });
+        }
 
         MaterialCardView urgentCard = findViewById(R.id.card_urgent_care);
-        urgentCard.setOnClickListener(v -> {
-            startActivity(new Intent(this, EmergencyContactsActivity.class));
-        });
+        if (urgentCard != null) {
+            urgentCard.setOnClickListener(v -> {
+                startActivity(new Intent(this, EmergencyContactsActivity.class));
+            });
+        }
     }
 
     @Override
@@ -76,21 +89,20 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
 
     private void saveClinicianReminder() {
         String userEmail = preferences.getCurrentUserEmail();
-        if (userEmail.isEmpty()) {
-            Toast.makeText(this, "Guest Mode: Clinician reminders are not saved.", Toast.LENGTH_SHORT).show();
+        if (userEmail == null || userEmail.isEmpty()) {
+            Toast.makeText(this, "Opening Medical Map Search...", Toast.LENGTH_SHORT).show();
             return;
         }
         preferences.saveClinicianReminder(userEmail, System.currentTimeMillis());
         showSavedInfo();
-        Toast.makeText(this, "Reminder saved. Visit a clinic when you can.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Opening Nearby Healthcare Providers...", Toast.LENGTH_SHORT).show();
     }
 
     private void showSavedInfo() {
         String userEmail = preferences.getCurrentUserEmail();
         StringBuilder intro = new StringBuilder(INTRO_TEXT);
 
-        if (!userEmail.isEmpty()) {
-            // Load latest period date from DatabaseHelper
+        if (userEmail != null && !userEmail.isEmpty()) {
             Cursor periodCursor = dbHelper.getPeriod(userEmail);
             if (periodCursor != null) {
                 if (periodCursor.moveToFirst()) {
@@ -104,7 +116,6 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
                 periodCursor.close();
             }
 
-            // Load latest symptom from DatabaseHelper
             Cursor symptomCursor = dbHelper.getSymptoms(userEmail);
             if (symptomCursor != null) {
                 if (symptomCursor.moveToFirst()) {
@@ -120,15 +131,18 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
             }
         }
 
-        introText.setText(intro.toString());
+        if (introText != null) {
+            introText.setText(intro.toString());
+        }
 
-        long reminderMillis = preferences.getClinicianReminderMillis(userEmail);
-        if (reminderMillis > 0L) {
-            clinicianDetailText.setText(CLINICIAN_DETAIL + " Reminder saved on "
-                    + dateFormat.format(new Date(reminderMillis)) + ".");
-        } else {
-            clinicianDetailText.setText(CLINICIAN_DETAIL);
+        long reminderMillis = preferences.getClinicianReminderMillis(userEmail != null ? userEmail : "");
+        if (clinicianDetailText != null) {
+            if (reminderMillis > 0L) {
+                clinicianDetailText.setText(CLINICIAN_DETAIL + " Reminder saved on "
+                        + dateFormat.format(new Date(reminderMillis)) + ".");
+            } else {
+                clinicianDetailText.setText(CLINICIAN_DETAIL);
+            }
         }
     }
 }
-

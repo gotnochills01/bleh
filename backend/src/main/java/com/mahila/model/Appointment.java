@@ -33,6 +33,7 @@ public class Appointment {
     @Column(name = "appointment_date_time", nullable = false)
     private LocalDateTime appointmentDateTime;
 
+    @Builder.Default
     @Column(name = "is_completed")
     private Boolean isCompleted = false;
 
