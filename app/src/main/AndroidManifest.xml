@@ -10,6 +10,7 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -17,6 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Mahila">
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
@@ -37,55 +39,68 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
+
         <activity
             android:name=".SignupActivity"
             android:exported="false" />
+
         <activity
             android:name=".WelcomeActivity"
             android:exported="false" />
+
         <activity
             android:name=".LandingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".HomeActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".PeriodTrackerActivity"
             android:exported="false" />
+
         <activity
             android:name=".SymptomLoggerActivity"
             android:exported="false" />
+
         <activity
             android:name=".MedicalAssistanceActivity"
             android:exported="false" />
+
         <activity
             android:name=".EmergencyContactsActivity"
             android:exported="false" />
+
         <activity
             android:name=".HealthTipsActivity"
             android:exported="false" />
+
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".AiChatActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".QuizActivity"
             android:exported="false" />
+
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
