@@ -1,7 +1,6 @@
 package com.example.mahila;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,7 +38,9 @@ public class LoginActivity extends AppCompatActivity {
         btnGuest.setOnClickListener(v -> {
             appPreferences.setLoggedIn(false);
             appPreferences.setCurrentUserEmail("Guest");
+            new TokenManager(LoginActivity.this).clear();
             new TokenManager(LoginActivity.this).saveSession(null, null, "Guest", "Guest", "en");
+
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("guest_mode", true);
             startActivity(intent);
@@ -89,10 +90,10 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Save validated user session locally in SQLite for offline access
-                        dbHelper.insertUser(name, email, password);
+                        // Store user profile info locally in SQLite without plaintext password storage
+                        dbHelper.insertUser(name, email, "", 0);
 
-                        // Save server JWT session
+                        // Save authenticated JWT session
                         new TokenManager(LoginActivity.this).saveSession(
                                 token, userId, email, name, lang);
                         appPreferences.setLoggedIn(true);
@@ -112,49 +113,15 @@ public class LoginActivity extends AppCompatActivity {
                 public void onError(String message) {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Login");
-
-                    // Only attempt offline local fallback if there is a genuine network connection failure / timeout.
-                    // If the server responded with an HTTP status (e.g. HTTP 401, 400, 403), deny authentication!
-                    if (message != null && (message.contains("Connection error") || message.contains("timeout") || message.contains("Failed to connect"))) {
-                        fallbackLogin(email, password);
-                    } else {
-                        Toast.makeText(LoginActivity.this,
-                                "Login Failed: Invalid credentials or " + message,
-                                Toast.LENGTH_LONG).show();
-                    }
+                    Toast.makeText(LoginActivity.this,
+                            "Login failed: " + message,
+                            Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {
             btnLogin.setEnabled(true);
             btnLogin.setText("Login");
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void fallbackLogin(String email, String password) {
-        if (dbHelper.checkLogin(email, password)) {
-            appPreferences.setLoggedIn(true);
-            appPreferences.setCurrentUserEmail(email);
-
-            String userName = "User";
-            try (Cursor cursor = dbHelper.getUser(email)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int nameIdx = cursor.getColumnIndex(DatabaseHelper.KEY_NAME);
-                    if (nameIdx >= 0 && !cursor.isNull(nameIdx)) {
-                        userName = cursor.getString(nameIdx);
-                    }
-                }
-            } catch (Exception ignored) {}
-
-            // For offline local sessions, do not pass a fake JWT token to backend calls
-            new TokenManager(LoginActivity.this).saveSession(null, null, email, userName, "en");
-            Toast.makeText(this, "Network unavailable: Logged in via local offline data", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-        } else {
-            Toast.makeText(LoginActivity.this,
-                    "Network unavailable and no matching local account found.",
-                    Toast.LENGTH_LONG).show();
         }
     }
 }
