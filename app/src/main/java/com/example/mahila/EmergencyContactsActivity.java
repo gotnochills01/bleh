@@ -1,10 +1,8 @@
 package com.example.mahila;
 
-import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,12 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,9 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmergencyContactsActivity extends AppCompatActivity {
-
-    private static final int REQ_CALL_PERMISSION = 301;
-    private String pendingCallNumber = null;
 
     private TokenManager tokenManager;
     private DatabaseHelper dbHelper;
@@ -239,61 +231,20 @@ public class EmergencyContactsActivity extends AppCompatActivity {
 
     private void initiatePhoneCall(String number) {
         new AlertDialog.Builder(this)
-                .setTitle("Confirm Emergency Call")
-                .setMessage("Do you want to call " + number + " directly?")
-                .setPositiveButton("Call Now", (dialog, which) -> checkCallPermissionAndExecute(number))
-                .setNeutralButton("Open Dialer", (dialog, which) -> fallbackToDialer(number))
+                .setTitle("Confirm Open Phone Dialer")
+                .setMessage("Open the phone dialer with " + number + "?")
+                .setPositiveButton("Open Dialer", (dialog, which) -> openDialer(number))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void checkCallPermissionAndExecute(String number) {
-        pendingCallNumber = number;
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CALL_PHONE}, REQ_CALL_PERMISSION);
-        } else {
-            executeDirectCall(number);
-        }
-    }
-
-    private void executeDirectCall(String number) {
-        String uriStr = buildDialUriString(number);
-        try {
-            Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(uriStr));
-            startActivity(callIntent);
-        } catch (SecurityException e) {
-            fallbackToDialer(number);
-        } catch (Exception e) {
-            fallbackToDialer(number);
-        }
-    }
-
-    private void fallbackToDialer(String number) {
+    private void openDialer(String number) {
         String uriStr = buildDialUriString(number);
         try {
             Intent dialIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(uriStr));
             startActivity(dialIntent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No phone app available.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQ_CALL_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (pendingCallNumber != null) {
-                    executeDirectCall(pendingCallNumber);
-                }
-            } else {
-                Toast.makeText(this, "Call permission denied. Opening phone dialer...", Toast.LENGTH_SHORT).show();
-                if (pendingCallNumber != null) {
-                    fallbackToDialer(pendingCallNumber);
-                }
-            }
+            Toast.makeText(this, "No phone dialer app available on device.", Toast.LENGTH_SHORT).show();
         }
     }
 

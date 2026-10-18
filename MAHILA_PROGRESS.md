@@ -14,6 +14,26 @@
 
 ---
 
+## Group 2: GPS, Maps, Nearby Assistance & Emergency Calling
+
+### 1. Features Implemented & Resolved
+- **GPS Permission & Rationale Handling (`AssistanceFragment.java`)**:
+  - Implemented runtime checks for `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`.
+  - Added user permission rationale dialogs explaining GPS usage for discovering nearby healthcare facilities.
+  - Added a permanently denied dialog option directing users straight to App Info Settings (`Settings.ACTION_APPLICATION_DETAILS_SETTINGS`) while allowing manual city search fallback.
+- **Location Detection & User States**:
+  - Automatically detects GPS/Network location, updates map camera position, and checks hardware GPS provider status.
+  - Displays user-friendly error/loading messages when GPS is disabled or when location/network access fails (`tv_provider_results_subtitle`).
+- **Map Display & Provider Search**:
+  - Renders Google Map markers (`MarkerOptions`) and card list views (`container_provider_results`) for nearby Gynecologists, Hospitals, Clinics, Women Centers, and Pharmacies via real-time OpenStreetMap Overpass API queries.
+  - Displays distance calculation in kilometers, directions launching intent, and location sharing sheet link (`ACTION_SEND`).
+- **Emergency Calling Safety Compliance (`EmergencyContactsActivity.java`)**:
+  - Refactored emergency contacts and healthcare provider call actions to execute exclusively via `Intent.ACTION_DIAL` with pre-filled `tel:number` URIs.
+  - Prevents automatic phone calls, leaving final placement to explicit user confirmation in the native phone dialer app.
+  - Preserves full emergency contact CRUD (add, edit, delete, 10–15 digit validation, duplicate check) with local SQLite `DatabaseHelper`.
+
+---
+
 ## Authentication, Session Management & Physical Phone Fixes
 
 ### 1. Root Causes Found
@@ -26,22 +46,6 @@
 - **Button Loading States & Double-Tap Prevention**: `LoginActivity.java` and `SignupActivity.java` disable buttons and show progress text ("Logging in...", "Creating Account...") during network calls, re-enabling them cleanly in success/failure callbacks.
 - **Local SQLite Auth Fallback**: `LoginActivity.java` checks saved SQLite user credentials if backend is unreachable (offline mode), keeping physical phone users logged in seamlessly.
 - **Unified Session Persistence**: Synchronized `TokenManager` and `AppPreferences` across login, signup, guest mode, and data saves. Ensured period and profile update methods in `DatabaseHelper` never erase session tokens.
-
----
-
-## Physical Android Phone (Vivo / LAN) Testing Guide
-
-1. **Host Server Binding**: Ensure Spring Boot backend is running on host laptop on port 8080.
-2. **Wi-Fi Connectivity**: Connect both laptop and physical Vivo Android phone to the same local Wi-Fi network.
-3. **Retrieve Host LAN IP**:
-   * Windows: `ipconfig` (look for IPv4 Address e.g., `192.168.1.100`)
-   * Mac/Linux: `ifconfig` or `ip a`
-4. **Configure App Host Base URL**:
-   In `MainActivity.java` or Application initialization, configure host IP:
-   ```java
-   com.example.mahila.api.ApiClient.setCustomBaseUrl("http://192.168.1.100:8080/");
-   ```
-5. **Firewall Rule**: Allow incoming TCP port `8080` connections through host operating system firewall.
 
 ---
 
@@ -59,5 +63,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
