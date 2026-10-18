@@ -22,6 +22,7 @@ import com.example.mahila.api.TokenManager;
 import com.example.mahila.ui.assistance.AssistanceFragment;
 import com.example.mahila.ui.awareness.AwarenessFragment;
 import com.example.mahila.ui.home.HomeFragment;
+import com.example.mahila.ui.insights.InsightsFragment;
 import com.example.mahila.ui.profile.ProfileFragment;
 import com.example.mahila.ui.tracker.TrackerFragment;
 import com.example.mahila.utils.LocaleHelper;
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             if ("ASSISTANCE".equalsIgnoreCase(openTab)) {
                 bottomNav.setSelectedItemId(R.id.nav_assistance);
+            } else if ("INSIGHTS".equalsIgnoreCase(openTab)) {
+                navigateToInsights();
             } else {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new HomeFragment())
@@ -144,10 +147,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    public void navigateToInsights() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new InsightsFragment())
+                .commit();
+        if (toolbar != null) {
+            toolbar.setTitle("Insights & Analytics");
+        }
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.drawer_nutrition) {
+        if (id == R.id.drawer_insights) {
+            navigateToInsights();
+        } else if (id == R.id.drawer_nutrition) {
             startActivity(new Intent(this, NutritionActivity.class));
         } else if (id == R.id.drawer_settings || id == R.id.drawer_language) {
             startActivity(new Intent(this, SettingsActivity.class));

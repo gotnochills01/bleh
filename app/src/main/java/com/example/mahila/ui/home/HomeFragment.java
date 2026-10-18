@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mahila.AiChatActivity;
 import com.example.mahila.DatabaseHelper;
+import com.example.mahila.MainActivity;
 import com.example.mahila.NutritionActivity;
 import com.example.mahila.R;
 import com.example.mahila.api.TokenManager;
@@ -142,7 +143,18 @@ public class HomeFragment extends Fragment {
                     startActivity(new Intent(requireContext(), AiChatActivity.class)));
         }
 
-        // Nutrition Card click listener
+        // Insights Card click listeners
+        View cardInsights = root.findViewById(R.id.card_insights_banner);
+        if (cardInsights != null) {
+            cardInsights.setOnClickListener(v -> openInsightsFragment());
+        }
+
+        MaterialButton btnOpenInsights = root.findViewById(R.id.btn_open_insights);
+        if (btnOpenInsights != null) {
+            btnOpenInsights.setOnClickListener(v -> openInsightsFragment());
+        }
+
+        // Nutrition Card click listeners
         View cardNutrition = root.findViewById(R.id.card_nutrition_banner);
         if (cardNutrition != null) {
             cardNutrition.setOnClickListener(v ->
@@ -156,6 +168,12 @@ public class HomeFragment extends Fragment {
         }
 
         return root;
+    }
+
+    private void openInsightsFragment() {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToInsights();
+        }
     }
 
     private String getCycleInsightText(String phase) {

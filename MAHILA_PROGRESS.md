@@ -27,6 +27,27 @@
 
 ---
 
+## Personalized Health Insights & Cycle Analytics Feature
+
+### 1. Feature Architecture & Backend Analytics
+- **Backend Analytics Engine (`AnalyticsService.java`)**:
+  - Expanded `AnalyticsDTO.java` with period duration averages, cycle length history list, data completeness level (`INSUFFICIENT`, `MODERATE`, `ROBUST`), and symptom/mood frequency maps.
+  - Queries user-isolated period, symptom, and mood records via Spring Data JPA.
+- **Android Analytics Engine (`AnalyticsEngine.java`)**:
+  - Standalone, unit-tested engine calculating cycle day, average cycle length, irregular variance flags (>4 days variance), period duration averages, neutral symptom occurrence summaries ("You recorded Cramps on 2 of your logged entries"), and observational food-symptom trends with minimum-data thresholds.
+
+### 2. Android Insights UI & Navigation
+- **Layout (`fragment_insights.xml`)**:
+  - Educational/Medical Disclaimer Banner explaining that analytics are observational and non-diagnostic.
+  - Data Completeness Chip Badge & Explanation text.
+  - Cycle & Period Duration Summary Card.
+  - Logged Symptom Frequency Summary List.
+  - Observational Food & Symptom Associations Card.
+- **Fragment (`InsightsFragment.java`)**: Loads local SQLite period, symptom, and mood data via `DatabaseHelper`, processes analytics locally using `AnalyticsEngine`, fetches remote Spring Boot analytics via `ApiClient`, and updates UI components dynamically.
+- **Navigation**: Registered `drawer_insights` in `drawer_menu.xml`, wired click handler in `MainActivity.java` (`navigateToInsights()`), and added Quick Action banner card in `fragment_home.xml` / `HomeFragment.java`.
+
+---
+
 ## Evidence-Based Personalized Nutrition & Food Recommendations Feature
 
 ### 1. Feature Architecture & Backend Schema
@@ -79,5 +100,5 @@ mvn spring-boot:run -f backend/pom.xml
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).

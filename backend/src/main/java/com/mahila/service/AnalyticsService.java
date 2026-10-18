@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AnalyticsService {
@@ -40,14 +39,39 @@ public class AnalyticsService {
         List<Mood> moods = moodRepository.findByUserIdOrderByLoggedDateDesc(user.getId());
 
         double avgCycleLength = 28.0;
+        double avgPeriodDuration = 5.0;
         String regularity = "Regular (±2 days)";
+        String completeness = "INSUFFICIENT";
+        List<Integer> cycleHistory = new ArrayList<>();
 
+        if (periods.size() >= 3) {
+            completeness = "ROBUST";
+        } else if (periods.size() >= 1) {
+            completeness = "MODERATE";
+        }
+
+        // Calculate period durations
+        List<Long> durations = new ArrayList<>();
+        for (Period p : periods) {
+            if (p.getStartDate() != null && p.getEndDate() != null) {
+                long dur = ChronoUnit.DAYS.between(p.getStartDate(), p.getEndDate()) + 1;
+                if (dur > 0 && dur <= 14) {
+                    durations.add(dur);
+                }
+            }
+        }
+        if (!durations.isEmpty()) {
+            avgPeriodDuration = durations.stream().mapToLong(Long::longValue).average().orElse(5.0);
+        }
+
+        // Calculate cycle lengths
         if (periods.size() >= 2) {
             List<Long> gaps = new ArrayList<>();
             for (int i = 0; i < periods.size() - 1; i++) {
                 long days = ChronoUnit.DAYS.between(periods.get(i + 1).getStartDate(), periods.get(i).getStartDate());
-                if (days > 15 && days < 60) {
+                if (days >= 15 && days <= 60) {
                     gaps.add(days);
+                    cycleHistory.add((int) days);
                 }
             }
             if (!gaps.isEmpty()) {
@@ -80,10 +104,13 @@ public class AnalyticsService {
 
         return AnalyticsDTO.builder()
                 .averageCycleLength(avgCycleLength)
+                .averagePeriodDuration(avgPeriodDuration)
                 .cycleRegularity(regularity)
+                .dataCompletenessStatus(completeness)
                 .mostCommonSymptom(topSymptom)
                 .mostCommonMood(topMood)
                 .totalCyclesTracked(periods.size())
+                .cycleLengthHistory(cycleHistory)
                 .symptomFrequencies(symptomFreq)
                 .moodFrequencies(moodFreq)
                 .build();

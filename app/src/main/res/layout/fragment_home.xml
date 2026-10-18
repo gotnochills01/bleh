@@ -225,6 +225,63 @@
                 android:fontFamily="@font/nunito" />
         </LinearLayout>
 
+        <!-- Health Analytics & Insights Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_insights_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:strokeColor="@color/muted_rose"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@color/warm_sand"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Health Insights &amp; Cycle Analytics"
+                        android:textColor="@color/deep_plum"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/nunito" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Analyze cycle regularity, symptom occurrences, and observational trends"
+                        android:textColor="@color/text_body"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/nunito" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_open_insights"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/nunito" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Personalized Nutrition Banner Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_nutrition_banner"
