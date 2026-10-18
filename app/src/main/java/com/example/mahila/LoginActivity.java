@@ -18,6 +18,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin, btnGuest;
     private TextView txtSignup;
     private AppPreferences appPreferences;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,14 +114,14 @@ public class LoginActivity extends AppCompatActivity {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("Login");
                     Toast.makeText(LoginActivity.this,
-                            "Login failed: " + message,
+                            "Login Error: " + message,
                             Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {
             btnLogin.setEnabled(true);
             btnLogin.setText("Login");
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error building request: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }
