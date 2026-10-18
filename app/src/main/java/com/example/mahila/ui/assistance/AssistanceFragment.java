@@ -2,26 +2,31 @@ package com.example.mahila.ui.assistance;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -65,7 +70,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private LatLng currentSearchLatLng = new LatLng(28.6139, 77.2090); // Default location (e.g. New Delhi)
+    private LatLng currentSearchLatLng = new LatLng(28.6139, 77.2090); // Default location fallback (e.g. New Delhi)
 
     public static class MedicalProvider {
         public String name;
@@ -133,6 +138,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 == PackageManager.PERMISSION_GRANTED) {
             try {
                 this.googleMap.setMyLocationEnabled(true);
+                detectAndSetUserLocation();
             } catch (SecurityException ignored) {}
         }
 
@@ -141,26 +147,80 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void promptAndRequestGpsLocation() {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Location Access Request")
-                .setMessage("Mahila requires location access to find nearby gynecologists, hospitals, and clinics around your current position.")
-                .setPositiveButton("Grant GPS Access", (dialog, which) -> requestGpsLocation())
-                .setNegativeButton("Cancel", null)
-                .show();
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Location Permission Needed")
+                        .setMessage("Mahila requires GPS location access to discover nearby gynecologists, hospitals, clinics, and pharmacies near you.")
+                        .setPositiveButton("Grant Access", (dialog, which) -> requestGpsLocation())
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                requestGpsLocation();
+            }
+        } else {
+            checkGpsHardwareAndFetch();
+        }
     }
 
     private void requestGpsLocation() {
+        requestPermissions(new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        }, REQ_LOCATION_PERM);
+    }
+
+    private void checkGpsHardwareAndFetch() {
+        LocationManager lm = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+        boolean gpsEnabled = false;
+        boolean networkEnabled = false;
+
+        if (lm != null) {
+            try { gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ignored) {}
+            try { networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ignored) {}
+        }
+
+        if (!gpsEnabled && !networkEnabled) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Location Services Disabled")
+                    .setMessage("GPS is currently turned off on your device. Enable location in device settings or enter your city manually in the search bar above.")
+                    .setPositiveButton("Location Settings", (dialog, which) -> {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
+
+        detectAndSetUserLocation();
+        Toast.makeText(requireContext(), "GPS location active. Searching nearby healthcare providers...", Toast.LENGTH_SHORT).show();
+        executeProviderSearch("Gynecologists");
+    }
+
+    private void detectAndSetUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOCATION_PERM);
-        } else {
-            if (googleMap != null) {
-                try {
-                    googleMap.setMyLocationEnabled(true);
-                } catch (SecurityException ignored) {}
+                != PackageManager.PERMISSION_GRANTED) return;
+
+        LocationManager lm = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+        if (lm == null) return;
+
+        Location loc = null;
+        try {
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
-            Toast.makeText(requireContext(), "GPS location verified. Searching nearby healthcare providers...", Toast.LENGTH_SHORT).show();
-            executeProviderSearch("Gynecologists");
+            if (loc == null && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+        } catch (SecurityException ignored) {}
+
+        if (loc != null) {
+            currentSearchLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+            if (googleMap != null) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 13f));
+            }
         }
     }
 
@@ -174,10 +234,24 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                         googleMap.setMyLocationEnabled(true);
                     } catch (SecurityException ignored) {}
                 }
-                Toast.makeText(requireContext(), "GPS permission granted. Updating map search...", Toast.LENGTH_SHORT).show();
-                executeProviderSearch("Gynecologists");
+                checkGpsHardwareAndFetch();
             } else {
-                Toast.makeText(requireContext(), "Location permission denied. Enter city name manually above.", Toast.LENGTH_LONG).show();
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    // Permanently denied
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Location Permission Permanently Denied")
+                            .setMessage("GPS permission is disabled in App Settings. Enable Location in Settings to automatically detect nearby medical assistance, or search manually by city above.")
+                            .setPositiveButton("Open App Settings", (dialog, which) -> {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                                intent.setData(uri);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Search Manually", null)
+                            .show();
+                } else {
+                    Toast.makeText(requireContext(), "Location permission denied. Enter city name manually above.", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -191,7 +265,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
 
         if (tvProviderSubtitle != null) {
             String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
-            tvProviderSubtitle.setText("Searching OpenStreetMap records for " + category + "\nLat/Lng: " + String.format(Locale.US, "%.4f, %.4f", currentSearchLatLng.latitude, currentSearchLatLng.longitude) + " (" + timestamp + ")");
+            tvProviderSubtitle.setText("Searching OpenStreetMap records for " + category + "...\nLat/Lng: " + String.format(Locale.US, "%.4f, %.4f", currentSearchLatLng.latitude, currentSearchLatLng.longitude) + " (" + timestamp + ")");
         }
 
         executorService.execute(() -> {
@@ -218,13 +292,12 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 if (tvProviderSubtitle != null) {
                     String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
                     if (realProviders.isEmpty()) {
-                        tvProviderSubtitle.setText("No public healthcare places found near " + String.format(Locale.US, "%.4f, %.4f", finalPoint.latitude, finalPoint.longitude) + " as of " + timestamp + ". Try entering a larger city above.");
+                        tvProviderSubtitle.setText("No public healthcare places or internet connection available near " + String.format(Locale.US, "%.4f, %.4f", finalPoint.latitude, finalPoint.longitude) + " as of " + timestamp + ". Try entering a city name above.");
                     } else {
                         tvProviderSubtitle.setText("Found " + realProviders.size() + " verified " + category + " near " + String.format(Locale.US, "%.4f, %.4f", finalPoint.latitude, finalPoint.longitude) + " (" + timestamp + ")");
                     }
                 }
 
-                // Add Share Location Button
                 addShareLocationCard(finalPoint);
 
                 for (MedicalProvider provider : realProviders) {
@@ -275,7 +348,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
 
                     if (provider.phone != null && !provider.phone.isEmpty() && !provider.phone.equalsIgnoreCase("Not Listed")) {
                         MaterialButton btnCall = new MaterialButton(requireContext());
-                        btnCall.setText("Call (" + provider.phone + ")");
+                        btnCall.setText("Dial (" + provider.phone + ")");
                         btnCall.setTextSize(12f);
                         btnCall.setCornerRadius(10);
                         btnCall.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -308,7 +381,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         shareLayout.setOrientation(LinearLayout.VERTICAL);
 
         TextView tvShareTitle = new TextView(requireContext());
-        tvShareTitle.setText("📍 Current Search Location");
+        tvShareTitle.setText("📍 Current Location");
         tvShareTitle.setTextSize(14f);
         tvShareTitle.setTextColor(0xFF3B1F2B);
         tvShareTitle.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -323,7 +396,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         shareBtnRow.setOrientation(LinearLayout.HORIZONTAL);
 
         MaterialButton btnOpenMaps = new MaterialButton(requireContext());
-        btnOpenMaps.setText("Open in Maps");
+        btnOpenMaps.setText("Open Maps");
         btnOpenMaps.setTextSize(12f);
         btnOpenMaps.setCornerRadius(10);
         LinearLayout.LayoutParams b1Params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
@@ -354,7 +427,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My Location via Mahila Health");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Here is my location for healthcare assistance: " + mapsUrl);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Here is my current location for medical assistance: " + mapsUrl);
         startActivity(Intent.createChooser(shareIntent, "Share Location Link"));
     }
 
@@ -380,6 +453,8 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 tagFilter = "clinic";
             } else if (category.toLowerCase().contains("hospital")) {
                 tagFilter = "hospital";
+            } else if (category.toLowerCase().contains("pharmacy")) {
+                tagFilter = "pharmacy";
             }
 
             String overpassQuery = "[out:json][timeout:10];" +
@@ -437,7 +512,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         } catch (Exception e) {
-            // Logged silently for safe network failure fallback
+            // Handled safely when network or Overpass API is unavailable
         }
         return list;
     }
@@ -453,7 +528,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                         Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(query)));
                 startActivity(webMapIntent);
             } catch (Exception ex) {
-                Toast.makeText(requireContext(), "No map app or browser available.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "No map application or browser available.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -464,7 +539,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
             Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse(uriStr));
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(requireContext(), "No phone dialer app available.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "No phone dialer application available.", Toast.LENGTH_SHORT).show();
         }
     }
 
