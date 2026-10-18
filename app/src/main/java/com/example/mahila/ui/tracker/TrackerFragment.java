@@ -18,6 +18,8 @@ import com.example.mahila.api.ApiService;
 import com.example.mahila.api.TokenManager;
 import com.example.mahila.notifications.ReminderScheduler;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.slider.Slider;
 import org.json.JSONObject;
 
@@ -28,10 +30,10 @@ import java.util.Locale;
 public class TrackerFragment extends Fragment {
 
     private EditText etPeriodDate;
-    private Spinner spFlowLevel;
+    private ChipGroup cgFlowLevel;
+    private ChipGroup cgMoodType;
     private Slider sliderPainScale;
     private TextView tvPainLabel;
-    private Spinner spMoodType;
     private TextView tvEmptyPeriodHistory;
     private LinearLayout containerPeriodHistory;
 
@@ -47,31 +49,49 @@ public class TrackerFragment extends Fragment {
         dbHelper = new DatabaseHelper(requireContext());
 
         etPeriodDate           = root.findViewById(R.id.et_period_date);
-        spFlowLevel            = root.findViewById(R.id.sp_flow_level);
+        cgFlowLevel            = root.findViewById(R.id.cg_flow_level);
+        cgMoodType             = root.findViewById(R.id.cg_mood_type);
         sliderPainScale        = root.findViewById(R.id.sb_pain_scale);
         tvPainLabel            = root.findViewById(R.id.tv_pain_label);
-        spMoodType             = root.findViewById(R.id.sp_mood_type);
         tvEmptyPeriodHistory   = root.findViewById(R.id.tv_empty_period_history);
         containerPeriodHistory = root.findViewById(R.id.container_period_history);
 
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        etPeriodDate.setText(today);
+        if (etPeriodDate != null) etPeriodDate.setText(today);
 
-        String[] flows = {"LIGHT", "MEDIUM", "HEAVY", "SPOTTING"};
-        spFlowLevel.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, flows));
+        if (sliderPainScale != null && tvPainLabel != null) {
+            sliderPainScale.addOnChangeListener((slider, value, fromUser) ->
+                    tvPainLabel.setText("Pain Scale: " + (int) value + " / 10"));
+        }
 
-        String[] moods = {"HAPPY", "SAD", "ANGRY", "ANXIOUS", "STRESSED", "CALM"};
-        spMoodType.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, moods));
+        View btnSavePeriod = root.findViewById(R.id.btn_save_period);
+        if (btnSavePeriod != null) btnSavePeriod.setOnClickListener(v -> savePeriod());
 
-        sliderPainScale.addOnChangeListener((slider, value, fromUser) ->
-                tvPainLabel.setText("Pain Scale: " + (int) value + " / 10"));
-
-        root.findViewById(R.id.btn_save_period).setOnClickListener(v -> savePeriod());
-        root.findViewById(R.id.btn_save_mood).setOnClickListener(v -> saveMood());
+        View btnSaveMood = root.findViewById(R.id.btn_save_mood);
+        if (btnSaveMood != null) btnSaveMood.setOnClickListener(v -> saveMood());
 
         loadPeriodHistory();
 
         return root;
+    }
+
+    private String getSelectedFlowLevel() {
+        if (cgFlowLevel == null) return "MEDIUM";
+        int id = cgFlowLevel.getCheckedChipId();
+        if (id == R.id.chip_flow_light) return "LIGHT";
+        if (id == R.id.chip_flow_heavy) return "HEAVY";
+        if (id == R.id.chip_flow_spotting) return "SPOTTING";
+        return "MEDIUM";
+    }
+
+    private String getSelectedMoodType() {
+        if (cgMoodType == null) return "HAPPY";
+        int id = cgMoodType.getCheckedChipId();
+        if (id == R.id.chip_mood_calm) return "CALM";
+        if (id == R.id.chip_mood_sad) return "SAD";
+        if (id == R.id.chip_mood_anxious) return "ANXIOUS";
+        if (id == R.id.chip_mood_angry) return "ANGRY";
+        return "HAPPY";
     }
 
     private void loadPeriodHistory() {
@@ -157,9 +177,9 @@ public class TrackerFragment extends Fragment {
     }
 
     private void savePeriod() {
-        String dateStr = etPeriodDate.getText().toString().trim();
-        String flow = spFlowLevel.getSelectedItem().toString();
-        int pain = (int) sliderPainScale.getValue();
+        String dateStr = etPeriodDate != null ? etPeriodDate.getText().toString().trim() : "";
+        String flow = getSelectedFlowLevel();
+        int pain = sliderPainScale != null ? (int) sliderPainScale.getValue() : 0;
         String email = tokenManager.getUserEmail();
 
         long periodMillis = System.currentTimeMillis();
@@ -201,7 +221,7 @@ public class TrackerFragment extends Fragment {
     }
 
     private void saveMood() {
-        String mood = spMoodType.getSelectedItem().toString();
+        String mood = getSelectedMoodType();
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         String email = tokenManager.getUserEmail();
 
