@@ -14,25 +14,60 @@
 
 ---
 
-## Technical Diagnostics: Android Network Connection & Login Error Handling
+## Technical Diagnostics & Security Refinements
 
-### 1. Root Cause Analysis
-- **Error Stream Reading**: `ApiClient.java` previously did not inspect `conn.getErrorStream()` on non-2xx HTTP responses. When Spring Boot returned an HTTP 400 (Bad Request), 401 (Unauthorized), or 403 (Forbidden), `conn.getInputStream()` threw an `IOException`, which was caught as a generic connection error.
-- **Connection Cleanup**: `ApiClient` lacked a `finally { conn.disconnect(); }` block, causing socket connections to remain open during server errors.
-- **UI Button Recovery**: `LoginActivity.java` previously disabled `btnLogin` on click without guaranteeing its restoration in all JSON processing error paths.
+### 1. Root Cause Analysis & Connection Handling
+- **Error Stream Reading**: `ApiClient.java` inspects `conn.getErrorStream()` on non-2xx HTTP responses. When Spring Boot returns an HTTP 400 (Bad Request), 401 (Unauthorized), or 403 (Forbidden), `ApiClient` parses JSON error bodies (`{"message": "..."}`) and returns formatted error descriptions.
+- **Connection Cleanup**: `ApiClient` enforces `finally { conn.disconnect(); }` execution to prevent socket leaks.
+- **UI Button Recovery**: `LoginActivity.java` guarantees button re-enabling (`btnLogin.setEnabled(true); btnLogin.setText("Login");`) across all async network callbacks.
 
-### 2. Resolution Implemented
-- **`ApiClient.java` Diagnostics Refactoring**:
-  - Implemented `readStream(InputStream)` to read both success and error streams (`conn.getErrorStream()`).
-  - Added `formatHttpErrorMessage()` to parse Spring Boot's JSON error response (`{"message": "..."}`) and return specific error descriptions (e.g., `Server Error (401): Invalid email or password`).
-  - Enforced 10-second connect (`CONNECT_TIMEOUT_MS = 10000`) and read (`READ_TIMEOUT_MS = 10000`) timeouts.
-  - Added URL normalization via `buildFullUrl()`.
-  - Added guaranteed `conn.disconnect()` execution in a `finally` block.
-  - Safely logged HTTP request URLs and status codes using Android `Log.d` / `Log.e` without exposing passwords or tokens.
-- **`LoginActivity.java` UI State & Security**:
-  - Guaranteed `btnLogin.setEnabled(true); btnLogin.setText("Login");` is executed in `onSuccess`, `onError`, and exception handlers.
-  - Enforced server-side authentication without storing raw passwords locally in SQLite or `SharedPreferences`.
-  - Enhanced Guest Mode login by calling `TokenManager.clear()` followed by `saveSession(null, null, "Guest", "Guest", "en")` to purge stale JWT tokens or user IDs.
+### 2. Authentication & Data Protection
+- Enforced server-side authentication with JWT tokens without storing plaintext passwords in SQLite or `SharedPreferences`.
+- Cleared stale JWT tokens in guest mode via `TokenManager.clear()` and isolated guest profile sessions.
+
+---
+
+## Personalized Health Insights & Cycle Analytics Feature
+
+### 1. Feature Architecture & Backend Analytics
+- **Backend Analytics Engine (`AnalyticsService.java`)**:
+  - Expanded `AnalyticsDTO.java` with period duration averages, cycle length history list, data completeness level (`INSUFFICIENT`, `MODERATE`, `ROBUST`), and symptom/mood frequency maps.
+  - Queries user-isolated period, symptom, and mood records via Spring Data JPA.
+- **Android Analytics Engine (`AnalyticsEngine.java`)**:
+  - Standalone, unit-tested engine calculating cycle day, average cycle length, irregular variance flags (>4 days variance), period duration averages, neutral symptom occurrence summaries ("You recorded Cramps on 2 of your logged entries"), and observational food-symptom trends with minimum-data thresholds.
+
+### 2. Android Insights UI & Navigation
+- **Layout (`fragment_insights.xml`)**:
+  - Educational/Medical Disclaimer Banner explaining that analytics are observational and non-diagnostic.
+  - Data Completeness Chip Badge & Explanation text.
+  - Cycle & Period Duration Summary Card.
+  - Logged Symptom Frequency Summary List.
+  - Observational Food & Symptom Associations Card.
+- **Fragment (`InsightsFragment.java`)**: Loads local SQLite period, symptom, and mood data via `DatabaseHelper`, processes analytics locally using `AnalyticsEngine`, fetches remote Spring Boot analytics via `ApiClient`, and updates UI components dynamically.
+- **Navigation**: Registered `drawer_insights` in `drawer_menu.xml`, wired click handler in `MainActivity.java` (`navigateToInsights()`), and added Quick Action banner card in `fragment_home.xml` / `HomeFragment.java`.
+
+---
+
+## Evidence-Based Personalized Nutrition & Food Recommendations Feature
+
+### 1. Feature Architecture & Backend Schema
+- **MySQL Schema (`backend/src/main/resources/schema.sql`)**:
+  - Added `nutrition_recommendations` table with columns: `id`, `cycle_phase`, `meal_category`, `food_item_name`, `key_nutrients`, `health_benefits`, `dietary_type`, `budget_level`, `evidence_level`, `safety_warnings`, and `evidence_url`.
+  - Pre-seeded 10+ evidence-based records covering Menstrual, Follicular, Ovulatory, Luteal, and General Health cycle phases with WHO dietary standards and PubMed links.
+- **Spring Boot Components**:
+  - `NutritionRecommendation.java` (JPA Entity with Lombok annotations).
+  - `NutritionRecommendationDTO.java` (Data transfer object).
+  - `NutritionRepository.java` (Repository supporting phase, dietary type, and budget level query filters).
+  - `NutritionController.java` (`GET /api/nutrition` and `GET /api/nutrition/{id}`).
+
+### 2. Android SQLite Caching & API Client
+- **Database Schema (`DatabaseHelper.java`)**: Added `nutrition_cache` table (version 6) and implemented `saveNutritionItemToCache(...)` and `getCachedNutritionRecommendations(phase, dietaryType, budgetLevel)` for full offline caching.
+- **API Service Route (`ApiService.java`)**: Added `NUTRITION = "api/nutrition"` endpoint constant.
+
+### 3. Android UI & Activity
+- **Layouts**: Created `activity_nutrition.xml` and `item_nutrition_recommendation.xml` with Material Design 3 styling, cycle phase chip filters (`Menstrual`, `Follicular`, `Ovulatory`, `Luteal`, `All Phases`), dietary preference chip filters (`Vegetarian`, `Vegan`, `Non-Veg`, `All`), budget tier chip filters (`Budget Friendly`, `Moderate`, `All`), evidence disclaimer card, and direct PubMed research link buttons.
+- **Activity**: Created `NutritionActivity.java` and `NutritionAdapter.java` providing cycle phase auto-detection via `CycleCalculator`, filter state management, local SQLite cache loading, and asynchronous Spring Boot backend sync.
+- **Navigation**: Registered `drawer_nutrition` in `drawer_menu.xml`, wired click handling in `MainActivity.java`, and added quick access banner card on `fragment_home.xml` / `HomeFragment.java`.
 
 ---
 
@@ -65,14 +100,5 @@ mvn spring-boot:run -f backend/pom.xml
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
-
----
-
-## Files Modified in Diagnostic Batch
-- `app/src/main/java/com/example/mahila/api/ApiClient.java`
-- `app/src/main/java/com/example/mahila/LoginActivity.java`
-- `app/src/main/java/com/example/mahila/api/TokenManager.java`
-- `app/src/main/java/com/example/mahila/DatabaseHelper.java`
-- `MAHILA_PROGRESS.md`

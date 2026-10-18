@@ -16,6 +16,14 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 
+    <!-- Named Design Tokens for Nutrition & Modern UI -->
+    <color name="bg_warm_ivory">#FFFDF9</color>
+    <color name="deep_plum">#3B1F2B</color>
+    <color name="muted_rose">#D87093</color>
+    <color name="sage_green">#7DA183</color>
+    <color name="warm_sand">#F5EBE6</color>
+    <color name="text_body">#3B1F2B</color>
+
     <!-- Mahila Approved Women's Health Color System (Light) -->
     <!-- Canvas & Background: Warm Ivory -->
     <color name="md_theme_light_background">#FFFDF9</color>

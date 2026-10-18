@@ -12,6 +12,7 @@ public class ApiService {
     public static final String CONTACTS = "api/v1/contacts";
     public static final String APPOINTMENTS = "api/v1/appointments";
     public static final String REMINDERS = "api/v1/reminders";
+    public static final String NUTRITION = "api/nutrition";
     public static final String ANALYTICS = "api/v1/analytics";
     public static final String AI_CHAT = "api/v1/ai/chat";
     public static final String QUIZZES = "api/v1/awareness/quizzes";

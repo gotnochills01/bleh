@@ -10,17 +10,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:paddingBottom="56dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Awareness Hub"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:text="Awareness Hub &amp; Education"
+            android:textSize="26sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/nunito" />
 
+        <!-- Quiz Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,43 +43,106 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Interactive Health Quiz"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:text="💡 Interactive Health Quiz"
+                    android:textSize="18sp"
                     android:textColor="?attr/colorOnSecondaryContainer"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/nunito" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Test your knowledge on menstrual wellness, nutrition, and cycle phases."
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textSize="14sp"
                     android:textColor="?attr/colorOnSecondaryContainer"
                     android:layout_marginTop="6dp"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/nunito" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_start_quiz"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="56dp"
                     android:text="Start Knowledge Quiz"
-                    app:cornerRadius="12dp" />
+                    android:textSize="16sp"
+                    app:cornerRadius="14dp"
+                    android:fontFamily="@font/nunito" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Topic Filter Chips -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Health Education Categories"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:text="Explore Health Topics"
+            android:textSize="18sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/nunito" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cg_awareness_filters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All Topics"
+                    android:checked="true"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:fontFamily="@font/nunito" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_basics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cycle Basics"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:fontFamily="@font/nunito" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_pcos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PCOS / Endometriosis"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:fontFamily="@font/nunito" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_hygiene"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hygiene &amp; Safety"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:fontFamily="@font/nunito" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_filter_myths"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Myths vs Facts"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:fontFamily="@font/nunito" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
 
         <LinearLayout
             android:id="@+id/container_categories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingBottom="48dp" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

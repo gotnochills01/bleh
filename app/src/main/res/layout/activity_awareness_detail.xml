@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/awareness_detail_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".AwarenessDetailActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/awareness_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Health Topic Overview"
+            app:titleTextColor="?attr/colorOnSurface" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="48dp">
+
+            <TextView
+                android:id="@+id/tv_detail_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Health Topic Title"
+                android:textSize="24sp"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                android:fontFamily="@font/nunito" />
+
+            <TextView
+                android:id="@+id/tv_detail_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 min read  •  ACOG &amp; WHO Evidence Guidelines"
+                android:textSize="13sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/nunito" />
+
+            <!-- Overview Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Overview &amp; Clinical Insights"
+                        android:textSize="18sp"
+                        android:textColor="?attr/colorPrimary"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/nunito" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_overview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Detailed explanation..."
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
+                        android:fontFamily="@font/nunito" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Case Study Scenario Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeWidth="1dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📋 Illustrative Scenario &amp; Decision"
+                        android:textSize="18sp"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/nunito" />
+
+                    <TextView
+                        android:id="@+id/tv_detail_scenario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Case details..."
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
+                        android:fontFamily="@font/nunito" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- External Research Links Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔬 Research Further (Reputable Sources)"
+                android:textSize="18sp"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/nunito" />
+
+            <LinearLayout
+                android:id="@+id/container_research_links"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Medical Disclaimer Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚠️ Medical Disclaimer"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnTertiaryContainer"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/nunito" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Content provided is strictly for educational purposes based on established clinical guidelines. It does not constitute medical advice, diagnosis, or treatment. Always consult a certified healthcare professional for medical concerns."
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnTertiaryContainer"
+                        android:layout_marginTop="4dp"
+                        android:lineSpacingExtra="3dp"
+                        android:fontFamily="@font/nunito" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

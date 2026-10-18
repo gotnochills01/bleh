@@ -10,16 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:paddingBottom="56dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Period &amp; Mood Logger"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:text="Period &amp; Mood Journal"
+            android:textSize="26sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/nunito" />
 
         <!-- Period Logging Card -->
         <com.google.android.material.card.MaterialCardView
@@ -41,53 +43,95 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Log Period Start"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:text="Log Period Entry"
+                    android:textSize="18sp"
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/nunito" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Start Date (YYYY-MM-DD)"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    android:layout_marginBottom="12dp">
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    android:layout_marginBottom="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_period_date"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="date" />
+                        android:inputType="date"
+                        android:fontFamily="@font/nunito" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Flow Intensity"
-                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textSize="14sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginBottom="4dp" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/nunito" />
 
-                <Spinner
-                    android:id="@+id/sp_flow_level"
+                <!-- M3 Flow Selection Chips -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_flow_level"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ic_menu"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_flow_light"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Light"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_flow_medium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Medium"
+                        android:checked="true"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_flow_heavy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Heavy"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_flow_spotting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Spotting"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+                </com.google.android.material.chip.ChipGroup>
 
                 <TextView
                     android:id="@+id/tv_pain_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pain Scale: 3 / 10"
-                    android:textAppearance="?attr/textAppearanceLabelMedium"
+                    android:textSize="14sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginBottom="4dp" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="@font/nunito" />
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/sb_pain_scale"
@@ -97,14 +141,16 @@
                     android:valueTo="10"
                     android:stepSize="1"
                     android:value="3"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="20dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_period"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="56dp"
                     android:text="Save Period Entry"
-                    app:cornerRadius="12dp" />
+                    android:textSize="16sp"
+                    app:cornerRadius="14dp"
+                    android:fontFamily="@font/nunito" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -129,25 +175,72 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Daily Mood Journal"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:textSize="18sp"
                     android:textColor="?attr/colorOnSecondaryContainer"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/nunito" />
 
-                <Spinner
-                    android:id="@+id/sp_mood_type"
+                <!-- M3 Mood Selection Chips -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_mood_type"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ic_menu"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_mood_happy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="😊 Happy"
+                        android:checked="true"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_mood_calm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="😌 Calm"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_mood_sad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="😔 Sad"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_mood_anxious"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="😰 Anxious"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_mood_angry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="😠 Irritated"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:fontFamily="@font/nunito" />
+                </com.google.android.material.chip.ChipGroup>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_save_mood"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="Record Mood"
+                    android:layout_height="56dp"
+                    android:text="Record Mood Entry"
+                    android:textSize="15sp"
                     style="@style/Widget.Material3.Button.TonalButton"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="14dp"
+                    android:fontFamily="@font/nunito" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -155,26 +248,29 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Period History"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:text="Logged Period History"
+            android:textSize="18sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/nunito" />
 
         <TextView
             android:id="@+id/tv_empty_period_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="No period recorded yet. Log your first period above to unlock predictions."
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textSize="14sp"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/nunito" />
 
         <LinearLayout
             android:id="@+id/container_period_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingBottom="48dp" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

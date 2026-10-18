@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -45,7 +46,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -97,7 +100,7 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         }
 
         View btnGps = root.findViewById(R.id.btn_use_gps);
-        if (btnGps != null) btnGps.setOnClickListener(v -> requestGpsLocation());
+        if (btnGps != null) btnGps.setOnClickListener(v -> promptAndRequestGpsLocation());
 
         View btnGyno = root.findViewById(R.id.btn_map_gyno);
         if (btnGyno != null) btnGyno.setOnClickListener(v -> executeProviderSearch("Gynecologists"));
@@ -135,6 +138,15 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
 
         this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 12f));
         executeProviderSearch("Gynecologists");
+    }
+
+    private void promptAndRequestGpsLocation() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Location Access Request")
+                .setMessage("Mahila requires location access to find nearby gynecologists, hospitals, and clinics around your current position.")
+                .setPositiveButton("Grant GPS Access", (dialog, which) -> requestGpsLocation())
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void requestGpsLocation() {
@@ -178,7 +190,8 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 etLocationQuery.getText().toString().trim() : "";
 
         if (tvProviderSubtitle != null) {
-            tvProviderSubtitle.setText("Searching real OpenStreetMap records for " + category + "...");
+            String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
+            tvProviderSubtitle.setText("Searching OpenStreetMap records for " + category + "\nLat/Lng: " + String.format(Locale.US, "%.4f, %.4f", currentSearchLatLng.latitude, currentSearchLatLng.longitude) + " (" + timestamp + ")");
         }
 
         executorService.execute(() -> {
@@ -203,12 +216,16 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 }
 
                 if (tvProviderSubtitle != null) {
+                    String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
                     if (realProviders.isEmpty()) {
-                        tvProviderSubtitle.setText("No public healthcare places found near this location in open maps database. Try a larger city or nearby region.");
+                        tvProviderSubtitle.setText("No public healthcare places found near " + String.format(Locale.US, "%.4f, %.4f", finalPoint.latitude, finalPoint.longitude) + " as of " + timestamp + ". Try entering a larger city above.");
                     } else {
-                        tvProviderSubtitle.setText("Found " + realProviders.size() + " verified real " + category + " records nearby.");
+                        tvProviderSubtitle.setText("Found " + realProviders.size() + " verified " + category + " near " + String.format(Locale.US, "%.4f, %.4f", finalPoint.latitude, finalPoint.longitude) + " (" + timestamp + ")");
                     }
                 }
+
+                // Add Share Location Button
+                addShareLocationCard(finalPoint);
 
                 for (MedicalProvider provider : realProviders) {
                     if (googleMap != null && provider.latLng != null) {
@@ -275,6 +292,70 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         });
+    }
+
+    private void addShareLocationCard(LatLng point) {
+        CardView shareCard = new CardView(requireContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0, 16);
+        shareCard.setLayoutParams(params);
+        shareCard.setRadius(16f);
+        shareCard.setCardElevation(1f);
+        shareCard.setContentPadding(20, 20, 20, 20);
+
+        LinearLayout shareLayout = new LinearLayout(requireContext());
+        shareLayout.setOrientation(LinearLayout.VERTICAL);
+
+        TextView tvShareTitle = new TextView(requireContext());
+        tvShareTitle.setText("📍 Current Search Location");
+        tvShareTitle.setTextSize(14f);
+        tvShareTitle.setTextColor(0xFF3B1F2B);
+        tvShareTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+
+        TextView tvShareBody = new TextView(requireContext());
+        tvShareBody.setText("Lat/Lng: " + String.format(Locale.US, "%.4f, %.4f", point.latitude, point.longitude));
+        tvShareBody.setTextSize(13f);
+        tvShareBody.setTextColor(0xFF6E5A63);
+        tvShareBody.setPadding(0, 4, 0, 10);
+
+        LinearLayout shareBtnRow = new LinearLayout(requireContext());
+        shareBtnRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        MaterialButton btnOpenMaps = new MaterialButton(requireContext());
+        btnOpenMaps.setText("Open in Maps");
+        btnOpenMaps.setTextSize(12f);
+        btnOpenMaps.setCornerRadius(10);
+        LinearLayout.LayoutParams b1Params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        b1Params.setMarginEnd(8);
+        btnOpenMaps.setLayoutParams(b1Params);
+        btnOpenMaps.setOnClickListener(v -> openMapsQuery(point.latitude + "," + point.longitude));
+
+        MaterialButton btnShareSheet = new MaterialButton(requireContext());
+        btnShareSheet.setText("Share Location");
+        btnShareSheet.setTextSize(12f);
+        btnShareSheet.setCornerRadius(10);
+        btnShareSheet.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        btnShareSheet.setOnClickListener(v -> shareLocationLink(point));
+
+        shareBtnRow.addView(btnOpenMaps);
+        shareBtnRow.addView(btnShareSheet);
+
+        shareLayout.addView(tvShareTitle);
+        shareLayout.addView(tvShareBody);
+        shareLayout.addView(shareBtnRow);
+
+        shareCard.addView(shareLayout);
+        containerProviderResults.addView(shareCard);
+    }
+
+    private void shareLocationLink(LatLng point) {
+        String mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + point.latitude + "," + point.longitude;
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My Location via Mahila Health");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Here is my location for healthcare assistance: " + mapsUrl);
+        startActivity(Intent.createChooser(shareIntent, "Share Location Link"));
     }
 
     private LatLng geocodeCity(String cityName) {
