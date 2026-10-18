@@ -1,90 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/landing_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+    android:fillViewport="true">
 
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/ic_ai_sparkle"
-        app:tint="?attr/colorPrimary"
-        android:layout_marginBottom="24dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textAppearance="?attr/textAppearanceDisplayMedium"
-        android:textColor="?attr/colorOnSurface"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Personal Health &amp; Cycle Companion"
-        android:textAppearance="?attr/textAppearanceTitleMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="40dp" />
-
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainer"
-        android:layout_marginBottom="32dp">
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
 
-        <LinearLayout
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_ai_sparkle"
+            app:tint="?attr/colorPrimary"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="32sp"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            android:fontFamily="@font/nunito" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Personal Health &amp; Cycle Companion"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="40dp"
+            android:fontFamily="@font/nunito" />
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            android:layout_marginBottom="32dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Welcome to Mahila"
-                android:textAppearance="?attr/textAppearanceTitleLarge"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold" />
-
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Empowering women with intelligent cycle tracking, offline data security, and personalized health guidance."
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                android:orientation="vertical"
+                android:padding="24dp">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_get_started"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Get Started"
-        android:textSize="16sp"
-        app:cornerRadius="16dp"
-        android:layout_marginBottom="16dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome to Mahila"
+                    android:textSize="20sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/nunito" />
 
-    <TextView
-        android:id="@+id/tv_login_prompt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Already have an account? Log In"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorPrimary"
-        android:textStyle="bold"
-        android:padding="12dp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Empowering women with intelligent cycle tracking, offline data security, and personalized health guidance."
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:fontFamily="@font/nunito" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-</LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_get_started"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Get Started"
+            android:textSize="16sp"
+            app:cornerRadius="16dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/nunito" />
+
+        <TextView
+            android:id="@+id/tv_login_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Already have an account? Log In"
+            android:textSize="14sp"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:padding="12dp"
+            android:fontFamily="@font/nunito" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
