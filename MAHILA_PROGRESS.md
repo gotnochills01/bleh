@@ -14,12 +14,42 @@
 
 ---
 
+## Authentication, Session Management & Physical Phone Fixes
+
+### 1. Root Causes Found
+1. **Existing Account Login Error on Physical Devices**: `LoginActivity` attempted HTTP requests exclusively to `10.0.2.2:8080`, which is valid only for Android Emulator. On physical phones or offline environments, network connection failed without checking saved local SQLite credentials.
+2. **Repeated Taps on Signup/Login**: Neither `LoginActivity` nor `SignupActivity` disabled action buttons or displayed loading states during async network calls. Rapid double-tapping caused duplicate requests, triggering "Email already registered" error on second submission.
+3. **Save/Update Redirecting to Launch Screen**: Mismatch between `TokenManager` (`jwt_token`, `user_email`) and `AppPreferences` (`is_logged_in`, `current_user_email`). When saving a period date or profile detail, `AppPreferences.isLoggedIn()` returned false or empty email if unsynced, causing app restart on `LandingActivity`.
+
+### 2. Solutions Implemented
+- **Dynamic LAN IP Configuration (`ApiClient.java`)**: Added `setCustomBaseUrl("http://<YOUR_LAN_IP>:8080/")` support for physical phone testing over local Wi-Fi while preserving default emulator `10.0.2.2:8080` fallback.
+- **Button Loading States & Double-Tap Prevention**: `LoginActivity.java` and `SignupActivity.java` disable buttons and show progress text ("Logging in...", "Creating Account...") during network calls, re-enabling them cleanly in success/failure callbacks.
+- **Local SQLite Auth Fallback**: `LoginActivity.java` checks saved SQLite user credentials if backend is unreachable (offline mode), keeping physical phone users logged in seamlessly.
+- **Unified Session Persistence**: Synchronized `TokenManager` and `AppPreferences` across login, signup, guest mode, and data saves. Ensured period and profile update methods in `DatabaseHelper` never erase session tokens.
+
+---
+
+## Physical Android Phone (Vivo / LAN) Testing Guide
+
+1. **Host Server Binding**: Ensure Spring Boot backend is running on host laptop on port 8080.
+2. **Wi-Fi Connectivity**: Connect both laptop and physical Vivo Android phone to the same local Wi-Fi network.
+3. **Retrieve Host LAN IP**:
+   * Windows: `ipconfig` (look for IPv4 Address e.g., `192.168.1.100`)
+   * Mac/Linux: `ifconfig` or `ip a`
+4. **Configure App Host Base URL**:
+   In `MainActivity.java` or Application initialization, configure host IP:
+   ```java
+   com.example.mahila.api.ApiClient.setCustomBaseUrl("http://192.168.1.100:8080/");
+   ```
+5. **Firewall Rule**: Allow incoming TCP port `8080` connections through host operating system firewall.
+
+---
+
 ## Technical Diagnostics & Security Refinements
 
-### 1. Root Cause Analysis & Connection Handling
-- **Error Stream Reading**: `ApiClient.java` inspects `conn.getErrorStream()` on non-2xx HTTP responses. When Spring Boot returns an HTTP 400 (Bad Request), 401 (Unauthorized), or 403 (Forbidden), `ApiClient` parses JSON error bodies (`{"message": "..."}`) and returns formatted error descriptions.
-- **Connection Cleanup**: `ApiClient` enforces `finally { conn.disconnect(); }` execution to prevent socket leaks.
-- **UI Button Recovery**: `LoginActivity.java` guarantees button re-enabling (`btnLogin.setEnabled(true); btnLogin.setText("Login");`) across all async network callbacks.
+### 1. Connection Handling & Diagnostics
+- `ApiClient.java` inspects `conn.getErrorStream()` on non-2xx HTTP responses, formatting HTTP 400/401/403/500 errors gracefully.
+- `ApiClient` enforces `finally { conn.disconnect(); }` execution to prevent socket leaks.
 
 ### 2. Authentication & Data Protection
 - Enforced server-side authentication with JWT tokens without storing plaintext passwords in SQLite or `SharedPreferences`.
@@ -27,78 +57,7 @@
 
 ---
 
-## Personalized Health Insights & Cycle Analytics Feature
-
-### 1. Feature Architecture & Backend Analytics
-- **Backend Analytics Engine (`AnalyticsService.java`)**:
-  - Expanded `AnalyticsDTO.java` with period duration averages, cycle length history list, data completeness level (`INSUFFICIENT`, `MODERATE`, `ROBUST`), and symptom/mood frequency maps.
-  - Queries user-isolated period, symptom, and mood records via Spring Data JPA.
-- **Android Analytics Engine (`AnalyticsEngine.java`)**:
-  - Standalone, unit-tested engine calculating cycle day, average cycle length, irregular variance flags (>4 days variance), period duration averages, neutral symptom occurrence summaries ("You recorded Cramps on 2 of your logged entries"), and observational food-symptom trends with minimum-data thresholds.
-
-### 2. Android Insights UI & Navigation
-- **Layout (`fragment_insights.xml`)**:
-  - Educational/Medical Disclaimer Banner explaining that analytics are observational and non-diagnostic.
-  - Data Completeness Chip Badge & Explanation text.
-  - Cycle & Period Duration Summary Card.
-  - Logged Symptom Frequency Summary List.
-  - Observational Food & Symptom Associations Card.
-- **Fragment (`InsightsFragment.java`)**: Loads local SQLite period, symptom, and mood data via `DatabaseHelper`, processes analytics locally using `AnalyticsEngine`, fetches remote Spring Boot analytics via `ApiClient`, and updates UI components dynamically.
-- **Navigation**: Registered `drawer_insights` in `drawer_menu.xml`, wired click handler in `MainActivity.java` (`navigateToInsights()`), and added Quick Action banner card in `fragment_home.xml` / `HomeFragment.java`.
-
----
-
-## Evidence-Based Personalized Nutrition & Food Recommendations Feature
-
-### 1. Feature Architecture & Backend Schema
-- **MySQL Schema (`backend/src/main/resources/schema.sql`)**:
-  - Added `nutrition_recommendations` table with columns: `id`, `cycle_phase`, `meal_category`, `food_item_name`, `key_nutrients`, `health_benefits`, `dietary_type`, `budget_level`, `evidence_level`, `safety_warnings`, and `evidence_url`.
-  - Pre-seeded 10+ evidence-based records covering Menstrual, Follicular, Ovulatory, Luteal, and General Health cycle phases with WHO dietary standards and PubMed links.
-- **Spring Boot Components**:
-  - `NutritionRecommendation.java` (JPA Entity with Lombok annotations).
-  - `NutritionRecommendationDTO.java` (Data transfer object).
-  - `NutritionRepository.java` (Repository supporting phase, dietary type, and budget level query filters).
-  - `NutritionController.java` (`GET /api/nutrition` and `GET /api/nutrition/{id}`).
-
-### 2. Android SQLite Caching & API Client
-- **Database Schema (`DatabaseHelper.java`)**: Added `nutrition_cache` table (version 6) and implemented `saveNutritionItemToCache(...)` and `getCachedNutritionRecommendations(phase, dietaryType, budgetLevel)` for full offline caching.
-- **API Service Route (`ApiService.java`)**: Added `NUTRITION = "api/nutrition"` endpoint constant.
-
-### 3. Android UI & Activity
-- **Layouts**: Created `activity_nutrition.xml` and `item_nutrition_recommendation.xml` with Material Design 3 styling, cycle phase chip filters (`Menstrual`, `Follicular`, `Ovulatory`, `Luteal`, `All Phases`), dietary preference chip filters (`Vegetarian`, `Vegan`, `Non-Veg`, `All`), budget tier chip filters (`Budget Friendly`, `Moderate`, `All`), evidence disclaimer card, and direct PubMed research link buttons.
-- **Activity**: Created `NutritionActivity.java` and `NutritionAdapter.java` providing cycle phase auto-detection via `CycleCalculator`, filter state management, local SQLite cache loading, and asynchronous Spring Boot backend sync.
-- **Navigation**: Registered `drawer_nutrition` in `drawer_menu.xml`, wired click handling in `MainActivity.java`, and added quick access banner card on `fragment_home.xml` / `HomeFragment.java`.
-
----
-
-## Live MySQL & Spring Boot Backend Setup Instructions
-
-### 1. Database Setup
-```sql
-CREATE DATABASE IF NOT EXISTS mahila_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'mahila_user'@'localhost' IDENTIFIED BY 'mahila_secure_password';
-GRANT ALL PRIVILEGES ON mahila_db.* TO 'mahila_user'@'localhost';
-FLUSH PRIVILEGES;
-```
-Import `backend/src/main/resources/schema.sql` into MySQL.
-
-### 2. Spring Boot Configuration
-Set environment variables or update `backend/src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/mahila_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=mahila_user
-spring.datasource.password=mahila_secure_password
-mahila.jwt.secret=9a4f2c8d7e1b3a5c8e0d2f4a6b8c1d3e5f7a9b0c2d4e6f8a1c3b5d7e9f0a2b4
-mahila.jwt.expiration-ms=86400000
-```
-Run backend server:
-```bash
-mvn spring-boot:run -f backend/pom.xml
-```
-
----
-
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).

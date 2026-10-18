@@ -26,6 +26,7 @@ public class SignupActivity extends AppCompatActivity {
     private TextView txtLoginPrompt;
     private AppPreferences appPreferences;
     private DatabaseHelper dbHelper;
+    private TokenManager tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,7 @@ public class SignupActivity extends AppCompatActivity {
 
         appPreferences = new AppPreferences(this);
         dbHelper = new DatabaseHelper(this);
+        tokenManager = new TokenManager(this);
 
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
@@ -59,79 +61,79 @@ public class SignupActivity extends AppCompatActivity {
             });
         }
 
-        btnSignup.setOnClickListener(v -> {
-            String name = etName.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-            String confirmPassword = etConfirmPassword.getText().toString().trim();
-
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Enter a valid email address", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!password.equals(confirmPassword)) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                JSONObject json = new JSONObject();
-                json.put("name", name);
-                json.put("email", email);
-                json.put("password", password);
-
-                ApiClient.postRequest(this, ApiService.AUTH_SIGNUP, json, new ApiClient.ApiCallback<String>() {
-                    @Override
-                    public void onSuccess(String result) {
-                        try {
-                            JSONObject obj = new JSONObject(result);
-                            String token = obj.optString("token");
-                            Long userId = obj.optLong("userId", 1L);
-
-                            // Also save locally in SQLite for offline preservation
-                            dbHelper.insertUser(name, email, password);
-
-                            new TokenManager(SignupActivity.this).saveSession(token, userId, email, name, "en");
-                            appPreferences.setLoggedIn(true);
-                            appPreferences.setCurrentUserEmail(email);
-
-                            Toast.makeText(SignupActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignupActivity.this, WelcomeActivity.class));
-                            finish();
-                        } catch (Exception e) {
-                            fallbackSignup(name, email, password);
-                        }
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        fallbackSignup(name, email, password);
-                    }
-                });
-            } catch (Exception e) {
-                fallbackSignup(name, email, password);
-            }
-        });
+        btnSignup.setOnClickListener(v -> signupUser());
     }
 
-    private void fallbackSignup(String name, String email, String password) {
-        boolean isInserted = dbHelper.insertUser(name, email, password);
-        if (isInserted) {
-            appPreferences.setLoggedIn(true);
-            appPreferences.setCurrentUserEmail(email);
-            new TokenManager(this).saveSession("local_token", 1L, email, name, "en");
+    private void setLoadingState(boolean isLoading) {
+        btnSignup.setEnabled(!isLoading);
+        if (txtLoginPrompt != null) txtLoginPrompt.setEnabled(!isLoading);
+        btnSignup.setText(isLoading ? "Creating Account..." : "Sign Up");
+    }
 
-            Toast.makeText(this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, WelcomeActivity.class));
-            finish();
-        } else {
-            Toast.makeText(this, "Registration failed. Email may already exist.", Toast.LENGTH_SHORT).show();
+    private void signupUser() {
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        setLoadingState(true);
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("name", name);
+            json.put("email", email);
+            json.put("password", password);
+
+            ApiClient.postRequest(this, ApiService.AUTH_SIGNUP, json, new ApiClient.ApiCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    setLoadingState(false);
+                    try {
+                        JSONObject obj = new JSONObject(result);
+                        String token = obj.optString("token", "");
+                        Long userId = obj.optLong("userId", 1L);
+
+                        dbHelper.insertUser(name, email, "");
+                        tokenManager.saveSession(token, userId, email, name, "en");
+                        appPreferences.setLoggedIn(true);
+                        appPreferences.setCurrentUserEmail(email);
+
+                        Toast.makeText(SignupActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(SignupActivity.this, WelcomeActivity.class));
+                        finish();
+                    } catch (Exception e) {
+                        Toast.makeText(SignupActivity.this, "Could not parse registration response", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onError(String message) {
+                    setLoadingState(false);
+                    if (message != null && (message.contains("already registered") || message.contains("already exists"))) {
+                        Toast.makeText(SignupActivity.this, "Registration Error: Account already exists with email " + email, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(SignupActivity.this, "Registration Failed: " + message, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            setLoadingState(false);
+            Toast.makeText(this, "Error building request: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-}
+}

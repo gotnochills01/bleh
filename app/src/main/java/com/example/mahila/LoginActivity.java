@@ -19,6 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView txtSignup;
     private AppPreferences appPreferences;
     private DatabaseHelper dbHelper;
+    private TokenManager tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,16 +31,18 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnGuest = findViewById(R.id.btnGuest);
         txtSignup = findViewById(R.id.txtSignup);
+
         appPreferences = new AppPreferences(this);
         dbHelper = new DatabaseHelper(this);
+        tokenManager = new TokenManager(this);
 
         btnLogin.setOnClickListener(v -> loginUser());
 
         btnGuest.setOnClickListener(v -> {
+            tokenManager.clear();
+            tokenManager.saveSession(null, null, "Guest", "Guest", "en");
             appPreferences.setLoggedIn(false);
             appPreferences.setCurrentUserEmail("Guest");
-            new TokenManager(LoginActivity.this).clear();
-            new TokenManager(LoginActivity.this).saveSession(null, null, "Guest", "Guest", "en");
 
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             intent.putExtra("guest_mode", true);
@@ -51,18 +54,23 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, SignupActivity.class)));
     }
 
+    private void setButtonsLoading(boolean isLoading) {
+        btnLogin.setEnabled(!isLoading);
+        btnGuest.setEnabled(!isLoading);
+        if (txtSignup != null) txtSignup.setEnabled(!isLoading);
+        btnLogin.setText(isLoading ? "Logging in..." : "Login");
+    }
+
     private void loginUser() {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter email and password",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        btnLogin.setEnabled(false);
-        btnLogin.setText("Logging in...");
+        setButtonsLoading(true);
 
         try {
             JSONObject json = new JSONObject();
@@ -73,8 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                     new ApiClient.ApiCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
-                    btnLogin.setEnabled(true);
-                    btnLogin.setText("Login");
+                    setButtonsLoading(false);
 
                     try {
                         JSONObject obj = new JSONObject(result);
@@ -90,37 +97,29 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Store user profile info locally in SQLite without plaintext password storage
+                        // Store local record & synchronized session tokens
                         dbHelper.insertUser(name, email, "", 0);
-
-                        // Save authenticated JWT session
-                        new TokenManager(LoginActivity.this).saveSession(
-                                token, userId, email, name, lang);
+                        tokenManager.saveSession(token, userId, email, name, lang);
                         appPreferences.setLoggedIn(true);
                         appPreferences.setCurrentUserEmail(email);
 
-                        startActivity(new Intent(LoginActivity.this,
-                                MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     } catch (Exception e) {
                         Toast.makeText(LoginActivity.this,
-                                "Could not process login response: " + e.getMessage(),
+                                "Could not parse login response: " + e.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onError(String message) {
-                    btnLogin.setEnabled(true);
-                    btnLogin.setText("Login");
-                    Toast.makeText(LoginActivity.this,
-                            "Login Error: " + message,
-                            Toast.LENGTH_LONG).show();
+                    setButtonsLoading(false);
+                    Toast.makeText(LoginActivity.this, "Login Failed: " + message, Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {
-            btnLogin.setEnabled(true);
-            btnLogin.setText("Login");
+            setButtonsLoading(false);
             Toast.makeText(this, "Error building request: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
