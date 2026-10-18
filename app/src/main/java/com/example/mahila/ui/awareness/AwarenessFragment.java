@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.example.mahila.AwarenessDetailActivity;
 import com.example.mahila.QuizActivity;
 import com.example.mahila.R;
 import com.google.android.material.chip.ChipGroup;
@@ -96,7 +97,7 @@ public class AwarenessFragment extends Fragment {
             tvBody.setLineSpacing(4f, 1f);
 
             TextView tvSource = new TextView(requireContext());
-            tvSource.setText("Source: " + source);
+            tvSource.setText("Source: " + source + "  (Tap to open in-app page ➔)");
             tvSource.setTextSize(12f);
             tvSource.setTextColor(0xFF7DA183);
             tvSource.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -105,6 +106,16 @@ public class AwarenessFragment extends Fragment {
             itemLayout.addView(tvBody);
             itemLayout.addView(tvSource);
             card.addView(itemLayout);
+
+            card.setOnClickListener(v -> {
+                Intent detailIntent = new Intent(requireContext(), AwarenessDetailActivity.class);
+                detailIntent.putExtra(AwarenessDetailActivity.EXTRA_TITLE, title);
+                detailIntent.putExtra(AwarenessDetailActivity.EXTRA_READ_TIME, readTime);
+                detailIntent.putExtra(AwarenessDetailActivity.EXTRA_CONTENT, content);
+                detailIntent.putExtra(AwarenessDetailActivity.EXTRA_SOURCE, source);
+                detailIntent.putExtra(AwarenessDetailActivity.EXTRA_TAG, tag);
+                startActivity(detailIntent);
+            });
 
             container.addView(card);
         }
