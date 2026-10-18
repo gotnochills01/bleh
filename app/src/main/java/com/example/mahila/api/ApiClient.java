@@ -22,16 +22,49 @@ import java.util.concurrent.Executors;
 public class ApiClient {
 
     private static final String TAG = "ApiClient";
-    private static final String BASE_URL = "http://10.0.2.2:8080/";
+    private static final String DEFAULT_EMULATOR_BASE_URL = "http://10.0.2.2:8080/";
+    private static String customBaseUrl = null;
+
     private static final int CONNECT_TIMEOUT_MS = 10000;
     private static final int READ_TIMEOUT_MS = 10000;
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(4);
-    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static Handler mainHandler = null;
 
     public interface ApiCallback<T> {
         void onSuccess(T result);
         void onError(String message);
+    }
+
+    private static synchronized void postToMainThread(Runnable runnable) {
+        if (mainHandler == null) {
+            try {
+                Looper looper = Looper.getMainLooper();
+                if (looper != null) {
+                    mainHandler = new Handler(looper);
+                }
+            } catch (Exception ignored) {}
+        }
+        if (mainHandler != null) {
+            mainHandler.post(runnable);
+        } else {
+            runnable.run();
+        }
+    }
+
+    public static void setCustomBaseUrl(String url) {
+        if (url != null && !url.trim().isEmpty()) {
+            if (!url.endsWith("/")) {
+                url = url + "/";
+            }
+            customBaseUrl = url;
+        } else {
+            customBaseUrl = null;
+        }
+    }
+
+    public static String getBaseUrl() {
+        return customBaseUrl != null ? customBaseUrl : DEFAULT_EMULATOR_BASE_URL;
     }
 
     private static String buildFullUrl(String endpoint) {
@@ -39,7 +72,7 @@ public class ApiClient {
         if (endpoint.startsWith("/")) {
             endpoint = endpoint.substring(1);
         }
-        return BASE_URL + endpoint;
+        return getBaseUrl() + endpoint;
     }
 
     public static void postRequest(Context context, String endpoint, JSONObject body, ApiCallback<String> callback) {
@@ -76,26 +109,26 @@ public class ApiClient {
 
                 if (code >= 200 && code < 300) {
                     String response = readStream(conn.getInputStream());
-                    mainHandler.post(() -> callback.onSuccess(response));
+                    postToMainThread(() -> callback.onSuccess(response));
                 } else {
                     String errorBody = readStream(conn.getErrorStream());
                     String errorMessage = formatHttpErrorMessage(code, errorBody);
                     Log.w(TAG, "POST " + fullUrl + " failed: " + errorMessage);
-                    mainHandler.post(() -> callback.onError(errorMessage));
+                    postToMainThread(() -> callback.onError(errorMessage));
                 }
 
             } catch (ConnectException e) {
-                String msg = "Could not connect to server at " + fullUrl + ". Ensure Spring Boot is running on port 8080.";
+                String msg = "Could not connect to server at " + fullUrl + ". Check server port 8080 or physical phone LAN IP settings.";
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } catch (SocketTimeoutException e) {
                 String msg = "Server connection timed out at " + fullUrl + ". Please try again.";
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } catch (Exception e) {
                 String msg = "Network error (" + e.getClass().getSimpleName() + "): " + e.getMessage();
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } finally {
                 if (conn != null) {
                     conn.disconnect();
@@ -129,26 +162,26 @@ public class ApiClient {
 
                 if (code >= 200 && code < 300) {
                     String response = readStream(conn.getInputStream());
-                    mainHandler.post(() -> callback.onSuccess(response));
+                    postToMainThread(() -> callback.onSuccess(response));
                 } else {
                     String errorBody = readStream(conn.getErrorStream());
                     String errorMessage = formatHttpErrorMessage(code, errorBody);
                     Log.w(TAG, "GET " + fullUrl + " failed: " + errorMessage);
-                    mainHandler.post(() -> callback.onError(errorMessage));
+                    postToMainThread(() -> callback.onError(errorMessage));
                 }
 
             } catch (ConnectException e) {
-                String msg = "Could not connect to server at " + fullUrl + ". Ensure Spring Boot is running on port 8080.";
+                String msg = "Could not connect to server at " + fullUrl + ". Check server port 8080 or physical phone LAN IP settings.";
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } catch (SocketTimeoutException e) {
                 String msg = "Server connection timed out at " + fullUrl + ". Please try again.";
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } catch (Exception e) {
                 String msg = "Network error (" + e.getClass().getSimpleName() + "): " + e.getMessage();
                 Log.e(TAG, msg, e);
-                mainHandler.post(() -> callback.onError(msg));
+                postToMainThread(() -> callback.onError(msg));
             } finally {
                 if (conn != null) {
                     conn.disconnect();
@@ -176,27 +209,27 @@ public class ApiClient {
             try {
                 JSONObject json = new JSONObject(errorBody);
                 if (json.has("message")) {
-                    return "Server Error (" + statusCode + "): " + json.getString("message");
+                    return json.getString("message");
                 } else if (json.has("error")) {
-                    return "Server Error (" + statusCode + "): " + json.getString("error");
+                    return json.getString("error");
                 }
             } catch (Exception ignored) {
-                return "Server Error (" + statusCode + "): " + errorBody;
+                return errorBody;
             }
         }
         switch (statusCode) {
             case 400:
-                return "HTTP 400: Bad Request. Check your request details.";
+                return "Bad Request. Check your input details.";
             case 401:
-                return "HTTP 401: Invalid credentials or unauthorized request.";
+                return "Invalid email or password.";
             case 403:
-                return "HTTP 403: Access forbidden by server.";
+                return "Access forbidden by server.";
             case 404:
-                return "HTTP 404: Endpoint not found on server.";
+                return "Server endpoint not found.";
             case 500:
-                return "HTTP 500: Internal server error on backend.";
+                return "Internal server error on backend.";
             default:
-                return "HTTP Error " + statusCode + " from server.";
+                return "Server returned HTTP error " + statusCode;
         }
     }
 }
