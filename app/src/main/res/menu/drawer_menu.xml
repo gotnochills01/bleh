@@ -1,6 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/drawer_nutrition"
+            android:icon="@drawable/ic_nav_home"
+            android:title="Nutrition &amp; Diet" />
+        <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/ic_nav_settings"
             android:title="@string/drawer_settings" />

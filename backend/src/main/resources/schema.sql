@@ -140,3 +140,33 @@ CREATE TABLE IF NOT EXISTS user_quiz_progress (
     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS nutrition_recommendations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cycle_phase VARCHAR(50) NOT NULL,
+    meal_category VARCHAR(50) NOT NULL,
+    food_item_name VARCHAR(150) NOT NULL,
+    key_nutrients VARCHAR(255) NOT NULL,
+    health_benefits TEXT,
+    dietary_type VARCHAR(30) NOT NULL,
+    budget_level VARCHAR(30) NOT NULL,
+    evidence_level VARCHAR(50) NOT NULL,
+    safety_warnings TEXT,
+    evidence_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_nutrition_phase_diet (cycle_phase, dietary_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed evidence-based nutrition items
+INSERT INTO nutrition_recommendations (cycle_phase, meal_category, food_item_name, key_nutrients, health_benefits, dietary_type, budget_level, evidence_level, safety_warnings, evidence_url)
+VALUES
+('MENSTRUAL', 'Main Meal', 'Spinach & Lentil Dal with Citrus', 'Non-heme Iron, Vitamin C, Folate, Fiber', 'Vitamin C enhances non-heme iron absorption to replenish menstrual blood loss and maintain energy levels.', 'VEGAN', 'BUDGET', 'WHO Dietary Guidelines', 'Consult physician if taking anticoagulant medications due to high Vitamin K content.', 'https://pubmed.ncbi.nlm.nih.gov/20200263/'),
+('MENSTRUAL', 'Snack', 'Pumpkin Seeds & Dark Chocolate (70%+)', 'Magnesium, Zinc, Non-heme Iron', 'Magnesium assists in uterine muscle relaxation to help reduce mild primary dysmenorrhea symptoms.', 'VEGETARIAN', 'MODERATE', 'Systematic Review / RCT', 'Consume in moderation. High cocoa content may contain small amounts of caffeine.', 'https://pubmed.ncbi.nlm.nih.gov/23865352/'),
+('FOLLICULAR', 'Main Meal', 'Sprouted Chickpea Salad with Cucumbers', 'Complex Carbohydrates, Protein, B-Vitamins', 'Provides sustained glucose release and micronutrients essential for cellular repair during follicle development.', 'VEGAN', 'BUDGET', 'National Dietary Guidelines', 'Wash sprouted legumes thoroughly to prevent foodborne bacterial contamination.', 'https://pubmed.ncbi.nlm.nih.gov/28630128/'),
+('FOLLICULAR', 'Breakfast', 'Fortified Oats with Chia Seeds & Berries', 'Soluble Fiber (Beta-glucan), Omega-3 ALA, Antiox', 'Supports healthy digestion and liver estrogen metabolism during early follicular rise.', 'VEGAN', 'BUDGET', 'Clinical Review', 'Ensure adequate water consumption with high chia seed fiber intake.', 'https://pubmed.ncbi.nlm.nih.gov/22583023/'),
+('OVULATORY', 'Main Meal', 'Grilled Mackerel or Salmon with Asparagus', 'Omega-3 EPA/DHA, Vitamin D, Selenium', 'Anti-inflammatory fatty acids support vascular tone and inflammatory regulation around ovulation.', 'NON_VEG', 'MODERATE', 'Systematic Review', 'Select low-mercury fish sources. Pregnant or lactating individuals should adhere to local FDA/WHO fish limits.', 'https://pubmed.ncbi.nlm.nih.gov/30206192/'),
+('OVULATORY', 'Snack', 'Sesame & Flax Seed Mix (Seed Cycling Support)', 'Lignans, Essential Fatty Acids, Zinc', 'Provides plant dietary lignans and zinc supporting general hormone signaling health.', 'VEGAN', 'BUDGET', 'Emerging Clinical Cohort', 'Food supplement only. Does not replace clinical therapy for endocrine or ovulatory disorders.', 'https://pubmed.ncbi.nlm.nih.gov/21812903/'),
+('LUTEAL', 'Main Meal', 'Baked Sweet Potato with Black Beans & Avocado', 'Vitamin B6, Potassium, Complex Carbs, Fiber', 'Vitamin B6 aids neurotransmitter synthesis (serotonin) reducing luteal mood shifts and water retention.', 'VEGAN', 'BUDGET', 'RCT Clinical Trial', 'High potassium foods should be monitored in individuals with chronic kidney disease.', 'https://pubmed.ncbi.nlm.nih.gov/28165863/'),
+('LUTEAL', 'Snack', 'Plain Greek Yogurt with Walnuts', 'Calcium, Protein, Probiotics, Omega-3', 'Dietary calcium (1000mg/day) is clinically shown to reduce premenstrual syndrome symptom severity.', 'VEGETARIAN', 'MODERATE', 'Systematic Review / RCT', 'Not recommended for individuals with severe lactose intolerance or milk protein allergy without lactase.', 'https://pubmed.ncbi.nlm.nih.gov/28215622/'),
+('GENERAL', 'Hydration / Beverage', 'Chamomile & Ginger Herbal Tea', 'Flavonoids, Gingerols', 'Chamomile and ginger infusions contain mild antispasmodic compounds easing gastrointestinal and uterine discomfort.', 'VEGAN', 'BUDGET', 'Systematic Review / RCT', 'Avoid ginger supplements in high doses prior to surgery or if taking anti-platelet therapy.', 'https://pubmed.ncbi.nlm.nih.gov/27000311/'),
+('GENERAL', 'Breakfast', 'Boiled Eggs on Whole Grain Toast', 'Choline, High-Quality Protein, Vitamin B12', 'Supports cellular integrity, brain health, and steady glycemic control throughout the cycle.', 'NON_VEG', 'BUDGET', 'National Dietary Guidelines', 'Cook eggs thoroughly to lower risk of Salmonella infection.', 'https://pubmed.ncbi.nlm.nih.gov/28900017/');

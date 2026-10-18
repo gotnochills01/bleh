@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mahila.AiChatActivity;
 import com.example.mahila.DatabaseHelper;
+import com.example.mahila.NutritionActivity;
 import com.example.mahila.R;
 import com.example.mahila.api.TokenManager;
 import com.example.mahila.utils.CycleCalculator;
@@ -139,6 +140,19 @@ public class HomeFragment extends Fragment {
         if (btnAiChat != null) {
             btnAiChat.setOnClickListener(v ->
                     startActivity(new Intent(requireContext(), AiChatActivity.class)));
+        }
+
+        // Nutrition Card click listener
+        View cardNutrition = root.findViewById(R.id.card_nutrition_banner);
+        if (cardNutrition != null) {
+            cardNutrition.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), NutritionActivity.class)));
+        }
+
+        MaterialButton btnOpenNutrition = root.findViewById(R.id.btn_open_nutrition);
+        if (btnOpenNutrition != null) {
+            btnOpenNutrition.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), NutritionActivity.class)));
         }
 
         return root;

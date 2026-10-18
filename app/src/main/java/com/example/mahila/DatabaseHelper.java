@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "mahila.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     // Table Names
     public static final String TABLE_USERS = "users";
@@ -18,6 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_CONTACTS = "contacts";
     public static final String TABLE_MOODS = "moods";
     public static final String TABLE_REMINDERS = "reminders";
+    public static final String TABLE_NUTRITION_CACHE = "nutrition_cache";
 
     // Common Columns
     public static final String KEY_ID = "id";
@@ -62,6 +63,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_REMINDER_CATEGORY = "category";
     public static final String KEY_REMINDER_TIME = "time_millis";
     public static final String KEY_REMINDER_ENABLED = "is_enabled";
+
+    // Nutrition Cache Table Columns
+    public static final String KEY_CYCLE_PHASE = "cycle_phase";
+    public static final String KEY_MEAL_CATEGORY = "meal_category";
+    public static final String KEY_FOOD_ITEM_NAME = "food_item_name";
+    public static final String KEY_KEY_NUTRIENTS = "key_nutrients";
+    public static final String KEY_HEALTH_BENEFITS = "health_benefits";
+    public static final String KEY_DIETARY_TYPE = "dietary_type";
+    public static final String KEY_BUDGET_LEVEL = "budget_level";
+    public static final String KEY_EVIDENCE_LEVEL = "evidence_level";
+    public static final String KEY_SAFETY_WARNINGS = "safety_warnings";
+    public static final String KEY_EVIDENCE_URL = "evidence_url";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -124,12 +137,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_REMINDER_ENABLED + " INTEGER DEFAULT 1, "
                 + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
 
+        String CREATE_NUTRITION_TABLE = "CREATE TABLE " + TABLE_NUTRITION_CACHE + " ("
+                + KEY_ID + " INTEGER PRIMARY KEY, "
+                + KEY_CYCLE_PHASE + " TEXT, "
+                + KEY_MEAL_CATEGORY + " TEXT, "
+                + KEY_FOOD_ITEM_NAME + " TEXT, "
+                + KEY_KEY_NUTRIENTS + " TEXT, "
+                + KEY_HEALTH_BENEFITS + " TEXT, "
+                + KEY_DIETARY_TYPE + " TEXT, "
+                + KEY_BUDGET_LEVEL + " TEXT, "
+                + KEY_EVIDENCE_LEVEL + " TEXT, "
+                + KEY_SAFETY_WARNINGS + " TEXT, "
+                + KEY_EVIDENCE_URL + " TEXT" + ")";
+
         db.execSQL(CREATE_USERS_TABLE);
         db.execSQL(CREATE_PERIODS_TABLE);
         db.execSQL(CREATE_SYMPTOMS_TABLE);
         db.execSQL(CREATE_CONTACTS_TABLE);
         db.execSQL(CREATE_MOODS_TABLE);
         db.execSQL(CREATE_REMINDERS_TABLE);
+        db.execSQL(CREATE_NUTRITION_TABLE);
     }
 
     @Override
@@ -177,6 +204,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + KEY_IS_SYNCED + " INTEGER DEFAULT 0" + ")";
             db.execSQL(CREATE_REMINDERS_TABLE);
         }
+        if (oldVersion < 6) {
+            String CREATE_NUTRITION_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NUTRITION_CACHE + " ("
+                    + KEY_ID + " INTEGER PRIMARY KEY, "
+                    + KEY_CYCLE_PHASE + " TEXT, "
+                    + KEY_MEAL_CATEGORY + " TEXT, "
+                    + KEY_FOOD_ITEM_NAME + " TEXT, "
+                    + KEY_KEY_NUTRIENTS + " TEXT, "
+                    + KEY_HEALTH_BENEFITS + " TEXT, "
+                    + KEY_DIETARY_TYPE + " TEXT, "
+                    + KEY_BUDGET_LEVEL + " TEXT, "
+                    + KEY_EVIDENCE_LEVEL + " TEXT, "
+                    + KEY_SAFETY_WARNINGS + " TEXT, "
+                    + KEY_EVIDENCE_URL + " TEXT" + ")";
+            db.execSQL(CREATE_NUTRITION_TABLE);
+        }
     }
 
     // Insert User
@@ -192,7 +234,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_PASSWORD, password);
         values.put(KEY_AGE, age);
 
-        // Safe update-then-insert strategy to prevent row deletion/replacement
         int updatedRows = db.update(TABLE_USERS, values, KEY_EMAIL + " = ?", new String[]{email});
         if (updatedRows > 0) {
             return true;
@@ -453,6 +494,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectionArgs = {userEmail};
 
         return db.query(TABLE_REMINDERS, null, selection, selectionArgs, null, null, KEY_REMINDER_TIME + " ASC");
+    }
+
+    // Nutrition Cache
+    public void saveNutritionItemToCache(long id, String cyclePhase, String mealCategory, String foodName, String keyNutrients, String healthBenefits, String dietaryType, String budgetLevel, String evidenceLevel, String safetyWarnings, String evidenceUrl) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_ID, id);
+        values.put(KEY_CYCLE_PHASE, cyclePhase);
+        values.put(KEY_MEAL_CATEGORY, mealCategory);
+        values.put(KEY_FOOD_ITEM_NAME, foodName);
+        values.put(KEY_KEY_NUTRIENTS, keyNutrients);
+        values.put(KEY_HEALTH_BENEFITS, healthBenefits);
+        values.put(KEY_DIETARY_TYPE, dietaryType);
+        values.put(KEY_BUDGET_LEVEL, budgetLevel);
+        values.put(KEY_EVIDENCE_LEVEL, evidenceLevel);
+        values.put(KEY_SAFETY_WARNINGS, safetyWarnings);
+        values.put(KEY_EVIDENCE_URL, evidenceUrl);
+
+        db.insertWithOnConflict(TABLE_NUTRITION_CACHE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Cursor getCachedNutritionRecommendations(String phase, String dietaryType, String budgetLevel) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        StringBuilder selection = new StringBuilder("1=1");
+        java.util.List<String> args = new java.util.ArrayList<>();
+
+        if (phase != null && !phase.isEmpty() && !"ALL".equalsIgnoreCase(phase)) {
+            selection.append(" AND (UPPER(").append(KEY_CYCLE_PHASE).append(") = ? OR UPPER(").append(KEY_CYCLE_PHASE).append(") = 'GENERAL')");
+            args.add(phase.toUpperCase());
+        }
+
+        if (dietaryType != null && !dietaryType.isEmpty() && !"ALL".equalsIgnoreCase(dietaryType)) {
+            selection.append(" AND (UPPER(").append(KEY_DIETARY_TYPE).append(") = ? OR UPPER(").append(KEY_DIETARY_TYPE).append(") = 'ALL')");
+            args.add(dietaryType.toUpperCase());
+        }
+
+        if (budgetLevel != null && !budgetLevel.isEmpty() && !"ALL".equalsIgnoreCase(budgetLevel)) {
+            selection.append(" AND UPPER(").append(KEY_BUDGET_LEVEL).append(") = ?");
+            args.add(budgetLevel.toUpperCase());
+        }
+
+        return db.query(TABLE_NUTRITION_CACHE, null, selection.toString(), args.toArray(new String[0]), null, null, KEY_ID + " ASC");
     }
 
     // Mark synced

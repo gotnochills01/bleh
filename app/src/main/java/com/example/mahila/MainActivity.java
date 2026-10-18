@@ -147,7 +147,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.drawer_settings || id == R.id.drawer_language) {
+        if (id == R.id.drawer_nutrition) {
+            startActivity(new Intent(this, NutritionActivity.class));
+        } else if (id == R.id.drawer_settings || id == R.id.drawer_language) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.drawer_notifications) {
             Toast.makeText(this, "Reminders and Notifications are active", Toast.LENGTH_SHORT).show();

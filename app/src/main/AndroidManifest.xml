@@ -112,6 +112,10 @@
             android:name=".AwarenessDetailActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".NutritionActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
