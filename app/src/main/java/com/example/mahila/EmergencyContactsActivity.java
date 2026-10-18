@@ -1,8 +1,10 @@
 package com.example.mahila;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,8 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -28,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmergencyContactsActivity extends AppCompatActivity {
+
+    private static final int REQ_CALL_PERMISSION = 301;
+    private String pendingCallNumber = null;
 
     private TokenManager tokenManager;
     private DatabaseHelper dbHelper;
@@ -95,13 +104,13 @@ public class EmergencyContactsActivity extends AppCompatActivity {
         emptyText = findViewById(R.id.text_no_contacts);
 
         View cardNational = findViewById(R.id.card_national_emergency);
-        if (cardNational != null) cardNational.setOnClickListener(v -> dialNumber("112"));
+        if (cardNational != null) cardNational.setOnClickListener(v -> initiatePhoneCall("112"));
 
         View cardWomen = findViewById(R.id.card_women_helpline);
-        if (cardWomen != null) cardWomen.setOnClickListener(v -> dialNumber("1091"));
+        if (cardWomen != null) cardWomen.setOnClickListener(v -> initiatePhoneCall("1091"));
 
         View cardAmbulance = findViewById(R.id.card_ambulance);
-        if (cardAmbulance != null) cardAmbulance.setOnClickListener(v -> dialNumber("108"));
+        if (cardAmbulance != null) cardAmbulance.setOnClickListener(v -> initiatePhoneCall("108"));
 
         if (saveButton != null) {
             saveButton.setOnClickListener(v -> saveContact());
@@ -220,11 +229,71 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             if (nameView != null) nameView.setText(contact.name);
             if (phoneView != null) phoneView.setText(contact.phone);
 
-            item.setOnClickListener(v -> dialNumber(contact.phone));
+            item.setOnClickListener(v -> initiatePhoneCall(contact.phone));
             if (editButton != null) editButton.setOnClickListener(v -> startEdit(contact));
             if (deleteButton != null) deleteButton.setOnClickListener(v -> deleteContact(contact.id));
 
             contactsContainer.addView(item);
+        }
+    }
+
+    private void initiatePhoneCall(String number) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Emergency Call")
+                .setMessage("Do you want to call " + number + " directly?")
+                .setPositiveButton("Call Now", (dialog, which) -> checkCallPermissionAndExecute(number))
+                .setNeutralButton("Open Dialer", (dialog, which) -> fallbackToDialer(number))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void checkCallPermissionAndExecute(String number) {
+        pendingCallNumber = number;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CALL_PHONE}, REQ_CALL_PERMISSION);
+        } else {
+            executeDirectCall(number);
+        }
+    }
+
+    private void executeDirectCall(String number) {
+        String uriStr = buildDialUriString(number);
+        try {
+            Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(uriStr));
+            startActivity(callIntent);
+        } catch (SecurityException e) {
+            fallbackToDialer(number);
+        } catch (Exception e) {
+            fallbackToDialer(number);
+        }
+    }
+
+    private void fallbackToDialer(String number) {
+        String uriStr = buildDialUriString(number);
+        try {
+            Intent dialIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(uriStr));
+            startActivity(dialIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No phone app available.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_CALL_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (pendingCallNumber != null) {
+                    executeDirectCall(pendingCallNumber);
+                }
+            } else {
+                Toast.makeText(this, "Call permission denied. Opening phone dialer...", Toast.LENGTH_SHORT).show();
+                if (pendingCallNumber != null) {
+                    fallbackToDialer(pendingCallNumber);
+                }
+            }
         }
     }
 
@@ -257,21 +326,6 @@ public class EmergencyContactsActivity extends AppCompatActivity {
 
         showContacts();
         Toast.makeText(this, "Contact deleted", Toast.LENGTH_SHORT).show();
-    }
-
-    private void dialNumber(String number) {
-        String uriStr = buildDialUriString(number);
-        if (uriStr.equals("tel:")) {
-            Toast.makeText(this, "This number cannot be dialed.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            Intent intent = new Intent(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse(uriStr));
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No phone dialer app is available on this device.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private String textOf(TextInputEditText input) {
