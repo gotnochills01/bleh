@@ -14,6 +14,17 @@
 
 ---
 
+## Group 6: Nutrition & Food Filters
+
+### 1. Features Implemented & Resolved
+- **Multi-Filter Combining Logic (`NutritionActivity.java` / `NutritionTest.java`)**:
+  - Implemented multi-chip selection combining cycle phase (`Menstrual`, `Follicular`, `Ovulatory`, `Luteal`), dietary preference (`Vegetarian`, `Vegan`, `Non-Veg`), and budget level (`Budget Friendly`, `Moderate`).
+  - Configured query parameter filtering on local SQLite cache (`dbHelper.getCachedNutritionRecommendations`) and Spring Boot REST backend (`GET /api/nutrition`).
+  - Selecting "All" for any chip group resets that query constraint, correctly restoring the full recommendation set.
+  - Added unit test coverage in `NutritionTest.java` verifying 3-way filter combinations and empty result fallback.
+
+---
+
 ## Group 5: AI Assistance & Cycle Insights
 
 ### 1. Features Implemented & Resolved
@@ -105,5 +116,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AiChatTest`, `RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`NutritionTest`, `AiChatTest`, `RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
