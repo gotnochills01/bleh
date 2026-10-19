@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.mahila.notifications.ReminderScheduler;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
@@ -127,6 +128,8 @@ public class PeriodTrackerActivity extends AppCompatActivity {
 
                     boolean saved = dbHelper.savePeriod(userEmail, selected.getTimeInMillis());
                     if (saved) {
+                        ReminderScheduler.schedulePeriodReminder(this, userEmail, 2);
+                        ReminderScheduler.scheduleOvulationReminder(this, userEmail);
                         showCycleInfo();
                         Toast.makeText(this, "Last period date saved", Toast.LENGTH_SHORT).show();
                     } else {
@@ -196,4 +199,3 @@ public class PeriodTrackerActivity extends AppCompatActivity {
         return TimeUnit.MILLISECONDS.toDays(diff);
     }
 }
-

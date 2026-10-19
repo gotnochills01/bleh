@@ -14,6 +14,20 @@
 
 ---
 
+## Group 4: Period Tracker & Notifications
+
+### 1. Features Implemented & Resolved
+- **Period Date Validation & Range Checks (`PeriodTrackerActivity.java` / `TrackerFragment.java`)**:
+  - Implemented `showDatePicker()` with strict upper bound validation preventing future date logs and lower bound validation rejecting entries older than 2 years.
+  - Calculated cycle day, next period estimates, and days remaining with month/year boundary rollover handling.
+  - Automatically triggers period and ovulation alarm scheduling upon saving or deleting period records.
+- **Notification Scheduling & Permissions (`RemindersActivity.java` / `ReminderScheduler.java`)**:
+  - Checks `Manifest.permission.POST_NOTIFICATIONS` on Android 13+ (API 33+) before enabling notification switches.
+  - Formats discreet, privacy-conscious notification messages ("Your next estimated cycle window is active (Calendar Estimate)").
+  - Implemented `ReminderScheduler.rescheduleAllOnBoot(Context context)` executing on `ACTION_BOOT_COMPLETED` to restore active cycle and medication alarms after device reboot.
+
+---
+
 ## Group 3: UI Alignment & Readability Enhancements
 
 ### 1. Screens & Layouts Refactored
@@ -75,5 +89,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
