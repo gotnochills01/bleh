@@ -4,15 +4,18 @@
     android:id="@+id/symptom_logger_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="@color/bg_warm_ivory"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/symptom_logger_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:title="Log Symptoms"
-        app:navigationIcon="@drawable/ic_menu" />
+        android:background="@color/deep_plum"
+        app:title="Log Symptoms"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,11 +26,11 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="1dp"
-            app:strokeColor="?attr/colorOutlineVariant"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/warm_sand"
             app:strokeWidth="1dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+            app:cardBackgroundColor="@color/white"
             android:layout_marginBottom="20dp">
 
             <LinearLayout
@@ -40,8 +43,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Select Active Symptoms"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textColor="?attr/colorPrimary"
+                    android:fontFamily="@font/nunito"
+                    android:textColor="@color/deep_plum"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
 
@@ -49,25 +53,47 @@
                     android:id="@+id/symptom_chip_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="8dp"
+                    app:chipSpacingVertical="8dp"
                     app:singleSelection="false"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_save_symptoms"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="56dp"
                     android:text="Save Selected Symptoms"
-                    app:cornerRadius="12dp" />
+                    android:fontFamily="@font/nunito"
+                    app:cornerRadius="14dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/text_symptom_history"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_symptom_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Recent Symptom History"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/warm_sand"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@color/warm_sand">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/text_symptom_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Recent Symptom History"
+                    android:fontFamily="@font/nunito"
+                    android:textSize="14sp"
+                    android:textColor="@color/deep_plum" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </LinearLayout>

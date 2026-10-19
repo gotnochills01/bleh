@@ -14,6 +14,18 @@
 
 ---
 
+## Group 3: UI Alignment & Readability Enhancements
+
+### 1. Screens & Layouts Refactored
+- **AI Health Assistant (`activity_ai_chat.xml`)**: Applied Warm Ivory (`#FFFDF9`) canvas, M3 outlined text input box with `56dp` touch target height, `48dp` send button, and `clipToPadding="false"` message scrolling container.
+- **Menstrual Health Quiz (`activity_quiz.xml`)**: Updated container padding to `20dp`, Nunito typography for question prompts, `16dp` M3 card corner radius with Warm Sand stroke, and `56dp` submit button touch targets.
+- **Symptom Logger (`activity_symptom_logger.xml`)**: Standardized chip group spacing (`app:chipSpacingHorizontal="8dp"` and `app:chipSpacingVertical="8dp"`), `56dp` save button height, and Warm Sand history card container.
+- **Health Tips (`activity_health_tips.xml`)**: Standardized toolbar title with navigation insets, `16dp` M3 card corner radii with `2dp` elevation, and `56dp` action button touch targets.
+- **Settings & Preferences (`activity_settings.xml`)**: Standardized M3 switch containers, language dropdown spinner, and `56dp` touch target heights for `btn_apply_language`, `btn_reminders`, `btn_export_data`, and `btn_logout`.
+- **Reminders & Alerts (`activity_reminders.xml`)**: Standardized M3 switch controls, medication text input, and `56dp` scheduling button.
+
+---
+
 ## Group 2: GPS, Maps, Nearby Assistance & Emergency Calling
 
 ### 1. Features Implemented & Resolved
@@ -63,5 +75,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `EmergencyContactsTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
