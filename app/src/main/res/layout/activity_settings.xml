@@ -4,7 +4,7 @@
     android:id="@+id/settings_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="@color/bg_warm_ivory"
     android:orientation="vertical"
     android:padding="20dp">
 
@@ -12,19 +12,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Settings &amp; Preferences"
-        android:textAppearance="?attr/textAppearanceHeadlineMedium"
-        android:textColor="?attr/colorOnSurface"
+        android:fontFamily="@font/nunito"
+        android:textSize="22sp"
+        android:textColor="@color/deep_plum"
         android:textStyle="bold"
         android:layout_marginBottom="20dp" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="1dp"
-        app:strokeColor="?attr/colorOutlineVariant"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:strokeColor="@color/warm_sand"
         app:strokeWidth="1dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="@color/white"
         android:layout_marginBottom="20dp">
 
         <LinearLayout
@@ -37,50 +38,54 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Language Preference"
-                android:textAppearance="?attr/textAppearanceTitleSmall"
-                android:textColor="?attr/colorPrimary"
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/deep_plum"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="12dp" />
 
             <Spinner
                 android:id="@+id/sp_language"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/ic_menu"
+                android:layout_height="56dp"
                 android:layout_marginBottom="16dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_apply_language"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="56dp"
                 android:text="Save Preferred Language"
-                app:cornerRadius="12dp"
+                android:fontFamily="@font/nunito"
+                app:cornerRadius="14dp"
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_reminders"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="56dp"
                 android:text="Reminders &amp; Notification Settings"
-                app:cornerRadius="12dp"
+                android:fontFamily="@font/nunito"
+                app:cornerRadius="14dp"
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_export_data"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="56dp"
                 android:text="Export Encrypted Health Data"
+                android:fontFamily="@font/nunito"
                 style="@style/Widget.Material3.Button.TonalButton"
-                app:cornerRadius="12dp"
+                app:cornerRadius="14dp"
                 android:layout_marginBottom="12dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_logout"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="56dp"
                 android:text="Log Out Session"
+                android:fontFamily="@font/nunito"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                app:cornerRadius="12dp" />
+                app:cornerRadius="14dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

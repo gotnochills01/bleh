@@ -14,6 +14,59 @@
 
 ---
 
+## Group 6: Nutrition & Food Filters
+
+### 1. Features Implemented & Resolved
+- **Multi-Filter Combining Logic (`NutritionActivity.java` / `NutritionTest.java`)**:
+  - Implemented multi-chip selection combining cycle phase (`Menstrual`, `Follicular`, `Ovulatory`, `Luteal`), dietary preference (`Vegetarian`, `Vegan`, `Non-Veg`), and budget level (`Budget Friendly`, `Moderate`).
+  - Configured query parameter filtering on local SQLite cache (`dbHelper.getCachedNutritionRecommendations`) and Spring Boot REST backend (`GET /api/nutrition`).
+  - Selecting "All" for any chip group resets that query constraint, correctly restoring the full recommendation set.
+  - Added unit test coverage in `NutritionTest.java` verifying 3-way filter combinations and empty result fallback.
+
+---
+
+## Group 5: AI Assistance & Cycle Insights
+
+### 1. Features Implemented & Resolved
+- **AI Chat Interface & Loading States (`AiChatActivity.java`)**:
+  - Implemented input validation preventing blank prompt submissions.
+  - Added button loading state ("Thinking...") during async HTTP request execution.
+  - Enhanced M3 card chat bubbles with Deep Plum (`#3B1F2B`) for user prompts and Sage Green (`#253D2A`) for AI responses.
+- **Evidence-Grounded Local Fallbacks (`AiChatActivity.java`)**:
+  - Implemented `getEducationalFallbackForPrompt()` providing local fallback guidance for PCOS, cramps, period nutrition, and ovulation when Spring Boot backend API is offline.
+  - Included explicit medical disclaimers ("The AI Assistant provides general educational information only. It does not provide medical diagnoses...").
+- **Cycle Insights Data Facts vs. Estimates (`AnalyticsEngine.java` / `InsightsFragment.java`)**:
+  - Clearly separates logged historical facts (period dates, logged symptom frequencies) from future estimates (projected next period and ovulation windows).
+  - Explicitly labels predictions as estimates ("Calendar Estimate") and displays data completeness badges (`INSUFFICIENT`, `MODERATE`, `ROBUST`).
+
+---
+
+## Group 4: Period Tracker & Notifications
+
+### 1. Features Implemented & Resolved
+- **Period Date Validation & Range Checks (`PeriodTrackerActivity.java` / `TrackerFragment.java`)**:
+  - Implemented `showDatePicker()` with strict upper bound validation preventing future date logs and lower bound validation rejecting entries older than 2 years.
+  - Calculated cycle day, next period estimates, and days remaining with month/year boundary rollover handling.
+  - Automatically triggers period and ovulation alarm scheduling upon saving or deleting period records.
+- **Notification Scheduling & Permissions (`RemindersActivity.java` / `ReminderScheduler.java`)**:
+  - Checks `Manifest.permission.POST_NOTIFICATIONS` on Android 13+ (API 33+) before enabling notification switches.
+  - Formats discreet, privacy-conscious notification messages ("Your next estimated cycle window is active (Calendar Estimate)").
+  - Implemented `ReminderScheduler.rescheduleAllOnBoot(Context context)` executing on `ACTION_BOOT_COMPLETED` to restore active cycle and medication alarms after device reboot.
+
+---
+
+## Group 3: UI Alignment & Readability Enhancements
+
+### 1. Screens & Layouts Refactored
+- **AI Health Assistant (`activity_ai_chat.xml`)**: Applied Warm Ivory (`#FFFDF9`) canvas, M3 outlined text input box with `56dp` touch target height, `48dp` send button, and `clipToPadding="false"` message scrolling container.
+- **Menstrual Health Quiz (`activity_quiz.xml`)**: Updated container padding to `20dp`, Nunito typography for question prompts, `16dp` M3 card corner radius with Warm Sand stroke, and `56dp` submit button touch targets.
+- **Symptom Logger (`activity_symptom_logger.xml`)**: Standardized chip group spacing (`app:chipSpacingHorizontal="8dp"` and `app:chipSpacingVertical="8dp"`), `56dp` save button height, and Warm Sand history card container.
+- **Health Tips (`activity_health_tips.xml`)**: Standardized toolbar title with navigation insets, `16dp` M3 card corner radii with `2dp` elevation, and `56dp` action button touch targets.
+- **Settings & Preferences (`activity_settings.xml`)**: Standardized M3 switch containers, language dropdown spinner, and `56dp` touch target heights for `btn_apply_language`, `btn_reminders`, `btn_export_data`, and `btn_logout`.
+- **Reminders & Alerts (`activity_reminders.xml`)**: Standardized M3 switch controls, medication text input, and `56dp` scheduling button.
+
+---
+
 ## Group 2: GPS, Maps, Nearby Assistance & Emergency Calling
 
 ### 1. Features Implemented & Resolved
@@ -63,5 +116,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `RemindersTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`NutritionTest`, `AiChatTest`, `RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).

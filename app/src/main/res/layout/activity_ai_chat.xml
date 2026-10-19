@@ -4,17 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA">
+    android:background="@color/bg_warm_ivory">
 
     <!-- Top Medical Disclaimer Banner -->
     <TextView
         android:id="@+id/tv_disclaimer_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFF3CD"
-        android:textColor="#856404"
+        android:background="@color/warm_sand"
+        android:textColor="@color/deep_plum"
         android:padding="12dp"
         android:textSize="12sp"
+        android:fontFamily="@font/nunito"
         android:text="@string/ai_disclaimer" />
 
     <!-- Chat Messages Scroll Container -->
@@ -23,7 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:id="@+id/container_chat_messages"
@@ -38,21 +40,34 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="#FFFFFF">
+        android:gravity="center_vertical"
+        android:background="@color/white">
 
-        <EditText
-            android:id="@+id/et_ai_prompt"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Ask about symptoms, diet, or PCOS..."
-            android:textSize="14sp" />
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
 
-        <Button
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_ai_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Ask about symptoms, diet, or PCOS..."
+                android:fontFamily="@font/nunito"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_send_prompt"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Send"
+            android:fontFamily="@font/nunito"
             android:layout_marginStart="8dp" />
     </LinearLayout>
 

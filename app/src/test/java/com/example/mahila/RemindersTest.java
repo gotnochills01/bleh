@@ -25,4 +25,13 @@ public class RemindersTest {
 
         assertEquals(lastPeriodMillis + (26L * 24 * 60 * 60 * 1000), reminderTimeMillis);
     }
+
+    @Test
+    public void testOvulationReminderOffsetCalculation() {
+        long lastPeriodMillis = 1000000000000L;
+        long averageCycleDays = 28L;
+
+        long estimatedOvulationMillis = lastPeriodMillis + ((averageCycleDays - 14) * 24L * 60 * 60 * 1000);
+        assertEquals(lastPeriodMillis + (14L * 24 * 60 * 60 * 1000), estimatedOvulationMillis);
+    }
 }

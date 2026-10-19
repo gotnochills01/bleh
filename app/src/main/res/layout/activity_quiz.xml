@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F8F9FA">
+    android:padding="20dp"
+    android:background="@color/bg_warm_ivory">
 
     <TextView
         android:id="@+id/tv_quiz_title"
@@ -14,7 +14,8 @@
         android:text="Menstrual Health Quiz"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#AD1457" />
+        android:fontFamily="@font/nunito"
+        android:textColor="@color/deep_plum" />
 
     <ProgressBar
         android:id="@+id/pb_quiz"
@@ -31,20 +32,24 @@
         android:layout_height="wrap_content"
         android:text="Question 1 of 10"
         android:textSize="14sp"
-        android:textColor="#666666" />
+        android:fontFamily="@font/nunito"
+        android:textColor="@color/text_secondary" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
+        app:strokeColor="@color/warm_sand"
+        app:strokeWidth="1dp"
+        app:cardBackgroundColor="@color/white"
         android:layout_marginVertical="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tv_question_text"
@@ -53,7 +58,8 @@
                 android:text="What is the average duration of a normal menstrual cycle?"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#333333" />
+                android:fontFamily="@font/nunito"
+                android:textColor="@color/deep_plum" />
 
             <RadioGroup
                 android:id="@+id/rg_options"
@@ -65,34 +71,43 @@
                     android:id="@+id/rb_opt0"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:paddingVertical="8dp"
                     android:text="Option A" />
 
                 <RadioButton
                     android:id="@+id/rb_opt1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:paddingVertical="8dp"
                     android:text="Option B" />
 
                 <RadioButton
                     android:id="@+id/rb_opt2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:paddingVertical="8dp"
                     android:text="Option C" />
 
                 <RadioButton
                     android:id="@+id/rb_opt3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/nunito"
+                    android:paddingVertical="8dp"
                     android:text="Option D" />
             </RadioGroup>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_next_question"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:text="Submit Answer"
-        app:cornerRadius="12dp" />
+        android:fontFamily="@font/nunito"
+        app:cornerRadius="14dp" />
 
 </LinearLayout>

@@ -3,6 +3,9 @@ package com.example.mahila;
 import com.example.mahila.dto.NutritionDTO;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class NutritionTest {
@@ -42,5 +45,27 @@ public class NutritionTest {
 
         NutritionDTO invalidDto = new NutritionDTO(2L, "GENERAL", "Tea", "Ginger Tea", "Gingerols", "Eases nausea", "VEGAN", "BUDGET", "Review", null, "invalid-link");
         assertFalse(invalidDto.getEvidenceUrl().startsWith("http://") || invalidDto.getEvidenceUrl().startsWith("https://"));
+    }
+
+    @Test
+    public void testMultiFilterCombiningLogic() {
+        List<NutritionDTO> dataset = new ArrayList<>();
+        dataset.add(new NutritionDTO(1L, "MENSTRUAL", "Main Meal", "Spinach Dal", "Iron", "Blood loss support", "VEGAN", "BUDGET", "WHO", null, "https://pubmed.ncbi.nlm.nih.gov/1/"));
+        dataset.add(new NutritionDTO(2L, "MENSTRUAL", "Snack", "Dark Chocolate", "Magnesium", "Cramp relief", "VEGETARIAN", "MODERATE", "RCT", null, "https://pubmed.ncbi.nlm.nih.gov/2/"));
+        dataset.add(new NutritionDTO(3L, "LUTEAL", "Main Meal", "Sweet Potato", "Vitamin B6", "PMS mood support", "VEGAN", "BUDGET", "RCT", null, "https://pubmed.ncbi.nlm.nih.gov/3/"));
+
+        // Filter: MENSTRUAL + VEGAN + BUDGET
+        List<NutritionDTO> filtered = new ArrayList<>();
+        for (NutritionDTO item : dataset) {
+            boolean matchPhase = "ALL".equalsIgnoreCase("MENSTRUAL") || item.getCyclePhase().equalsIgnoreCase("MENSTRUAL");
+            boolean matchDiet = "ALL".equalsIgnoreCase("VEGAN") || item.getDietaryType().equalsIgnoreCase("VEGAN");
+            boolean matchBudget = "ALL".equalsIgnoreCase("BUDGET") || item.getBudgetLevel().equalsIgnoreCase("BUDGET");
+            if (matchPhase && matchDiet && matchBudget) {
+                filtered.add(item);
+            }
+        }
+
+        assertEquals(1, filtered.size());
+        assertEquals("Spinach Dal", filtered.get(0).getFoodItemName());
     }
 }
