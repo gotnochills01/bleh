@@ -14,6 +14,22 @@
 
 ---
 
+## Group 5: AI Assistance & Cycle Insights
+
+### 1. Features Implemented & Resolved
+- **AI Chat Interface & Loading States (`AiChatActivity.java`)**:
+  - Implemented input validation preventing blank prompt submissions.
+  - Added button loading state ("Thinking...") during async HTTP request execution.
+  - Enhanced M3 card chat bubbles with Deep Plum (`#3B1F2B`) for user prompts and Sage Green (`#253D2A`) for AI responses.
+- **Evidence-Grounded Local Fallbacks (`AiChatActivity.java`)**:
+  - Implemented `getEducationalFallbackForPrompt()` providing local fallback guidance for PCOS, cramps, period nutrition, and ovulation when Spring Boot backend API is offline.
+  - Included explicit medical disclaimers ("The AI Assistant provides general educational information only. It does not provide medical diagnoses...").
+- **Cycle Insights Data Facts vs. Estimates (`AnalyticsEngine.java` / `InsightsFragment.java`)**:
+  - Clearly separates logged historical facts (period dates, logged symptom frequencies) from future estimates (projected next period and ovulation windows).
+  - Explicitly labels predictions as estimates ("Calendar Estimate") and displays data completeness badges (`INSUFFICIENT`, `MODERATE`, `ROBUST`).
+
+---
+
 ## Group 4: Period Tracker & Notifications
 
 ### 1. Features Implemented & Resolved
@@ -89,5 +105,5 @@
 
 ## Verification & Build Results
 1. **Compilation / Android Debug APK**: Executed `./gradlew assembleDebug --no-daemon`. Result: **BUILD SUCCESSFUL**. Generated APK: `app/build/outputs/apk/debug/app-debug.apk`.
-2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
+2. **Android Unit Tests**: Executed `./gradlew test --no-daemon`. Result: **PASSED 100%** (`AiChatTest`, `RemindersTest`, `EmergencyContactsTest`, `AuthSessionTest`, `AnalyticsEngineTest`, `NutritionTest`, `CycleCalculatorTest`, `Phase2HealthTrackingTest`, `DatabaseHelperTest`, `Phase1VerificationTest` all passed).
 3. **Spring Boot Backend Test Suite**: Executed `mvn test -f backend/pom.xml`. Result: **BUILD SUCCESSFUL** (`BackendIntegrationTest` passed with 0 failures).
