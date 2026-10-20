@@ -16,4 +16,12 @@ public class EmergencyContactsTest {
         String uri3 = EmergencyContactsActivity.buildDialUriString(null);
         assertEquals("tel:", uri3);
     }
+
+    @Test
+    public void testUserEmailNormalizationAndValidation() {
+        assertEquals("user@example.com", EmergencyContactsActivity.normalizeUserEmail(" User@Example.com "));
+        assertEquals("Asha Sharma", EmergencyContactsActivity.sanitizeContactName("  asha   sharma  "));
+        assertTrue(EmergencyContactsActivity.isValidPhoneNumber("+91 98765 43210"));
+        assertFalse(EmergencyContactsActivity.isValidPhoneNumber("123"));
+    }
 }
