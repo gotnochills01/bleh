@@ -3,6 +3,8 @@ package com.example.mahila;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.mahila.api.TokenManager;
+
 public class AppPreferences {
     public static final int CYCLE_LENGTH_DAYS = 28;
     private static final String PREFS_NAME = "mahila_prefs";
@@ -13,9 +15,21 @@ public class AppPreferences {
     private static final String PREFIX_PROFILE_IMAGE = "profile_image_path_";
 
     private final SharedPreferences prefs;
+    private final Context context;
 
     public AppPreferences(Context context) {
-        prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.context = context.getApplicationContext();
+        prefs = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static String resolveCurrentUserEmail(String storedUserEmail, String sessionUserEmail) {
+        if (storedUserEmail != null && !storedUserEmail.trim().isEmpty()) {
+            return storedUserEmail.trim();
+        }
+        if (sessionUserEmail != null && !sessionUserEmail.trim().isEmpty()) {
+            return sessionUserEmail.trim();
+        }
+        return "";
     }
 
     public void setLoggedIn(boolean loggedIn) {
@@ -31,7 +45,9 @@ public class AppPreferences {
     }
 
     public String getCurrentUserEmail() {
-        return prefs.getString(KEY_CURRENT_USER_EMAIL, "");
+        String storedEmail = prefs.getString(KEY_CURRENT_USER_EMAIL, "");
+        String sessionEmail = context != null ? new TokenManager(context).getUserEmail() : null;
+        return resolveCurrentUserEmail(storedEmail, sessionEmail);
     }
 
     public void clearCurrentUserEmail() {

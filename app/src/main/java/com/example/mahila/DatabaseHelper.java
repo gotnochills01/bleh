@@ -221,6 +221,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public static final class LoginUserUpdate {
+        private final String name;
+        private final String email;
+        private final String password;
+        private final int age;
+
+        public LoginUserUpdate(String name, String email, String password, int age) {
+            this.name = name;
+            this.email = email;
+            this.password = password;
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public ContentValues toContentValues() {
+            ContentValues values = new ContentValues();
+            values.put(KEY_NAME, name);
+            values.put(KEY_EMAIL, email);
+            values.put(KEY_PASSWORD, password);
+            values.put(KEY_AGE, age);
+            return values;
+        }
+    }
+
+    public static LoginUserUpdate buildUserUpdateForLogin(String name, String email, String password, int age,
+                                                         String existingPassword, int existingAge) {
+        String finalPassword = (password == null || password.isEmpty()) ? existingPassword : password;
+        int finalAge = age > 0 ? age : existingAge;
+        return new LoginUserUpdate(name, email, finalPassword, finalAge);
+    }
+
     // Insert User
     public boolean insertUser(String name, String email, String password) {
         return insertUser(name, email, password, 0);
@@ -228,12 +274,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public boolean insertUser(String name, String email, String password, int age) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, name);
-        values.put(KEY_EMAIL, email);
-        values.put(KEY_PASSWORD, password);
-        values.put(KEY_AGE, age);
 
+        String existingPassword = "";
+        int existingAge = 0;
+        String[] projection = {KEY_PASSWORD, KEY_AGE};
+        Cursor existingUser = db.query(TABLE_USERS, projection, KEY_EMAIL + " = ?", new String[]{email}, null, null, null);
+        if (existingUser != null) {
+            if (existingUser.moveToFirst()) {
+                int passwordIndex = existingUser.getColumnIndex(KEY_PASSWORD);
+                int ageIndex = existingUser.getColumnIndex(KEY_AGE);
+                if (passwordIndex != -1) {
+                    existingPassword = existingUser.getString(passwordIndex);
+                }
+                if (ageIndex != -1) {
+                    existingAge = existingUser.getInt(ageIndex);
+                }
+            }
+            existingUser.close();
+        }
+
+        LoginUserUpdate loginUserUpdate = buildUserUpdateForLogin(name, email, password, age, existingPassword, existingAge);
+        ContentValues values = loginUserUpdate.toContentValues();
         int updatedRows = db.update(TABLE_USERS, values, KEY_EMAIL + " = ?", new String[]{email});
         if (updatedRows > 0) {
             return true;
