@@ -1,6 +1,8 @@
 package com.example.mahila;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
@@ -25,10 +27,12 @@ public class QuizActivity extends AppCompatActivity {
     private RadioButton rbOpt0, rbOpt1, rbOpt2, rbOpt3;
     private ProgressBar pbQuiz;
     private ChipGroup cgCategoryFilters;
+    private Button btnNext;
 
     private List<QuizQuestionDTO> questions = new ArrayList<>();
     private int currentIndex = 0;
     private int score = 0;
+    private boolean isSubmitting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +48,7 @@ public class QuizActivity extends AppCompatActivity {
         rbOpt3            = findViewById(R.id.rb_opt3);
         pbQuiz            = findViewById(R.id.pb_quiz);
 
-        Button btnNext = findViewById(R.id.btn_next_question);
+        btnNext = findViewById(R.id.btn_next_question);
         if (btnNext != null) {
             btnNext.setOnClickListener(v -> submitAnswer());
         }
@@ -56,6 +60,7 @@ public class QuizActivity extends AppCompatActivity {
         questions.clear();
         currentIndex = 0;
         score = 0;
+        isSubmitting = false;
 
         ApiClient.getRequest(this, ApiService.QUIZZES + "?category=" + category, new ApiClient.ApiCallback<String>() {
             @Override
@@ -93,6 +98,9 @@ public class QuizActivity extends AppCompatActivity {
 
     private void fallbackQuestions() {
         questions.clear();
+        currentIndex = 0;
+        score = 0;
+        isSubmitting = false;
 
         // 10 Comprehensive Questions on Menstrual Health & Cycle Basics (WHO, ACOG, CDC guidelines)
         addQuestion("What is the typical average duration of a normal menstrual cycle?",
@@ -138,6 +146,9 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void displayQuestion() {
+        isSubmitting = false;
+        if (btnNext != null) btnNext.setEnabled(true);
+
         if (currentIndex >= questions.size()) {
             showScoreSummary();
             return;
@@ -161,12 +172,17 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void submitAnswer() {
+        if (isSubmitting) return;
+
         if (rgOptions == null) return;
         int checkedId = rgOptions.getCheckedRadioButtonId();
         if (checkedId == -1) {
             Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        isSubmitting = true;
+        if (btnNext != null) btnNext.setEnabled(false);
 
         int selectedIdx = -1;
         if (checkedId == R.id.rb_opt0) selectedIdx = 0;
@@ -183,7 +199,7 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         currentIndex++;
-        displayQuestion();
+        new Handler(Looper.getMainLooper()).postDelayed(this::displayQuestion, 300);
     }
 
     private void showScoreSummary() {

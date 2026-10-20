@@ -2,16 +2,21 @@ package com.example.mahila.ui.home;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.mahila.AiChatActivity;
+import com.example.mahila.AppPreferences;
 import com.example.mahila.DatabaseHelper;
 import com.example.mahila.MainActivity;
 import com.example.mahila.NutritionActivity;
@@ -20,7 +25,9 @@ import com.example.mahila.api.TokenManager;
 import com.example.mahila.utils.CycleCalculator;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.imageview.ShapeableImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -35,6 +42,10 @@ public class HomeFragment extends Fragment {
     private TextView tvFertileWindow;
     private TextView tvAiInsightText;
     private Chip chipPhaseBadge;
+    private ShapeableImageView imgProfile;
+
+    private TokenManager tokenManager;
+    private AppPreferences appPreferences;
 
     @Nullable
     @Override
@@ -49,6 +60,7 @@ public class HomeFragment extends Fragment {
         tvFertileWindow = root.findViewById(R.id.tv_fertile_window);
         tvAiInsightText = root.findViewById(R.id.tv_ai_insight_text);
         chipPhaseBadge  = root.findViewById(R.id.chip_phase_badge);
+        imgProfile      = root.findViewById(R.id.img_profile);
 
         // Time-of-day greeting
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -56,9 +68,12 @@ public class HomeFragment extends Fragment {
         if (tvGreeting != null) tvGreeting.setText(greeting);
 
         // Retrieve user session & profile details
-        TokenManager tokenManager = new TokenManager(requireContext());
+        tokenManager = new TokenManager(requireContext());
+        appPreferences = new AppPreferences(requireContext());
         String email = tokenManager.getUserEmail();
         String name = tokenManager.getUserName();
+
+        displayAvatar();
 
         List<Long> periodHistory = new ArrayList<>();
         String diagnosedConditions = null;
@@ -168,6 +183,42 @@ public class HomeFragment extends Fragment {
         }
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        displayAvatar();
+    }
+
+    private void displayAvatar() {
+        if (imgProfile == null) return;
+
+        if (tokenManager == null) tokenManager = new TokenManager(requireContext());
+        if (appPreferences == null) appPreferences = new AppPreferences(requireContext());
+
+        String email = tokenManager.getUserEmail();
+        if (email == null || email.isEmpty()) email = "guest_user";
+
+        String path = appPreferences.getProfileImagePath(email);
+        if (path != null && !path.isEmpty()) {
+            File file = new File(path);
+            if (file.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    imgProfile.setImageBitmap(bitmap);
+                    imgProfile.setPadding(0, 0, 0, 0);
+                    imgProfile.setImageTintList(null);
+                    return;
+                }
+            }
+        }
+
+        // Fallback vector
+        imgProfile.setImageResource(R.drawable.ic_person);
+        int paddingDp = (int) (10 * getResources().getDisplayMetrics().density);
+        imgProfile.setPadding(paddingDp, paddingDp, paddingDp, paddingDp);
+        imgProfile.setImageTintList(ContextCompat.getColorStateList(requireContext(), R.color.deep_plum));
     }
 
     private void openInsightsFragment() {

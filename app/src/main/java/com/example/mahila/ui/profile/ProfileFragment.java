@@ -1,6 +1,9 @@
 package com.example.mahila.ui.profile;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,22 +11,48 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.mahila.AppPreferences;
 import com.example.mahila.DatabaseHelper;
 import com.example.mahila.R;
 import com.example.mahila.api.ApiClient;
 import com.example.mahila.api.ApiService;
 import com.example.mahila.api.TokenManager;
+import com.google.android.material.imageview.ShapeableImageView;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 public class ProfileFragment extends Fragment {
 
     private EditText etName, etAge, etDob, etWeight, etHeight, etBlood, etCity, etConditions, etNotes;
+    private ShapeableImageView imgAvatar;
+    private Button btnChangePhoto;
+
     private TokenManager tokenManager;
+    private AppPreferences appPreferences;
     private DatabaseHelper dbHelper;
+
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                saveProfileImage(uri);
+            }
+        });
+    }
 
     @Nullable
     @Override
@@ -31,7 +60,11 @@ public class ProfileFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
         tokenManager = new TokenManager(requireContext());
+        appPreferences = new AppPreferences(requireContext());
         dbHelper = new DatabaseHelper(requireContext());
+
+        imgAvatar      = root.findViewById(R.id.img_profile_avatar);
+        btnChangePhoto = root.findViewById(R.id.btn_change_photo);
 
         etName       = root.findViewById(R.id.et_profile_name);
         etAge        = root.findViewById(R.id.et_profile_age);
@@ -48,10 +81,81 @@ public class ProfileFragment extends Fragment {
         Button btnSave = root.findViewById(R.id.btn_save_profile);
         if (btnSave != null) btnSave.setOnClickListener(v -> saveProfile());
 
+        if (btnChangePhoto != null) {
+            btnChangePhoto.setOnClickListener(v -> {
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+            });
+        }
+
+        displayAvatar();
         loadProfileLocal();
         loadProfileRemote();
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        displayAvatar();
+    }
+
+    private void saveProfileImage(Uri uri) {
+        String email = tokenManager.getUserEmail();
+        if (email == null || email.isEmpty()) {
+            email = "guest_user";
+        }
+
+        try {
+            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (inputStream != null) inputStream.close();
+
+            if (bitmap != null) {
+                String safeFilename = "avatar_" + email.replaceAll("[^a-zA-Z0-9]", "_") + ".jpg";
+                File avatarFile = new File(requireContext().getFilesDir(), safeFilename);
+
+                FileOutputStream fos = new FileOutputStream(avatarFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
+                fos.flush();
+                fos.close();
+
+                appPreferences.saveProfileImagePath(email, avatarFile.getAbsolutePath());
+                Toast.makeText(requireContext(), "Profile picture updated!", Toast.LENGTH_SHORT).show();
+                displayAvatar();
+            }
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Failed to save profile picture", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void displayAvatar() {
+        if (imgAvatar == null) return;
+
+        String email = tokenManager.getUserEmail();
+        if (email == null || email.isEmpty()) email = "guest_user";
+
+        String path = appPreferences.getProfileImagePath(email);
+        if (path != null && !path.isEmpty()) {
+            File file = new File(path);
+            if (file.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    imgAvatar.setImageBitmap(bitmap);
+                    imgAvatar.setPadding(0, 0, 0, 0);
+                    imgAvatar.setImageTintList(null);
+                    return;
+                }
+            }
+        }
+
+        // Fallback vector icon
+        imgAvatar.setImageResource(R.drawable.ic_person);
+        int paddingDp = (int) (16 * getResources().getDisplayMetrics().density);
+        imgAvatar.setPadding(paddingDp, paddingDp, paddingDp, paddingDp);
+        imgAvatar.setImageTintList(ContextCompat.getColorStateList(requireContext(), R.color.deep_plum));
     }
 
     private void loadProfileLocal() {
