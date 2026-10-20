@@ -32,4 +32,11 @@ public class AiChatTest {
         assertNotNull(response);
         assertTrue(response.contains("reproductive health"));
     }
+
+    @Test
+    public void testFallbackMessageClearlyMarksNonGeminiOutput() {
+        String response = "AI service unavailable. This is a local educational fallback, not a Gemini-generated answer.\n\n" +
+                AiChatActivity.getEducationalFallbackForPrompt("How to manage cramps?");
+        assertTrue(response.contains("not a Gemini-generated answer"));
+    }
 }

@@ -12,6 +12,8 @@ import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class AiChatActivity extends AppCompatActivity {
 
     private LinearLayout containerChat;
@@ -71,22 +73,31 @@ public class AiChatActivity extends AppCompatActivity {
                     setLoadingState(false);
                     try {
                         JSONObject res = new JSONObject(result);
-                        String answer = res.optString("response", "Thank you for asking! Maintaining a healthy routine supports reproductive wellness.");
-                        addMessage(answer, false);
+                        String answer = res.optString("response", "");
+                        String disclaimer = res.optString("disclaimer", "");
+                        if (answer == null || answer.trim().isEmpty()) {
+                            throw new IllegalArgumentException("Empty response");
+                        }
+
+                        String displayText = answer;
+                        if (!disclaimer.isEmpty()) {
+                            displayText = displayText + "\n\n" + disclaimer;
+                        }
+                        addMessage(displayText, false);
                     } catch (Exception e) {
-                        generateLocalAiResponse(query);
+                        generateLocalAiResponse(query, true);
                     }
                 }
 
                 @Override
                 public void onError(String message) {
                     setLoadingState(false);
-                    generateLocalAiResponse(query);
+                    generateLocalAiResponse(query, true);
                 }
             });
         } catch (Exception e) {
             setLoadingState(false);
-            generateLocalAiResponse(query);
+            generateLocalAiResponse(query, true);
         }
     }
 
@@ -106,8 +117,11 @@ public class AiChatActivity extends AppCompatActivity {
         }
     }
 
-    private void generateLocalAiResponse(String query) {
+    private void generateLocalAiResponse(String query, boolean indicateFallback) {
         String answer = getEducationalFallbackForPrompt(query);
+        if (indicateFallback) {
+            answer = "AI service unavailable. This is a local educational fallback, not a Gemini-generated answer.\n\n" + answer;
+        }
         addMessage(answer, false);
     }
 

@@ -4,31 +4,62 @@ import com.mahila.dto.AiChatRequest;
 import com.mahila.dto.AiChatResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+import java.util.Optional;
+
 @Service
 public class AiAssistantService {
 
     private static final String DISCLAIMER = "Disclaimer: The AI Assistant provides general educational information only. It does not provide medical diagnoses or replace professional healthcare consultations. Please speak to a doctor for personal medical advice.";
 
-    public AiChatResponse generateResponse(AiChatRequest request) {
-        String prompt = request.getPrompt() != null ? request.getPrompt().toLowerCase() : "";
-        String responseText;
+    private final GeminiAiService geminiAiService;
 
-        if (prompt.contains("pcos") || prompt.contains("ovary")) {
-            responseText = "Polycystic Ovary Syndrome (PCOS) is a common hormonal disorder. Key steps include maintaining a balanced low-GI diet, engaging in 30 minutes of regular moderate exercise, managing stress levels, and tracking cycle regularity. Please consult a gynecologist or endocrinologist for personalized evaluations.";
-        } else if (prompt.contains("cramp") || prompt.contains("pain")) {
-            responseText = "Menstrual cramps can often be eased by using a warm heating pad on your lower abdomen, staying well-hydrated, drinking warm chamomile or ginger tea, and engaging in gentle yoga stretches. If pain is severe or debilitating, consult a medical professional.";
-        } else if (prompt.contains("food") || prompt.contains("diet") || prompt.contains("nutrition")) {
-            responseText = "During your menstrual cycle, focus on iron-rich foods (spinach, lentils, seeds) along with Vitamin C sources (oranges, bell peppers) to boost absorption. Hydrate frequently and consider magnesium-rich foods like dark chocolate and almonds to reduce muscle cramps.";
-        } else if (prompt.contains("ovulation") || prompt.contains("fertile")) {
-            responseText = "Ovulation typically occurs around 14 days before your next expected period. Your fertile window spans 5 days leading up to ovulation and ovulation day itself. Signs include clear, stretchy cervical mucus and a slight rise in body temperature.";
-        } else {
-            responseText = "Thank you for asking! Maintaining a healthy daily routine with balanced nutrition, adequate hydration, 7-9 hours of restful sleep, and cycle tracking helps foster overall reproductive wellness.";
+    public AiAssistantService(GeminiAiService geminiAiService) {
+        this.geminiAiService = geminiAiService;
+    }
+
+    public AiChatResponse generateResponse(AiChatRequest request) {
+        String prompt = request != null && request.getPrompt() != null ? request.getPrompt().trim() : "";
+        String category = request != null && request.getCategory() != null && !request.getCategory().isBlank()
+                ? request.getCategory() : "GENERAL";
+        String language = request != null && request.getLanguage() != null && !request.getLanguage().isBlank()
+                ? request.getLanguage() : "en";
+
+        if (prompt.isEmpty()) {
+            return buildResponse("Please enter a question before using the Mahila AI assistant.", "General Wellness");
         }
 
+        Optional<String> geminiResponse = geminiAiService.generateAnswer(prompt, language, category);
+        if (geminiResponse.isPresent()) {
+            return buildResponse(geminiResponse.get(), category);
+        }
+
+        return buildResponse(
+                "Gemini AI is currently unavailable, so this is a local general wellness fallback and not a Gemini-generated answer. " +
+                        getKeywordFallback(prompt),
+                "General Wellness"
+        );
+    }
+
+    private AiChatResponse buildResponse(String response, String category) {
         return AiChatResponse.builder()
-                .response(responseText)
+                .response(response)
                 .disclaimer(DISCLAIMER)
-                .recommendedCategory("General Wellness")
+                .recommendedCategory(category == null || category.isBlank() ? "General Wellness" : category)
                 .build();
+    }
+
+    private String getKeywordFallback(String prompt) {
+        String lower = prompt.toLowerCase(Locale.US);
+        if (lower.contains("pcos") || lower.contains("ovary")) {
+            return "Polycystic Ovary Syndrome (PCOS) is a common hormonal condition. Moderate exercise, a balanced low-GI diet, stress management, and regular cycle tracking can support symptom management. Please consult a doctor for personal medical advice.";
+        } else if (lower.contains("cramp") || lower.contains("pain")) {
+            return "Menstrual cramps may be eased with a warm compress, hydration, and gentle movement. If pain is severe or persistent, talk with a healthcare professional.";
+        } else if (lower.contains("food") || lower.contains("diet") || lower.contains("nutrition")) {
+            return "Iron-rich foods such as lentils and spinachpaired with vitamin C sources can support well-being during your cycle. A balanced diet and hydration matter most, and individual needs vary.";
+        } else if (lower.contains("ovulation") || lower.contains("fertile")) {
+            return "Ovulation usually happens about 14 days before the next expected period. Signs can include cervical mucus changes and a slight temperature rise, but your cycle varies.";
+        }
+        return "Maintaining balanced nutrition, hydration, sleep, and regular cycle tracking can support overall reproductive wellness.";
     }
 }
