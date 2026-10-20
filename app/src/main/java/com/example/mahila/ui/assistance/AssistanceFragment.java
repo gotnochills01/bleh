@@ -32,14 +32,19 @@ import androidx.fragment.app.Fragment;
 
 import com.example.mahila.DatabaseHelper;
 import com.example.mahila.EmergencyContactsActivity;
+import com.example.mahila.MedicalLocationHelper;
 import com.example.mahila.R;
 import com.example.mahila.api.TokenManager;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -67,10 +72,11 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
     private TextView tvProviderSubtitle;
     private LinearLayout containerProviderResults;
     private GoogleMap googleMap;
+    private FusedLocationProviderClient fusedLocationClient;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private LatLng currentSearchLatLng = new LatLng(28.6139, 77.2090); // Default location fallback (e.g. New Delhi)
+    private LatLng currentSearchLatLng;
 
     public static class MedicalProvider {
         public String name;
@@ -94,6 +100,8 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_assistance, container, false);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
 
         etLocationQuery = root.findViewById(R.id.et_location_query);
         tvProviderSubtitle = root.findViewById(R.id.tv_provider_results_subtitle);
@@ -140,10 +148,13 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
                 this.googleMap.setMyLocationEnabled(true);
                 detectAndSetUserLocation();
             } catch (SecurityException ignored) {}
+        } else if (tvProviderSubtitle != null) {
+            tvProviderSubtitle.setText("Location unavailable. Allow GPS access or enter a city name above to search for nearby care.");
         }
 
-        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 12f));
-        executeProviderSearch("Gynecologists");
+        if (MedicalLocationHelper.isValidLocation(currentSearchLatLng)) {
+            this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 12f));
+        }
     }
 
     private void promptAndRequestGpsLocation() {
@@ -195,33 +206,43 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         }
 
         detectAndSetUserLocation();
-        Toast.makeText(requireContext(), "GPS location active. Searching nearby healthcare providers...", Toast.LENGTH_SHORT).show();
-        executeProviderSearch("Gynecologists");
+        Toast.makeText(requireContext(), "Checking GPS location for nearby healthcare providers...", Toast.LENGTH_SHORT).show();
     }
 
     private void detectAndSetUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) return;
 
-        LocationManager lm = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
-        if (lm == null) return;
-
-        Location loc = null;
-        try {
-            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
-            if (loc == null && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-        } catch (SecurityException ignored) {}
-
-        if (loc != null) {
-            currentSearchLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
-            if (googleMap != null) {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 13f));
-            }
+        if (fusedLocationClient == null) {
+            return;
         }
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, tokenSource.getToken())
+                .addOnSuccessListener(location -> {
+                    if (!isAdded()) {
+                        return;
+                    }
+
+                    if (location != null) {
+                        currentSearchLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        if (googleMap != null) {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentSearchLatLng, 13f));
+                        }
+                        executeProviderSearch("Gynecologists");
+                        return;
+                    }
+
+                    currentSearchLatLng = null;
+                    showLocationUnavailableState("Gynecologists");
+                })
+                .addOnFailureListener(e -> {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    currentSearchLatLng = null;
+                    showLocationUnavailableState("Gynecologists");
+                });
     }
 
     @Override
@@ -256,6 +277,63 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    private void showLocationUnavailableState(String category) {
+        if (tvProviderSubtitle != null) {
+            tvProviderSubtitle.setText(MedicalLocationHelper.buildUnavailableMessage(category));
+        }
+
+        if (containerProviderResults != null) {
+            containerProviderResults.removeAllViews();
+            addLocationPromptCard(category);
+        }
+
+        if (isAdded()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Location unavailable")
+                    .setMessage(MedicalLocationHelper.buildUnavailableMessage(category))
+                    .setPositiveButton("Use GPS", (dialog, which) -> promptAndRequestGpsLocation())
+                    .setNegativeButton("Search Manually", null)
+                    .show();
+        }
+    }
+
+    private void addLocationPromptCard(String category) {
+        CardView promptCard = new CardView(requireContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0, 16);
+        promptCard.setLayoutParams(params);
+        promptCard.setRadius(16f);
+        promptCard.setCardElevation(1f);
+        promptCard.setContentPadding(20, 20, 20, 20);
+
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        TextView title = new TextView(requireContext());
+        title.setText("📍 Location needed");
+        title.setTextSize(15f);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(0xFF3B1F2B);
+
+        TextView message = new TextView(requireContext());
+        message.setText("Enable GPS or type a city above to find nearby " + category + ".");
+        message.setTextSize(13f);
+        message.setTextColor(0xFF6E5A63);
+        message.setPadding(0, 8, 0, 12);
+
+        MaterialButton button = new MaterialButton(requireContext());
+        button.setText("Use GPS or Enter City");
+        button.setCornerRadius(10);
+        button.setOnClickListener(v -> promptAndRequestGpsLocation());
+
+        layout.addView(title);
+        layout.addView(message);
+        layout.addView(button);
+        promptCard.addView(layout);
+        containerProviderResults.addView(promptCard);
+    }
+
     private void executeProviderSearch(String category) {
         if (containerProviderResults == null) return;
         containerProviderResults.removeAllViews();
@@ -263,22 +341,33 @@ public class AssistanceFragment extends Fragment implements OnMapReadyCallback {
         String userQuery = etLocationQuery != null && etLocationQuery.getText() != null ?
                 etLocationQuery.getText().toString().trim() : "";
 
-        if (tvProviderSubtitle != null) {
-            String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
-            tvProviderSubtitle.setText("Searching OpenStreetMap records for " + category + "...\nLat/Lng: " + String.format(Locale.US, "%.4f, %.4f", currentSearchLatLng.latitude, currentSearchLatLng.longitude) + " (" + timestamp + ")");
+        final LatLng resolvedPoint;
+        if (!userQuery.isEmpty()) {
+            LatLng geocoded = geocodeCity(userQuery);
+            if (geocoded != null) {
+                resolvedPoint = geocoded;
+                currentSearchLatLng = geocoded;
+            } else {
+                showLocationUnavailableState(category);
+                return;
+            }
+        } else {
+            resolvedPoint = currentSearchLatLng;
         }
 
-        executorService.execute(() -> {
-            LatLng searchPoint = currentSearchLatLng;
-            if (!userQuery.isEmpty()) {
-                LatLng geocoded = geocodeCity(userQuery);
-                if (geocoded != null) {
-                    searchPoint = geocoded;
-                    currentSearchLatLng = geocoded;
-                }
-            }
+        if (!MedicalLocationHelper.isValidLocation(resolvedPoint)) {
+            showLocationUnavailableState(category);
+            return;
+        }
 
-            final LatLng finalPoint = searchPoint;
+        if (tvProviderSubtitle != null) {
+            String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
+            tvProviderSubtitle.setText("Searching OpenStreetMap records for " + category + "...\nLat/Lng: " + MedicalLocationHelper.formatLocation(resolvedPoint) + " (" + timestamp + ")");
+        }
+
+        final LatLng finalPoint = new LatLng(resolvedPoint.latitude, resolvedPoint.longitude);
+
+        executorService.execute(() -> {
             List<MedicalProvider> realProviders = fetchRealOverpassProviders(category, finalPoint);
 
             mainHandler.post(() -> {
