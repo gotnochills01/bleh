@@ -10,6 +10,7 @@ public class AppPreferences {
     private static final String KEY_CURRENT_USER_EMAIL = "current_user_email";
     private static final String PREFIX_CLINICIAN_REMINDER = "clinician_reminder_";
     private static final String PREFIX_LAST_HEALTH_TIP = "last_health_tip_";
+    private static final String PREFIX_PROFILE_IMAGE = "profile_image_path_";
 
     private final SharedPreferences prefs;
 
@@ -60,5 +61,20 @@ public class AppPreferences {
     public String getLastHealthTip(String userEmail) {
         if (userEmail == null || userEmail.isEmpty()) return "";
         return prefs.getString(PREFIX_LAST_HEALTH_TIP + userEmail, "");
+    }
+
+    public void saveProfileImagePath(String userEmail, String path) {
+        if (userEmail == null || userEmail.isEmpty()) return;
+        prefs.edit().putString(PREFIX_PROFILE_IMAGE + userEmail, path).apply();
+    }
+
+    public String getProfileImagePath(String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) return "";
+        return prefs.getString(PREFIX_PROFILE_IMAGE + userEmail, "");
+    }
+
+    public void clearProfileImagePath(String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) return;
+        prefs.edit().remove(PREFIX_PROFILE_IMAGE + userEmail).apply();
     }
 }

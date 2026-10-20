@@ -1,5 +1,6 @@
 package com.example.mahila;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.*;
@@ -15,6 +16,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     private static final String[] LANGUAGES = new String[]{"English", "Kannada", "Hindi", "Tamil", "Telugu", "Malayalam"};
     private static final String[] CODES = new String[]{"en", "kn", "hi", "ta", "te", "ml"};
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        TokenManager tm = new TokenManager(newBase);
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, tm.getLanguage()));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
