@@ -75,4 +75,55 @@ public class AnalyticsEngineTest {
         assertEquals(2, result.neutralSymptomSummaries.size());
         assertTrue(result.neutralSymptomSummaries.get(0).contains("recorded Cramps on 2 of your logged tracking entries"));
     }
+
+    @Test
+    public void testPersonalizedRecommendationsUseRealCycleAndSymptomData() {
+        long now = System.currentTimeMillis();
+        List<Long> periods = Arrays.asList(
+                now,
+                now - (28L * 24 * 60 * 60 * 1000),
+                now - (56L * 24 * 60 * 60 * 1000)
+        );
+        List<AnalyticsEngine.SymptomRecord> symptoms = new ArrayList<>();
+        symptoms.add(new AnalyticsEngine.SymptomRecord("Cramps", "SEVERE", "2026-10-10"));
+        symptoms.add(new AnalyticsEngine.SymptomRecord("Bloating", "MODERATE", "2026-10-11"));
+
+        AnalyticsEngine.AnalyticsResult result = AnalyticsEngine.processAnalytics(
+                periods,
+                symptoms,
+                null,
+                Arrays.asList(5, 6),
+                "balanced meals; hydration",
+                "No diagnosed conditions"
+        );
+
+        assertFalse(result.personalizedRecommendations.isEmpty());
+        assertTrue(result.personalizedRecommendations.stream().anyMatch(item -> item.toLowerCase().contains("cycle") || item.toLowerCase().contains("hydration") || item.toLowerCase().contains("cramps")));
+        assertTrue(result.personalizedRecommendations.stream().anyMatch(item -> item.toLowerCase().contains("balanced") || item.toLowerCase().contains("preferences")));
+    }
+
+    @Test
+    public void testMissingDataProducesCautiousRecommendations() {
+        AnalyticsEngine.AnalyticsResult result = AnalyticsEngine.processAnalytics(null, null, null, null);
+
+        assertEquals("INSUFFICIENT", result.completenessStatus);
+        assertFalse(result.personalizedRecommendations.isEmpty());
+        assertTrue(result.personalizedRecommendations.get(0).toLowerCase().contains("log your period start dates"));
+        assertFalse(result.personalizedRecommendations.get(0).contains("certain"));
+    }
+
+    @Test
+    public void testIrregularCyclesGenerateEstimateWarnings() {
+        long now = System.currentTimeMillis();
+        List<Long> periods = Arrays.asList(
+                now,
+                now - (21L * 24 * 60 * 60 * 1000),
+                now - (56L * 24 * 60 * 60 * 1000)
+        );
+
+        AnalyticsEngine.AnalyticsResult result = AnalyticsEngine.processAnalytics(periods, null, null, null);
+
+        assertTrue(result.isIrregular);
+        assertTrue(result.personalizedRecommendations.stream().anyMatch(item -> item.toLowerCase().contains("estimate") || item.toLowerCase().contains("varies more than a typical 28-day rhythm")));
+    }
 }
