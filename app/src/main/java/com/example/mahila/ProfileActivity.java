@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends BaseActivity {
 
     private TextView txtName, txtEmail, txtAge, txtPeriodDate, txtPrediction;
     private Button btnLastPeriod, btnEdit, btnLogout;
@@ -59,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnLastPeriod.setOnClickListener(v -> {
             String currentEmail = appPreferences.getCurrentUserEmail();
             if (currentEmail.isEmpty()) {
-                Toast.makeText(this, "Guest Mode: Please log in to select period date.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.guest_mode_required_period), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -96,7 +96,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void performLogout() {
         appPreferences.setLoggedIn(false);
         appPreferences.clearCurrentUserEmail();
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.logged_out_successfully), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

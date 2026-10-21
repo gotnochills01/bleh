@@ -16,7 +16,11 @@ public class TokenManager {
     private final SharedPreferences prefs;
 
     public TokenManager(Context context) {
-        this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this(context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE));
+    }
+
+    public TokenManager(SharedPreferences prefs) {
+        this.prefs = prefs;
     }
 
     public void saveSession(String token, Long userId, String email, String name, String language) {

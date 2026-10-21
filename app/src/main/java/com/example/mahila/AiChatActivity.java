@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
-public class AiChatActivity extends AppCompatActivity {
+public class AiChatActivity extends BaseActivity {
 
     private LinearLayout containerChat;
     private EditText etPrompt;
@@ -41,7 +41,7 @@ public class AiChatActivity extends AppCompatActivity {
     private void setLoadingState(boolean isLoading) {
         if (btnSend != null) {
             btnSend.setEnabled(!isLoading);
-            btnSend.setText(isLoading ? "Thinking..." : "Send");
+            btnSend.setText(isLoading ? getString(R.string.thinking) : getString(R.string.send));
         }
         if (etPrompt != null) {
             etPrompt.setEnabled(!isLoading);
@@ -52,7 +52,7 @@ public class AiChatActivity extends AppCompatActivity {
         if (etPrompt == null) return;
         String query = etPrompt.getText().toString().trim();
         if (query.isEmpty()) {
-            Toast.makeText(this, "Please enter a question or prompt", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_enter_prompt), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -120,7 +120,7 @@ public class AiChatActivity extends AppCompatActivity {
     private void generateLocalAiResponse(String query, boolean indicateFallback) {
         String answer = getEducationalFallbackForPrompt(query);
         if (indicateFallback) {
-            answer = "AI service unavailable. This is a local educational fallback, not a Gemini-generated answer.\n\n" + answer;
+            answer = getString(R.string.ai_fallback_notice) + "\n\n" + answer;
         }
         addMessage(answer, false);
     }

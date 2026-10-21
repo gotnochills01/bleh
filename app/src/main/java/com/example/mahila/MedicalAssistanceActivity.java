@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MedicalAssistanceActivity extends AppCompatActivity {
+public class MedicalAssistanceActivity extends BaseActivity {
 
     private static final String INTRO_TEXT =
             "Find care resources. This is not a substitute for professional medical advice.";
@@ -53,7 +53,7 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle("Medical Assistance");
+                getSupportActionBar().setTitle(R.string.medical_assistance_title);
             }
             toolbar.setNavigationOnClickListener(v -> finish());
         }
@@ -90,12 +90,12 @@ public class MedicalAssistanceActivity extends AppCompatActivity {
     private void saveClinicianReminder() {
         String userEmail = preferences.getCurrentUserEmail();
         if (userEmail == null || userEmail.isEmpty()) {
-            Toast.makeText(this, "Opening Medical Map Search...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.opening_medical_map_search), Toast.LENGTH_SHORT).show();
             return;
         }
         preferences.saveClinicianReminder(userEmail, System.currentTimeMillis());
         showSavedInfo();
-        Toast.makeText(this, "Opening Nearby Healthcare Providers...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.opening_nearby_healthcare), Toast.LENGTH_SHORT).show();
     }
 
     private void showSavedInfo() {

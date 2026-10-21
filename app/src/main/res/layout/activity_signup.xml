@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Account"
+            android:text="@string/create_account"
             android:textSize="26sp"
             android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Join Mahila for encrypted cycle and health insights"
+            android:text="@string/join_mahila"
             android:textSize="14sp"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginTop="4dp"
@@ -36,7 +36,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name"
+            android:hint="@string/full_name"
             app:startIconDrawable="@drawable/ic_person"
             app:boxCornerRadiusTopStart="14dp"
             app:boxCornerRadiusTopEnd="14dp"
@@ -56,7 +56,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email Address"
+            android:hint="@string/email_address"
             app:startIconDrawable="@drawable/ic_email"
             app:boxCornerRadiusTopStart="14dp"
             app:boxCornerRadiusTopEnd="14dp"
@@ -76,7 +76,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="@string/password"
             app:startIconDrawable="@drawable/ic_lock"
             app:passwordToggleEnabled="true"
             app:boxCornerRadiusTopStart="14dp"
@@ -97,7 +97,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Confirm Password"
+            android:hint="@string/confirm_password"
             app:startIconDrawable="@drawable/ic_lock"
             app:passwordToggleEnabled="true"
             app:boxCornerRadiusTopStart="14dp"
@@ -119,7 +119,7 @@
             android:id="@+id/btnSignup"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Create Account"
+            android:text="@string/create_account"
             android:textSize="16sp"
             app:cornerRadius="14dp"
             android:layout_marginBottom="20dp"
@@ -129,7 +129,7 @@
             android:id="@+id/txtLoginPrompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account? Log In"
+            android:text="@string/already_account_login"
             android:textSize="14sp"
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"

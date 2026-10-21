@@ -1,38 +1,35 @@
 package com.example.mahila;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.*;
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.mahila.api.TokenManager;
 import com.example.mahila.utils.LocaleHelper;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private Spinner spLanguage;
     private TokenManager tokenManager;
 
-    private static final String[] LANGUAGES = new String[]{"English", "Kannada", "Hindi", "Tamil", "Telugu", "Malayalam"};
-    private static final String[] CODES = new String[]{"en", "kn", "hi", "ta", "te", "ml"};
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        TokenManager tm = new TokenManager(newBase);
-        super.attachBaseContext(LocaleHelper.setLocale(newBase, tm.getLanguage()));
-    }
+    private static final String[] CODES = new String[]{"en", "kn"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        tokenManager = new TokenManager(this);
-        LocaleHelper.setLocale(this, tokenManager.getLanguage());
-
         super.onCreate(savedInstanceState);
+        tokenManager = new TokenManager(this);
         setContentView(R.layout.activity_settings);
 
         spLanguage = findViewById(R.id.sp_language);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, LANGUAGES);
+        String[] languages = new String[]{
+                getString(R.string.language_english),
+                getString(R.string.language_kannada)
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languages);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spLanguage.setAdapter(adapter);
 
         String curLang = tokenManager.getLanguage();
@@ -51,10 +48,8 @@ public class SettingsActivity extends AppCompatActivity {
                 tokenManager.setLanguage(selectedCode);
                 LocaleHelper.setLocale(SettingsActivity.this, selectedCode);
 
-                Toast.makeText(this, "Language set to " + LANGUAGES[pos], Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                Toast.makeText(this, getString(R.string.language_updated_to, languages[pos]), Toast.LENGTH_SHORT).show();
+                recreate();
             });
         }
 
@@ -65,7 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         Button btnExport = findViewById(R.id.btn_export_data);
         if (btnExport != null) {
-            btnExport.setOnClickListener(v -> Toast.makeText(this, "Health data exported to JSON!", Toast.LENGTH_SHORT).show());
+            btnExport.setOnClickListener(v -> Toast.makeText(this, getString(R.string.health_data_exported), Toast.LENGTH_SHORT).show());
         }
 
         Button btnLogout = findViewById(R.id.btn_logout);
@@ -75,6 +70,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                finish();
             });
         }
     }
