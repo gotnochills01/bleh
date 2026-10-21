@@ -54,10 +54,27 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         app:headerLayout="@layout/header_drawer"
-        app:menu="@menu/drawer_menu" />
+        app:menu="@menu/drawer_menu"
+        app:itemBackground="@drawable/nav_drawer_item_background"
+        app:itemIconTint="?attr/colorPrimary"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemTextAppearance="@style/TextAppearance.Mahila.LabelLarge"
+        app:itemIconSize="22dp"
+        app:itemHorizontalPadding="20dp"
+        app:itemVerticalPadding="14dp"
+        app:itemShapeInsetStart="12dp"
+        app:itemShapeInsetEnd="12dp"
+        app:itemShapeInsetTop="4dp"
+        app:itemShapeInsetBottom="4dp"
+        app:insetForeground="@android:color/transparent" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

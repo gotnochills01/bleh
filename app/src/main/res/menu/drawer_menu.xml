@@ -1,5 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group android:id="@+id/drawer_group_primary" android:checkableBehavior="single">
         <item
             android:id="@+id/drawer_insights"
             android:icon="@drawable/ic_nav_tracker"
@@ -8,6 +8,9 @@
             android:id="@+id/drawer_nutrition"
             android:icon="@drawable/ic_nav_home"
             android:title="Nutrition &amp; Diet" />
+    </group>
+
+    <group android:id="@+id/drawer_group_account" android:checkableBehavior="single">
         <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/ic_nav_settings"
@@ -20,6 +23,9 @@
             android:id="@+id/drawer_notifications"
             android:icon="@drawable/ic_nav_notifications"
             android:title="@string/drawer_notifications" />
+    </group>
+
+    <group android:id="@+id/drawer_group_support" android:checkableBehavior="single">
         <item
             android:id="@+id/drawer_privacy"
             android:icon="@drawable/ic_nav_privacy"
