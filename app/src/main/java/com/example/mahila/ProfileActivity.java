@@ -14,6 +14,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.mahila.api.ApiClient;
+import com.example.mahila.api.ApiService;
+import com.example.mahila.api.TokenManager;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -166,16 +171,50 @@ public class ProfileActivity extends BaseActivity {
             }
 
             boolean updated = dbHelper.updateUser(currentEmail, newName, newAge);
-            if (updated) {
-                Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                loadProfileData();
-            } else {
-                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+            if (!updated) {
+                Toast.makeText(this, "Failed to update profile locally", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            syncProfileToBackend(currentEmail, newName, newAge);
+            loadProfileData();
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    private void syncProfileToBackend(String currentEmail, String newName, int newAge) {
+        TokenManager tokenManager = new TokenManager(this);
+        String token = tokenManager.getToken();
+        if (token == null || token.trim().isEmpty()) {
+            Toast.makeText(this, "Profile saved locally; backend sync unavailable while signed out.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("email", currentEmail);
+            payload.put("name", newName);
+            payload.put("age", newAge);
+            payload.put("preferredLanguage", tokenManager.getLanguage());
+
+            ApiClient.putRequest(this, ApiService.USER_PROFILE, payload, new ApiClient.ApiCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    Toast.makeText(ProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(String message) {
+                    Toast.makeText(ProfileActivity.this,
+                            "Profile saved locally; backend sync unavailable: " + message,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Profile saved locally; backend sync failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void loadProfileData() {

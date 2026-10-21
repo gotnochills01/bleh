@@ -92,12 +92,15 @@ public class AiChatActivity extends BaseActivity {
                 @Override
                 public void onError(String message) {
                     setLoadingState(false);
-                    generateLocalAiResponse(query, true);
+                    String contextualMessage = message == null || message.trim().isEmpty()
+                            ? getString(R.string.ai_fallback_notice)
+                            : getString(R.string.ai_fallback_notice) + "\n\n" + message;
+                    addMessage(contextualMessage, false);
                 }
             });
         } catch (Exception e) {
             setLoadingState(false);
-            generateLocalAiResponse(query, true);
+            addMessage(getString(R.string.ai_fallback_notice), false);
         }
     }
 

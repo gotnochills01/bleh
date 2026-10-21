@@ -18,6 +18,10 @@ public class LocaleHelperTest {
     public void localeHelperNormalizesSupportedCodes() {
         assertEquals("en", LocaleHelper.normalizeLanguageCode("en-US"));
         assertEquals("kn", LocaleHelper.normalizeLanguageCode("kn-IN"));
+        assertEquals("hi", LocaleHelper.normalizeLanguageCode("hi-IN"));
+        assertEquals("ta", LocaleHelper.normalizeLanguageCode("ta-IN"));
+        assertEquals("te", LocaleHelper.normalizeLanguageCode("te-IN"));
+        assertEquals("ml", LocaleHelper.normalizeLanguageCode("ml-IN"));
         assertEquals("en", LocaleHelper.normalizeLanguageCode("fr"));
     }
 

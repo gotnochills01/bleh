@@ -38,7 +38,7 @@ public class HomeActivity extends BaseActivity {
         });
 
         MaterialToolbar toolbar = findViewById(R.id.home_toolbar);
-        toolbar.setTitle("Mahila");
+        toolbar.setTitle(R.string.app_name);
 
         bindCard(R.id.card_period_tracker, PeriodTrackerActivity.class);
         bindCard(R.id.card_symptom_logger, SymptomLoggerActivity.class);

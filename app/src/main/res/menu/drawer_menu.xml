@@ -3,14 +3,18 @@
         <item
             android:id="@+id/drawer_insights"
             android:icon="@drawable/ic_nav_tracker"
-            android:title="Insights &amp; Analytics" />
+            android:title="@string/insights_analytics_title" />
         <item
             android:id="@+id/drawer_nutrition"
             android:icon="@drawable/ic_nav_home"
-            android:title="Nutrition &amp; Diet" />
+            android:title="@string/nutrition_diet_title" />
     </group>
 
     <group android:id="@+id/drawer_group_account" android:checkableBehavior="single">
+        <item
+            android:id="@+id/drawer_emergency_contacts"
+            android:icon="@drawable/ic_nav_assistance"
+            android:title="@string/emergency_contacts_title" />
         <item
             android:id="@+id/drawer_settings"
             android:icon="@drawable/ic_nav_settings"

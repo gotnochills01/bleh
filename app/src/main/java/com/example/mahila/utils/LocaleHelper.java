@@ -16,6 +16,10 @@ import java.util.Locale;
 public class LocaleHelper {
     public static final String LANGUAGE_EN = "en";
     public static final String LANGUAGE_KN = "kn";
+    public static final String LANGUAGE_HI = "hi";
+    public static final String LANGUAGE_TA = "ta";
+    public static final String LANGUAGE_TE = "te";
+    public static final String LANGUAGE_ML = "ml";
 
     public static String normalizeLanguageCode(String languageCode) {
         if (languageCode == null) {
@@ -27,8 +31,24 @@ public class LocaleHelper {
             return LANGUAGE_EN;
         }
 
-        if (normalized.equalsIgnoreCase(LANGUAGE_KN) || normalized.toLowerCase(Locale.getDefault()).startsWith(LANGUAGE_KN)) {
+        String lower = normalized.toLowerCase(Locale.US);
+        if (lower.startsWith(LANGUAGE_KN)) {
             return LANGUAGE_KN;
+        }
+        if (lower.startsWith(LANGUAGE_HI)) {
+            return LANGUAGE_HI;
+        }
+        if (lower.startsWith(LANGUAGE_TA)) {
+            return LANGUAGE_TA;
+        }
+        if (lower.startsWith(LANGUAGE_TE)) {
+            return LANGUAGE_TE;
+        }
+        if (lower.startsWith(LANGUAGE_ML)) {
+            return LANGUAGE_ML;
+        }
+        if (lower.startsWith(LANGUAGE_EN)) {
+            return LANGUAGE_EN;
         }
 
         return LANGUAGE_EN;
@@ -46,6 +66,9 @@ public class LocaleHelper {
         String normalizedCode = normalizeLanguageCode(languageCode);
         Locale locale = getLocale(normalizedCode);
         Locale.setDefault(locale);
+
+        TokenManager tokenManager = new TokenManager(context);
+        tokenManager.setLanguage(normalizedCode);
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(normalizedCode));
 
         Resources resources = context.getResources();

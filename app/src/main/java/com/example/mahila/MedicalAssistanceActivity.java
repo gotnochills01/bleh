@@ -1,7 +1,12 @@
 package com.example.mahila;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -9,11 +14,18 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 import java.text.SimpleDateFormat;
@@ -27,10 +39,16 @@ public class MedicalAssistanceActivity extends BaseActivity {
     private static final String CLINICIAN_DETAIL =
             "Book a consultation or visit a nearby clinic for personalized care.";
 
+    private static final int LOCATION_REQUEST_CODE = 1001;
+    private static final long MAX_STALE_LOCATION_MS = 120000L;
+
     private AppPreferences preferences;
     private DatabaseHelper dbHelper;
     private TextView introText;
     private TextView clinicianDetailText;
+    private TextView locationStatusText;
+    private MaterialButton useLocationButton;
+    private FusedLocationProviderClient fusedLocationClient;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
     @Override
@@ -62,6 +80,13 @@ public class MedicalAssistanceActivity extends BaseActivity {
         dbHelper = new DatabaseHelper(this);
         introText = findViewById(R.id.text_medical_intro);
         clinicianDetailText = findViewById(R.id.text_clinician_detail);
+        locationStatusText = findViewById(R.id.text_location_status);
+        useLocationButton = findViewById(R.id.button_use_location);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (useLocationButton != null) {
+            useLocationButton.setOnClickListener(v -> requestCurrentLocation());
+        }
 
         MaterialCardView clinicianCard = findViewById(R.id.card_talk_to_clinician);
         if (clinicianCard != null) {
@@ -85,6 +110,106 @@ public class MedicalAssistanceActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         showSavedInfo();
+        if (locationStatusText != null) {
+            CharSequence currentText = locationStatusText.getText();
+            if (currentText == null || currentText.toString().trim().isEmpty()) {
+                locationStatusText.setText(R.string.location_waiting_for_permission);
+            }
+        }
+    }
+
+    private void requestCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+            if (locationStatusText != null) {
+                locationStatusText.setText(R.string.location_permission_required);
+            }
+            return;
+        }
+
+        if (!isLocationProviderEnabled()) {
+            if (locationStatusText != null) {
+                locationStatusText.setText(R.string.location_gps_disabled);
+            }
+            Toast.makeText(this, getString(R.string.location_gps_disabled_toast), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (locationStatusText != null) {
+            locationStatusText.setText(R.string.location_loading);
+        }
+        if (useLocationButton != null) {
+            useLocationButton.setEnabled(false);
+        }
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cancellationTokenSource.getToken())
+                .addOnSuccessListener(this, location -> {
+                    if (useLocationButton != null) {
+                        useLocationButton.setEnabled(true);
+                    }
+                    if (location == null) {
+                        if (locationStatusText != null) {
+                            locationStatusText.setText(R.string.location_unavailable);
+                        }
+                        Toast.makeText(this, getString(R.string.location_unavailable_toast), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    showLocationStatus(location);
+                })
+                .addOnFailureListener(this, e -> {
+                    if (useLocationButton != null) {
+                        useLocationButton.setEnabled(true);
+                    }
+                    if (locationStatusText != null) {
+                        locationStatusText.setText(getString(R.string.location_request_failed, e.getMessage() == null ? "" : e.getMessage()));
+                    }
+                    Toast.makeText(this, getString(R.string.location_request_failed_toast), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private boolean isLocationProviderEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null) {
+            return false;
+        }
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private void showLocationStatus(Location location) {
+        if (locationStatusText == null) {
+            return;
+        }
+
+        boolean fresh = (System.currentTimeMillis() - location.getTime()) <= MAX_STALE_LOCATION_MS;
+        String freshness = fresh
+                ? getString(R.string.location_fresh)
+                : getString(R.string.location_stale);
+        String message = getString(R.string.location_status_format,
+                String.valueOf(location.getLatitude()),
+                String.valueOf(location.getLongitude()),
+                String.valueOf(location.hasAccuracy() ? location.getAccuracy() : 0f),
+                freshness);
+        locationStatusText.setText(message);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                requestCurrentLocation();
+            } else {
+                if (locationStatusText != null) {
+                    locationStatusText.setText(R.string.location_permission_denied);
+                }
+                Toast.makeText(this, getString(R.string.location_permission_denied_toast), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void saveClinicianReminder() {

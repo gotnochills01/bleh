@@ -50,8 +50,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:text="Care, tracking, and support in one place"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:text="@string/home_subtitle"
+                android:textAppearance="@style/TextAppearance.Mahila.BodyLarge"
                 android:textColor="?attr/colorOnSurfaceVariant" />
 
             <com.google.android.material.card.MaterialCardView
@@ -76,16 +76,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Period Tracker"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/period_tracker_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnPrimaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Log cycles, predict your next period, and stay prepared."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_period_tracker_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnPrimaryContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -112,16 +112,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Symptom Logger"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/symptom_logger_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnSecondaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Record mood, pain, and daily symptoms in seconds."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_symptom_logger_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnSecondaryContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -148,16 +148,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Medical Assistance"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/medical_assistance_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnTertiaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Find guidance and resources when you need care."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_medical_assistance_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnTertiaryContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -184,16 +184,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Emergency Contacts"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/emergency_contacts_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnErrorContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Reach trusted people quickly in an emergency."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_emergency_contacts_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnErrorContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -220,16 +220,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Health Tips"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/health_tips_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Daily wellness ideas tailored for your health journey."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_health_tips_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                 </LinearLayout>
@@ -258,16 +258,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="👤 Profile"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/profile_health_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnPrimaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="View and manage your profile information"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_profile_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnPrimaryContainer" />
 
                 </LinearLayout>
@@ -296,16 +296,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🤖 AI Health Assistant"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/ai_assistant_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnSecondaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Chat with AI for instant health guidance and support."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_ai_assistant_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnSecondaryContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -332,16 +332,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💡 Health Quiz"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/health_quiz_title"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnTertiaryContainer" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Test your awareness on menstrual health and wellness."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_health_quiz_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnTertiaryContainer" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -368,16 +368,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⚙️ Settings"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                        android:text="@string/settings_preferences"
+                        android:textAppearance="@style/TextAppearance.Mahila.TitleLarge"
                         android:textColor="?attr/colorOnSurface" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="Configure language preferences, data export, and account."
-                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:text="@string/home_settings_desc"
+                        android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

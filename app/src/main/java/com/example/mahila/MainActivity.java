@@ -78,14 +78,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             TextView tvEmail = headerView.findViewById(R.id.tv_drawer_user_email);
             if (tvName != null) {
                 String userName = tokenManager.getUserName();
-                tvName.setText(userName != null && !userName.isEmpty() ? userName : "Mahila User");
+                tvName.setText(userName != null && !userName.isEmpty() ? userName : getString(R.string.mahila_user_default));
             }
             if (tvEmail != null) {
                 String userEmail = tokenManager.getUserEmail();
                 if (userEmail == null || userEmail.isEmpty()) {
                     userEmail = appPreferences.getCurrentUserEmail();
                 }
-                tvEmail.setText(userEmail != null && !userEmail.isEmpty() ? userEmail : "Guest Mode");
+                tvEmail.setText(userEmail != null && !userEmail.isEmpty() ? userEmail : getString(R.string.guest_mode_label));
             }
         }
 
@@ -172,22 +172,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else if (id == R.id.drawer_settings || id == R.id.drawer_language) {
             navigationView.setCheckedItem(id == R.id.drawer_settings ? R.id.drawer_settings : R.id.drawer_language);
             startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.drawer_emergency_contacts) {
+            navigationView.setCheckedItem(id);
+            startActivity(new Intent(this, EmergencyContactsActivity.class));
         } else if (id == R.id.drawer_notifications) {
             navigationView.setCheckedItem(id);
-            Toast.makeText(this, "Reminders and Notifications are active", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.drawer_notifications_active), Toast.LENGTH_SHORT).show();
         } else if (id == R.id.drawer_privacy) {
             navigationView.setCheckedItem(id);
             new AlertDialog.Builder(this)
-                    .setTitle("Privacy & Security")
-                    .setMessage("Mahila stores your cycle, health, and contacts securely. Data is encrypted and isolated per user.")
-                    .setPositiveButton("Got it", null)
+                    .setTitle(R.string.drawer_privacy_title)
+                    .setMessage(R.string.drawer_privacy_message)
+                    .setPositiveButton(R.string.got_it, null)
                     .show();
         } else if (id == R.id.drawer_about) {
             navigationView.setCheckedItem(id);
             new AlertDialog.Builder(this)
-                    .setTitle("About Mahila")
-                    .setMessage("Mahila is an advanced personal health, cycle tracking, and medical companion for women.\nVersion 2.0 (Material Design 3)")
-                    .setPositiveButton("Close", null)
+                    .setTitle(R.string.drawer_about_title)
+                    .setMessage(R.string.drawer_about_message)
+                    .setPositiveButton(R.string.close, null)
                     .show();
         } else if (id == R.id.drawer_logout) {
             navigationView.setCheckedItem(id);

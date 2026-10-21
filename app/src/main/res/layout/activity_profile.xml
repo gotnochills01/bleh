@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,65 +24,75 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="12dp"
-            android:text="Lia"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:text="@string/profile_default_name"
+            android:textAppearance="@style/TextAppearance.Mahila.HeadlineMedium"
+            android:textColor="?attr/colorOnSurface" />
 
         <TextView
             android:id="@+id/txtNickname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@nickname" />
+            android:text="@string/profile_nickname_placeholder"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/txtEmail"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Email" />
+            android:text="@string/profile_email_label"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/txtAge"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Age: 21" />
+            android:text="@string/profile_age_default"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyLarge"
+            android:textColor="?attr/colorOnSurface" />
 
         <Button
             android:id="@+id/btnLastPeriod"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Select Last Period Date" />
+            android:text="@string/profile_select_period_date" />
 
         <TextView
             android:id="@+id/txtPeriodDate"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="No date selected" />
+            android:text="@string/profile_no_date_selected"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
+            android:textColor="?attr/colorOnSurface" />
 
         <TextView
             android:id="@+id/txtPrediction"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Next Period: Not Available" />
+            android:text="@string/profile_next_period_default"
+            android:textAppearance="@style/TextAppearance.Mahila.BodyMedium"
+            android:textColor="?attr/colorOnSurface" />
 
         <Button
             android:id="@+id/btnEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Edit Profile" />
+            android:text="@string/profile_edit" />
 
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Logout" />
+            android:text="@string/drawer_logout" />
 
     </LinearLayout>
 

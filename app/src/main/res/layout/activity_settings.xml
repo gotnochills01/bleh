@@ -16,6 +16,16 @@
         android:textSize="22sp"
         android:textColor="@color/deep_plum"
         android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tv_selected_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/language_selected_label"
+        android:fontFamily="@font/nunito"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
         android:layout_marginBottom="20dp" />
 
     <com.google.android.material.card.MaterialCardView
