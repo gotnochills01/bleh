@@ -33,6 +33,7 @@ public class InsightsFragment extends Fragment {
     private TextView tvCycleRegularityStatus;
     private TextView tvSymptomSummaryList;
     private TextView tvFoodAssociationList;
+    private TextView tvPersonalizedRecommendations;
 
     private DatabaseHelper dbHelper;
     private TokenManager tokenManager;
@@ -49,6 +50,7 @@ public class InsightsFragment extends Fragment {
         tvCycleRegularityStatus = root.findViewById(R.id.tv_cycle_regularity_status);
         tvSymptomSummaryList = root.findViewById(R.id.tv_symptom_summary_list);
         tvFoodAssociationList = root.findViewById(R.id.tv_food_association_list);
+        tvPersonalizedRecommendations = root.findViewById(R.id.tv_personalized_recommendations);
 
         dbHelper = new DatabaseHelper(requireContext());
         tokenManager = new TokenManager(requireContext());
@@ -62,6 +64,21 @@ public class InsightsFragment extends Fragment {
     private void loadLocalAnalytics() {
         String email = tokenManager.getUserEmail();
         if (email == null || email.trim().isEmpty()) email = "guest@mahila.local";
+
+        String healthPreferences = "";
+        String diagnosedConditions = "";
+        try (Cursor userCursor = dbHelper.getUser(email)) {
+            if (userCursor != null && userCursor.moveToFirst()) {
+                int prefIdx = userCursor.getColumnIndex(DatabaseHelper.KEY_HEALTH_PREFERENCES);
+                int condIdx = userCursor.getColumnIndex(DatabaseHelper.KEY_DIAGNOSED_CONDITIONS);
+                if (prefIdx >= 0 && !userCursor.isNull(prefIdx)) {
+                    healthPreferences = userCursor.getString(prefIdx);
+                }
+                if (condIdx >= 0 && !userCursor.isNull(condIdx)) {
+                    diagnosedConditions = userCursor.getString(condIdx);
+                }
+            }
+        } catch (Exception ignored) {}
 
         List<Long> periods = new ArrayList<>();
         List<AnalyticsEngine.SymptomRecord> symptoms = new ArrayList<>();
@@ -119,7 +136,8 @@ public class InsightsFragment extends Fragment {
             }
         } catch (Exception ignored) {}
 
-        AnalyticsEngine.AnalyticsResult result = AnalyticsEngine.processAnalytics(periods, symptoms, moods, painScales);
+        AnalyticsEngine.AnalyticsResult result = AnalyticsEngine.processAnalytics(periods, symptoms, moods, painScales,
+                healthPreferences, diagnosedConditions);
         displayAnalyticsResult(result);
     }
 
@@ -164,6 +182,18 @@ public class InsightsFragment extends Fragment {
                 sb.append("• ").append(line).append("\n\n");
             }
             tvFoodAssociationList.setText(sb.toString().trim());
+        }
+
+        if (tvPersonalizedRecommendations != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String line : result.personalizedRecommendations) {
+                sb.append("• ").append(line).append("\n\n");
+            }
+            if (sb.length() == 0) {
+                tvPersonalizedRecommendations.setText("No personalized suggestions available yet. Track your cycle and symptoms to unlock them.");
+            } else {
+                tvPersonalizedRecommendations.setText(sb.toString().trim());
+            }
         }
     }
 

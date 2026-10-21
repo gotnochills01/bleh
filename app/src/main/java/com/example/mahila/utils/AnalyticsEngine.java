@@ -16,6 +16,7 @@ public class AnalyticsEngine {
         public double averagePainScale;
         public List<String> neutralSymptomSummaries = new ArrayList<>();
         public List<String> foodAssociationObservations = new ArrayList<>();
+        public List<String> personalizedRecommendations = new ArrayList<>();
 
         public AnalyticsResult() {}
     }
@@ -45,6 +46,11 @@ public class AnalyticsEngine {
     }
 
     public static AnalyticsResult processAnalytics(List<Long> periodHistoryMillis, List<SymptomRecord> symptoms, List<MoodRecord> moods, List<Integer> painScales) {
+        return processAnalytics(periodHistoryMillis, symptoms, moods, painScales, null, null);
+    }
+
+    public static AnalyticsResult processAnalytics(List<Long> periodHistoryMillis, List<SymptomRecord> symptoms, List<MoodRecord> moods, List<Integer> painScales,
+                                                String healthPreferences, String diagnosedConditions) {
         AnalyticsResult result = new AnalyticsResult();
 
         // 1. Cycle & History Analytics
@@ -148,7 +154,96 @@ public class AnalyticsEngine {
             result.foodAssociationObservations.add("Insufficient data to display food or dietary association patterns. Log additional symptoms and meals to build observational trends.");
         }
 
+        result.personalizedRecommendations = buildPersonalizedRecommendations(periodHistoryMillis, symptoms, moods, painScales,
+                healthPreferences, diagnosedConditions, result);
         return result;
+    }
+
+    private static List<String> buildPersonalizedRecommendations(List<Long> periodHistoryMillis, List<SymptomRecord> symptoms,
+                                                              List<MoodRecord> moods, List<Integer> painScales,
+                                                              String healthPreferences, String diagnosedConditions,
+                                                              AnalyticsResult result) {
+        List<String> recommendations = new ArrayList<>();
+
+        if (periodHistoryMillis == null || periodHistoryMillis.isEmpty()) {
+            recommendations.add("Log your period start dates to build a cycle pattern. Once you have a few cycles, Mahila can suggest general phase-aware wellness habits.");
+            recommendations.add("Track symptoms and mood changes as you go. The recommendations become more useful when your history is fuller, but they remain educational guidance only.");
+            return recommendations;
+        }
+
+        if (result.isIrregular) {
+            recommendations.add("Your recent cycle timing varies more than a typical 28-day rhythm. Treat this as an estimate and keep logging dates, symptoms, and pain so patterns become clearer over time.");
+        }
+
+        String phase = "your cycle";
+        if (!periodHistoryMillis.isEmpty()) {
+            CycleCalculator.CycleInfo cycleInfo = CycleCalculator.calculateCycleInfoFromHistory(periodHistoryMillis, 28);
+            if (cycleInfo != null && cycleInfo.currentPhase != null && !"No History Recorded".equals(cycleInfo.currentPhase)) {
+                phase = cycleInfo.currentPhase;
+                recommendations.add("Based on your logged dates, your current phase appears to be " + phase.toLowerCase() + ". Aim for hydration, balanced meals, and a routine that supports rest and gentle movement.");
+            }
+        }
+
+        if (symptoms != null && !symptoms.isEmpty()) {
+            Map<String, Integer> counts = new LinkedHashMap<>();
+            for (SymptomRecord symptom : symptoms) {
+                if (symptom != null && symptom.name != null && !symptom.name.trim().isEmpty()) {
+                    String key = capitalizeWords(symptom.name.trim());
+                    counts.put(key, counts.getOrDefault(key, 0) + 1);
+                }
+            }
+
+            if (!counts.isEmpty()) {
+                String topSymptom = "";
+                int topCount = 0;
+                for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+                    if (entry.getValue() > topCount) {
+                        topSymptom = entry.getKey();
+                        topCount = entry.getValue();
+                    }
+                }
+
+                if (topSymptom.equalsIgnoreCase("Cramps") || topSymptom.equalsIgnoreCase("Bloating") || topSymptom.equalsIgnoreCase("Backache")) {
+                    recommendations.add("Cramps and bloating were logged in your recent entries. Gentle movement, warm compresses, and steady hydration can help some people feel more comfortable, but this is not a treatment plan.");
+                } else if (topSymptom.equalsIgnoreCase("Fatigue") || topSymptom.equalsIgnoreCase("Headache") || topSymptom.equalsIgnoreCase("Mood Swings")) {
+                    recommendations.add("Fatigue, headaches, or mood shifts are worth watching across your cycle. A regular sleep routine, hydration, and balanced meals are general supports to try rather than a diagnosis.");
+                }
+            }
+        }
+
+        if (painScales != null && !painScales.isEmpty()) {
+            double painAvg = 0.0;
+            int count = 0;
+            for (Integer pain : painScales) {
+                if (pain != null && pain >= 0) {
+                    painAvg += pain;
+                    count++;
+                }
+            }
+            if (count > 0) {
+                painAvg = painAvg / count;
+                if (painAvg >= 5.0) {
+                    recommendations.add("Your logged pain trend is higher than average. Gentle rest, hydration, and pacing activity may help you feel more comfortable, and severe or persistent pain should be assessed by a clinician.");
+                }
+            }
+        }
+
+        if (healthPreferences != null && !healthPreferences.trim().isEmpty()) {
+            String prefText = healthPreferences.trim();
+            recommendations.add("Your saved preferences suggest a focus on " + prefText + ". Use this as a general lifestyle reminder and adjust based on what feels well for you.");
+        }
+
+        if (diagnosedConditions != null && !diagnosedConditions.trim().isEmpty()) {
+            String conditions = diagnosedConditions.trim();
+            recommendations.add("Your profile notes conditions or care context: " + conditions + ". These suggestions are general wellness support only and not a replacement for medical guidance.");
+        }
+
+        if (recommendations.isEmpty()) {
+            recommendations.add("Keep tracking period dates, symptoms, and mood changes so Mahila can offer more helpful health suggestions over time.");
+            recommendations.add("General wellness habits like hydration, balanced meals, and routine sleep remain useful even when there is limited data.");
+        }
+
+        return recommendations;
     }
 
     private static String capitalizeWords(String input) {
