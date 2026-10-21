@@ -32,7 +32,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
     private MaterialToolbar toolbar;
@@ -101,16 +101,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toolbar.setTitle(R.string.app_name);
             } else if (itemId == R.id.nav_tracker) {
                 selectedFragment = new TrackerFragment();
-                toolbar.setTitle("Period Tracker");
+                toolbar.setTitle(R.string.period_tracker_title);
             } else if (itemId == R.id.nav_assistance) {
                 selectedFragment = new AssistanceFragment();
-                toolbar.setTitle("Medical Assistance");
+                toolbar.setTitle(R.string.medical_assistance_title);
             } else if (itemId == R.id.nav_awareness) {
                 selectedFragment = new AwarenessFragment();
-                toolbar.setTitle("Awareness Hub");
+                toolbar.setTitle(R.string.awareness_hub_title);
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new ProfileFragment();
-                toolbar.setTitle("Profile & Health");
+                toolbar.setTitle(R.string.profile_health_title);
             }
 
             if (selectedFragment != null) {
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .replace(R.id.fragment_container, new InsightsFragment())
                 .commit();
         if (toolbar != null) {
-            toolbar.setTitle("Insights & Analytics");
+            toolbar.setTitle(R.string.insights_analytics_title);
         }
     }
 

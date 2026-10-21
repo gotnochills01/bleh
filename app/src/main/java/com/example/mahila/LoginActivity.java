@@ -12,7 +12,7 @@ import com.example.mahila.api.ApiService;
 import com.example.mahila.api.TokenManager;
 import org.json.JSONObject;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private EditText etEmail, etPassword;
     private Button btnLogin, btnGuest;
@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setEnabled(!isLoading);
         btnGuest.setEnabled(!isLoading);
         if (txtSignup != null) txtSignup.setEnabled(!isLoading);
-        btnLogin.setText(isLoading ? "Logging in..." : "Login");
+        btnLogin.setText(isLoading ? getString(R.string.loading_login) : getString(R.string.log_in));
     }
 
     private void loginUser() {
@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_enter_email_password), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (token.isEmpty()) {
                             Toast.makeText(LoginActivity.this,
-                                    "Login response did not contain a valid token",
+                                    getString(R.string.login_response_missing_token),
                                     Toast.LENGTH_LONG).show();
                             return;
                         }
@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     } catch (Exception e) {
                         Toast.makeText(LoginActivity.this,
-                                "Could not parse login response: " + e.getMessage(),
+                                getString(R.string.could_not_parse_login) + ": " + e.getMessage(),
                                 Toast.LENGTH_LONG).show();
                     }
                 }
@@ -115,12 +115,12 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onError(String message) {
                     setButtonsLoading(false);
-                    Toast.makeText(LoginActivity.this, "Login Failed: " + message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed) + ": " + message, Toast.LENGTH_LONG).show();
                 }
             });
         } catch (Exception e) {
             setButtonsLoading(false);
-            Toast.makeText(this, "Error building request: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.error_building_request) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

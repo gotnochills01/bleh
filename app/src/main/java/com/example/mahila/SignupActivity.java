@@ -19,7 +19,7 @@ import com.example.mahila.api.ApiService;
 import com.example.mahila.api.TokenManager;
 import org.json.JSONObject;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends BaseActivity {
 
     private EditText etName, etEmail, etPassword, etConfirmPassword;
     private Button btnSignup;
@@ -67,7 +67,7 @@ public class SignupActivity extends AppCompatActivity {
     private void setLoadingState(boolean isLoading) {
         btnSignup.setEnabled(!isLoading);
         if (txtLoginPrompt != null) txtLoginPrompt.setEnabled(!isLoading);
-        btnSignup.setText(isLoading ? "Creating Account..." : "Sign Up");
+        btnSignup.setText(isLoading ? getString(R.string.loading_signup) : getString(R.string.sign_up));
     }
 
     private void signupUser() {
@@ -77,17 +77,17 @@ public class SignupActivity extends AppCompatActivity {
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.please_fill_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Enter a valid email address", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.invalid_email), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.passwords_do_not_match), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -113,11 +113,11 @@ public class SignupActivity extends AppCompatActivity {
                         appPreferences.setLoggedIn(true);
                         appPreferences.setCurrentUserEmail(email);
 
-                        Toast.makeText(SignupActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignupActivity.this, getString(R.string.account_created_successfully), Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SignupActivity.this, WelcomeActivity.class));
                         finish();
                     } catch (Exception e) {
-                        Toast.makeText(SignupActivity.this, "Could not parse registration response", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignupActivity.this, getString(R.string.could_not_parse_registration), Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -125,15 +125,15 @@ public class SignupActivity extends AppCompatActivity {
                 public void onError(String message) {
                     setLoadingState(false);
                     if (message != null && (message.contains("already registered") || message.contains("already exists"))) {
-                        Toast.makeText(SignupActivity.this, "Registration Error: Account already exists with email " + email, Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignupActivity.this, getString(R.string.account_exists, email), Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(SignupActivity.this, "Registration Failed: " + message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignupActivity.this, getString(R.string.registration_failed) + ": " + message, Toast.LENGTH_LONG).show();
                     }
                 }
             });
         } catch (Exception e) {
             setLoadingState(false);
-            Toast.makeText(this, "Error building request: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.error_building_request) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }

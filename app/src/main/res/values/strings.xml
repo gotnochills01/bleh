@@ -5,7 +5,7 @@
     <string name="nav_assistance">Assistance</string>
     <string name="nav_awareness">Awareness</string>
     <string name="nav_profile">Profile</string>
-    
+
     <string name="drawer_settings">Settings</string>
     <string name="drawer_language">Language Settings</string>
     <string name="drawer_notifications">Notification Settings</string>
@@ -33,7 +33,64 @@
     <string name="title_ai_suggestions">AI Wellness Suggestions</string>
     <string name="ai_disclaimer">AI Assistant provides educational information only and does not provide medical diagnosis. Consult a qualified doctor.</string>
 
-    <!-- Landing / Onboarding Strings -->
+    <string name="language_english">English</string>
+    <string name="language_kannada">ಕನ್ನಡ</string>
+    <string name="language_updated_to">Language set to %1$s</string>
+    <string name="settings_preferences">Settings &amp; Preferences</string>
+    <string name="language_preference">Language Preference</string>
+    <string name="save_preferred_language">Save Preferred Language</string>
+    <string name="reminders_notification_settings">Reminders &amp; Notification Settings</string>
+    <string name="export_encrypted_health_data">Export Encrypted Health Data</string>
+    <string name="log_out_session">Log Out Session</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="sign_in_secure_cycle">Sign in to access your secure cycle journal</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="continue_guest_offline">Continue as Guest (Offline)</string>
+    <string name="no_account_signup">Don’t have an account? Sign Up</string>
+    <string name="create_account">Create Account</string>
+    <string name="join_mahila">Join Mahila for encrypted cycle and health insights</string>
+    <string name="full_name">Full Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="already_account_login">Already have an account? Log In</string>
+    <string name="landing_title">Your Personal Health &amp; Cycle Companion</string>
+    <string name="landing_welcome_title">Welcome to Mahila</string>
+    <string name="landing_description">Empowering women with intelligent cycle tracking, offline data security, and personalized health guidance.</string>
+    <string name="get_started">Get Started</string>
+    <string name="medical_assistance_title">Medical Assistance</string>
+    <string name="period_tracker_title">Period Tracker</string>
+    <string name="awareness_hub_title">Awareness Hub</string>
+    <string name="profile_health_title">Profile &amp; Health</string>
+    <string name="insights_analytics_title">Insights &amp; Analytics</string>
+    <string name="guest_user_label">Guest User</string>
+    <string name="guest_mode_label">Guest</string>
+    <string name="health_data_exported">Health data exported to JSON!</string>
+    <string name="please_enter_email_password">Please enter email and password</string>
+    <string name="login_response_missing_token">Login response did not contain a valid token</string>
+    <string name="could_not_parse_login">Could not parse login response</string>
+    <string name="login_failed">Login Failed</string>
+    <string name="error_building_request">Error building request</string>
+    <string name="please_fill_all_fields">Please fill in all fields</string>
+    <string name="invalid_email">Enter a valid email address</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="account_created_successfully">Account Created Successfully</string>
+    <string name="could_not_parse_registration">Could not parse registration response</string>
+    <string name="registration_failed">Registration Failed</string>
+    <string name="account_exists">Account already exists with email %1$s</string>
+    <string name="loading_login">Logging in…</string>
+    <string name="loading_signup">Creating Account…</string>
+    <string name="thinking">Thinking…</string>
+    <string name="send">Send</string>
+    <string name="please_enter_prompt">Please enter a question or prompt</string>
+    <string name="ai_fallback_notice">AI service unavailable. This is a local educational fallback, not a Gemini-generated answer.</string>
+    <string name="language_selection_required">Select a language</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="guest_mode_required_period">Guest Mode: Please log in to select period date.</string>
+    <string name="logged_out_successfully">Logged out successfully</string>
+    <string name="opening_medical_map_search">Opening Medical Map Search…</string>
+    <string name="opening_nearby_healthcare">Opening Nearby Healthcare Providers…</string>
+
     <string name="landing_badge" translatable="false">✨ Your Personal Health Companion</string>
     <string name="landing_hero_desc" translatable="false">Hero Illustration</string>
     <string name="landing_subtitle" translatable="false">Comprehensive cycle tracking, AI-powered wellness insights, secure medical assistance, and 24/7 care tailored for your health journey.</string>

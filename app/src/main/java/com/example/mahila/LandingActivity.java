@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 
-public class LandingActivity extends AppCompatActivity {
+public class LandingActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

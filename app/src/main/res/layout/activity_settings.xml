@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Settings &amp; Preferences"
+        android:text="@string/settings_preferences"
         android:fontFamily="@font/nunito"
         android:textSize="22sp"
         android:textColor="@color/deep_plum"
@@ -37,7 +37,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Language Preference"
+                android:text="@string/language_preference"
                 android:fontFamily="@font/nunito"
                 android:textColor="@color/deep_plum"
                 android:textSize="16sp"
@@ -54,7 +54,7 @@
                 android:id="@+id/btn_apply_language"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Save Preferred Language"
+                android:text="@string/save_preferred_language"
                 android:fontFamily="@font/nunito"
                 app:cornerRadius="14dp"
                 android:layout_marginBottom="12dp" />
@@ -63,7 +63,7 @@
                 android:id="@+id/btn_reminders"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Reminders &amp; Notification Settings"
+                android:text="@string/reminders_notification_settings"
                 android:fontFamily="@font/nunito"
                 app:cornerRadius="14dp"
                 android:layout_marginBottom="12dp" />
@@ -72,7 +72,7 @@
                 android:id="@+id/btn_export_data"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Export Encrypted Health Data"
+                android:text="@string/export_encrypted_health_data"
                 android:fontFamily="@font/nunito"
                 style="@style/Widget.Material3.Button.TonalButton"
                 app:cornerRadius="14dp"
@@ -82,7 +82,7 @@
                 android:id="@+id/btn_logout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Log Out Session"
+                android:text="@string/log_out_session"
                 android:fontFamily="@font/nunito"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 app:cornerRadius="14dp" />
