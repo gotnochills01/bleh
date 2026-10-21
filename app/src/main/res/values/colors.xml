@@ -65,6 +65,7 @@
     <color name="md_theme_light_onSurfaceVariant">#6E5A63</color>
     <color name="md_theme_light_outline">#9E8892</color>
     <color name="md_theme_light_outlineVariant">#DCD0D5</color>
+    <color name="bottom_nav_tint">#3B1F2B</color>
 
     <!-- Mahila Color System (Dark) -->
     <color name="md_theme_dark_background">#1E1519</color>

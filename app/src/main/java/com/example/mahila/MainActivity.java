@@ -11,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private DrawerLayout drawerLayout;
     private MaterialToolbar toolbar;
+    private NavigationView navigationView;
     private TokenManager tokenManager;
     private AppPreferences appPreferences;
 
@@ -51,8 +53,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawerLayout = findViewById(R.id.drawer_layout);
         toolbar = findViewById(R.id.main_toolbar);
-        NavigationView navigationView = findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        drawerLayout.setScrimColor(ContextCompat.getColor(this, R.color.deep_plum));
 
         // Edge-to-edge window insets
         View mainCoordinator = findViewById(R.id.main_coordinator);
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.drawer_insights);
 
         // Bottom Navigation Tab Switching
         bottomNav.setOnItemSelectedListener(item -> {
@@ -160,26 +164,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.drawer_insights) {
+            navigationView.setCheckedItem(id);
             navigateToInsights();
         } else if (id == R.id.drawer_nutrition) {
+            navigationView.setCheckedItem(id);
             startActivity(new Intent(this, NutritionActivity.class));
         } else if (id == R.id.drawer_settings || id == R.id.drawer_language) {
+            navigationView.setCheckedItem(id == R.id.drawer_settings ? R.id.drawer_settings : R.id.drawer_language);
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.drawer_notifications) {
+            navigationView.setCheckedItem(id);
             Toast.makeText(this, "Reminders and Notifications are active", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.drawer_privacy) {
+            navigationView.setCheckedItem(id);
             new AlertDialog.Builder(this)
                     .setTitle("Privacy & Security")
                     .setMessage("Mahila stores your cycle, health, and contacts securely. Data is encrypted and isolated per user.")
                     .setPositiveButton("Got it", null)
                     .show();
         } else if (id == R.id.drawer_about) {
+            navigationView.setCheckedItem(id);
             new AlertDialog.Builder(this)
                     .setTitle("About Mahila")
                     .setMessage("Mahila is an advanced personal health, cycle tracking, and medical companion for women.\nVersion 2.0 (Material Design 3)")
                     .setPositiveButton("Close", null)
                     .show();
         } else if (id == R.id.drawer_logout) {
+            navigationView.setCheckedItem(id);
             tokenManager.clear();
             appPreferences.logout();
             startActivity(new Intent(this, LoginActivity.class));
