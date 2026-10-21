@@ -481,6 +481,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_CONTACTS, null, selection, selectionArgs, null, null, KEY_ID + " DESC");
     }
 
+    public boolean updateContact(long contactId, String userEmail, String contactName, String contactPhone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_CONTACT_NAME, contactName);
+        values.put(KEY_CONTACT_PHONE, contactPhone);
+        values.put(KEY_IS_SYNCED, 0);
+        int count = db.update(TABLE_CONTACTS, values,
+                KEY_ID + " = ? AND " + KEY_USER_EMAIL + " = ?",
+                new String[]{String.valueOf(contactId), userEmail});
+        return count > 0;
+    }
+
+    public boolean deleteContact(long contactId, String userEmail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = db.delete(TABLE_CONTACTS,
+                KEY_ID + " = ? AND " + KEY_USER_EMAIL + " = ?",
+                new String[]{String.valueOf(contactId), userEmail});
+        return count > 0;
+    }
+
     // Moods
     public boolean saveMood(String userEmail, String moodType, int intensity, String loggedDate, boolean isSynced) {
         SQLiteDatabase db = this.getWritableDatabase();

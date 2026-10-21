@@ -137,6 +137,68 @@ public class ApiClient {
         });
     }
 
+    public static void putRequest(Context context, String endpoint, JSONObject body, ApiCallback<String> callback) {
+        executor.execute(() -> {
+            HttpURLConnection conn = null;
+            String fullUrl = buildFullUrl(endpoint);
+            Log.d(TAG, "Executing PUT request to: " + fullUrl);
+
+            try {
+                URL url = new URL(fullUrl);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                conn.setReadTimeout(READ_TIMEOUT_MS);
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+
+                TokenManager tm = new TokenManager(context);
+                String token = tm.getToken();
+                if (token != null && !token.trim().isEmpty()) {
+                    conn.setRequestProperty("Authorization", "Bearer " + token);
+                }
+
+                if (body != null) {
+                    conn.setDoOutput(true);
+                    try (OutputStream os = conn.getOutputStream()) {
+                        byte[] input = body.toString().getBytes(StandardCharsets.UTF_8);
+                        os.write(input, 0, input.length);
+                    }
+                }
+
+                int code = conn.getResponseCode();
+                Log.d(TAG, "PUT " + fullUrl + " returned status code: " + code);
+
+                if (code >= 200 && code < 300) {
+                    String response = readStream(conn.getInputStream());
+                    postToMainThread(() -> callback.onSuccess(response));
+                } else {
+                    String errorBody = readStream(conn.getErrorStream());
+                    String errorMessage = formatHttpErrorMessage(code, errorBody);
+                    Log.w(TAG, "PUT " + fullUrl + " failed: " + errorMessage);
+                    postToMainThread(() -> callback.onError(errorMessage));
+                }
+
+            } catch (ConnectException e) {
+                String msg = "Could not connect to server at " + fullUrl + ". Check server port 8080 or physical phone LAN IP settings.";
+                Log.e(TAG, msg, e);
+                postToMainThread(() -> callback.onError(msg));
+            } catch (SocketTimeoutException e) {
+                String msg = "Server connection timed out at " + fullUrl + ". Please try again.";
+                Log.e(TAG, msg, e);
+                postToMainThread(() -> callback.onError(msg));
+            } catch (Exception e) {
+                String msg = "Network error (" + e.getClass().getSimpleName() + "): " + e.getMessage();
+                Log.e(TAG, msg, e);
+                postToMainThread(() -> callback.onError(msg));
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        });
+    }
+
     public static void getRequest(Context context, String endpoint, ApiCallback<String> callback) {
         executor.execute(() -> {
             HttpURLConnection conn = null;

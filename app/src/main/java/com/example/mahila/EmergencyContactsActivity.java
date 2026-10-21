@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class EmergencyContactsActivity extends AppCompatActivity {
+public class EmergencyContactsActivity extends BaseActivity {
 
     private TokenManager tokenManager;
     private DatabaseHelper dbHelper;
@@ -110,7 +110,7 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle("Emergency Contacts");
+                getSupportActionBar().setTitle(R.string.emergency_contacts_title);
             }
             toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         }
@@ -184,7 +184,7 @@ public class EmergencyContactsActivity extends AppCompatActivity {
 
         String userEmail = getCurrentUserEmail();
         if (userEmail == null || userEmail.isEmpty()) {
-            Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.contact_login_required), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -192,12 +192,12 @@ public class EmergencyContactsActivity extends AppCompatActivity {
         String phone = phoneInput != null ? textOf(phoneInput) : "";
 
         if (name.length() < 2) {
-            if (nameLayout != null) nameLayout.setError("Enter a name with at least 2 characters.");
+            if (nameLayout != null) nameLayout.setError(getString(R.string.contact_name_error));
             return;
         }
 
         if (!isValidPhoneNumber(phone)) {
-            if (phoneLayout != null) phoneLayout.setError("Enter a valid phone number with 10 to 15 digits.");
+            if (phoneLayout != null) phoneLayout.setError(getString(R.string.contact_phone_error));
             return;
         }
 
@@ -207,42 +207,28 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             boolean sameNumber = contact.phone != null && contact.phone.replaceAll("\\D", "").equals(digits);
             boolean differentRecord = editingId == null || contact.id != editingId;
             if (sameNumber && differentRecord) {
-                if (phoneLayout != null) phoneLayout.setError("This phone number is already saved.");
-                return;
+                    if (phoneLayout != null) phoneLayout.setError(getString(R.string.contact_duplicate_phone));
+                    return;
+                }
             }
-        }
 
         boolean success;
         if (editingId == null) {
             success = dbHelper.saveContact(userEmail, name, phone, false);
             if (success) {
-                Toast.makeText(this, "Contact saved locally", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.contact_saved_local), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Failed to save contact", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.contact_save_failed), Toast.LENGTH_SHORT).show();
             }
         } else {
-            ContentValues cv = new ContentValues();
-            cv.put(DatabaseHelper.KEY_CONTACT_NAME, name);
-            cv.put(DatabaseHelper.KEY_CONTACT_PHONE, phone);
-            cv.put(DatabaseHelper.KEY_IS_SYNCED, 0);
-            int updatedRows = dbHelper.getWritableDatabase().update(
-                    DatabaseHelper.TABLE_CONTACTS,
-                    cv,
-                    DatabaseHelper.KEY_ID + " = ? AND " + DatabaseHelper.KEY_USER_EMAIL + " = ?",
-                    new String[]{String.valueOf(editingId), userEmail}
-            );
-            success = updatedRows > 0;
+            success = dbHelper.updateContact(editingId, userEmail, name, phone);
             if (success) {
-                Toast.makeText(this, "Contact updated locally", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.contact_updated_local), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Failed to update contact", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.contact_update_failed), Toast.LENGTH_SHORT).show();
             }
             editingId = null;
-            if (saveButton != null) saveButton.setText("Save Contact");
-        }
-
-        if (success) {
-            if (nameInput != null) nameInput.setText("");
+            if (saveButton != null) saveButton.setText(R.string.save_contact);
             if (phoneInput != null) phoneInput.setText("");
             showContacts();
         }
@@ -309,13 +295,9 @@ public class EmergencyContactsActivity extends AppCompatActivity {
     private void deleteContact(long id) {
         String userEmail = getCurrentUserEmail();
         if (userEmail != null && !userEmail.isEmpty()) {
-            int deletedRows = dbHelper.getWritableDatabase().delete(
-                    DatabaseHelper.TABLE_CONTACTS,
-                    DatabaseHelper.KEY_ID + " = ? AND " + DatabaseHelper.KEY_USER_EMAIL + " = ?",
-                    new String[]{String.valueOf(id), userEmail}
-            );
-            if (deletedRows <= 0) {
-                Toast.makeText(this, "Unable to delete contact", Toast.LENGTH_SHORT).show();
+            boolean deleted = dbHelper.deleteContact(id, userEmail);
+            if (!deleted) {
+                Toast.makeText(this, getString(R.string.contact_delete_failed), Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -324,11 +306,11 @@ public class EmergencyContactsActivity extends AppCompatActivity {
             editingId = null;
             if (nameInput != null) nameInput.setText("");
             if (phoneInput != null) phoneInput.setText("");
-            if (saveButton != null) saveButton.setText("Save Contact");
+            if (saveButton != null) saveButton.setText(R.string.save_contact);
         }
 
         showContacts();
-        Toast.makeText(this, "Contact deleted", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.contact_deleted), Toast.LENGTH_SHORT).show();
     }
 
     private String textOf(TextInputEditText input) {
