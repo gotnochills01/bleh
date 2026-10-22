@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 public class ApiClient {
 
     private static final String TAG = "ApiClient";
-    private static final String DEFAULT_EMULATOR_BASE_URL = "http://10.0.2.2:8080/";
+    private static final String DEFAULT_EMULATOR_BASE_URL = "http://10.166.42.93:8080/";
     private static String customBaseUrl = null;
 
     private static final int CONNECT_TIMEOUT_MS = 10000;
